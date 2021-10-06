@@ -1,0 +1,40 @@
+{
+  "skin_types": {
+    "dry": {
+      "description": "Dry skin is flaky, scaly, or rough.",
+      "steps": {
+        "cleanse": "Use a gentle cleanser that doesn't have alcohol or fragrances. Those ingredients can dry you out even more. Gently wash your skin, then rinse with plenty of warm water. Don't use hot water -- it removes the natural oils from your face faster. Try exfoliating once a week to get rid of flaky skin cells. It will make your skin look clearer and more even.",
+        "moisturize": "Apply moisturizer while your skin is still damp from washing or rinsing to help seal in moisture. If you have acne, find a moisturizer that's lightweight and oil-free, so it won't block your pores."
+      }
+    },
+    "oily": {
+      "description": "Oily skin is shiny, greaesy, and may have big pores.",
+      "steps": {
+        "cleanse": "Use an oil-free foaming cleanser to wash your face. Rinse with plenty of warm water. You may want to use a toner or astringent after, but be careful because it might irritate your skin. These products can remove extra oil, which makes your face less shiny, and help keep skin clean.",
+        "moisturize": "You may think you're too young to need moisturizer -- or your skin is too oily -- but all skin types need one every day. Apply it while your skin is still damp from washing or rinsing to help seal in moisture. If you have acne or your skin is oily, find a moisturizer that's lightweight and oil-free, so it won't block your pores."
+      }
+    }, 
+    "combination": {
+      "description": "Combination skin is dry in some spots (cheeks) and oily in others (forehead, nose, and chin - the T-zone).",
+      "steps": {
+        "cleanse": "Apply a gentle cleanser or soap with your fingertips. Don't scrub your face. Rinse with plenty of warm water, then pat dry. If your skin dries out or gets oily, try a different cleanser.",
+        "moisturize": "You may think you're too young to need moisturizer -- or your skin is too oily -- but all skin types need one every day. Apply it while your skin is still damp from washing or rinsing to help seal in moisture. If you have acne or your skin is oily, find a moisturizer that's lightweight and oil-free, so it won't block your pores."
+      }
+    }, 
+    "sensitive": {
+      "description": "Sensitive skin may sting, burn, or itch after you use some makeup or other products.",
+      "steps": {
+        "cleanse": "Wash your face with a gentle cleanser and rinse with warm water. Don't rub your skin with a towel -- gently pat it dry. Exfoliating may irritate sensitive skin. Try not to use products that have alcohol, soap, acid, or fragrance. Instead, look on the label for calming ingredients like aloe, chamomile, green tea polyphenols, and oats. The fewer ingredients in a product, the happier your face may be.",
+        "moisturize": "Apply moisturizer while your skin is still damp from washing or rinsing to help seal in moisture. If you have acne, find a moisturizer that's lightweight and oil-free, so it won't block your pores."
+      }
+    },
+    "normal": {
+      "description": "Normal skin is balanced, clear, and not sensitive.",
+      "steps": {
+        "cleanse": "Apply a gentle cleanser or soap with your fingertips. Don't scrub your face. Rinse with plenty of warm water, then pat dry. If your skin dries out or gets oily, try a different cleanser.",
+        "moisturize": "Apply moisturizer while your skin is still damp from washing or rinsing to help seal in moisture. If you have acne, find a moisturizer that's lightweight and oil-free, so it won't block your pores."
+      }
+    }
+  },
+  "source": "https://www.webmd.com/beauty/ss/slideshow-skincare-routine"
+}

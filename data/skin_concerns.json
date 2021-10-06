@@ -1,0 +1,27 @@
+[
+  {
+		"concern_id": "1",
+		"concern_name": "anti-aging",
+		"description": "Fine lines & sun damage"
+	},
+	{
+		"concern_id": "2",
+		"concern_name": "clarity",
+		"description": "Fine lines & sun damage"
+	},
+	{
+		"concern_id": "3",
+		"concern_name": "blemishes",
+		"description": "Blemishes & clogged pores"
+	},
+	{
+		"concern_id": "4",
+		"concern_name": "sensitive skin",
+		"description": ""
+	},
+	{
+		"concern_id": "5",
+		"concern_name": "acne",
+		"description": ""
+	}
+]
