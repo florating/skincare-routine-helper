@@ -7,36 +7,6 @@ db = SQLAlchemy()
 db_name = 'project_test'  # change when done with testing
 
 
-class User(db.Model):
-    """Create a User object for each app user."""
-    __tablename__ = 'users'
-
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    f_name = db.Column(db.String(25))
-    l_name = db.Column(db.String(25), nullable=True)
-    email = db.Column(db.String(50), nullable=False, unique=True)
-    
-    # change data type?
-    hashed_password = db.Column(db.String(50), nullable=False) 
-
-    # skincare-related:
-    skintype_id = db.Column(db.Integer, db.ForeignKey('skintype.skintype_id'), server_default='1')  # may need to change default skintype_id
-    primary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
-    secondary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
-
-    # If using Twilio API for text notifications:
-    # US phone numbers only, in format: '(555) 555-5555'
-    # phone_number = db.Column(db.String(14))
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-
-    concerns = db.relationship('Concern', backref='users')
-    skintype = db.relationship('Skintype', backref='users')
-    
-    # am_routines = list of AM_Routine objects
-    # pm_routines = list of PM_Routine objects
-    # cabinets = list of Cabinet objects (associated with skincare Product objects)
-
-
 class Concern(db.Model):
     """Create a Concern object for the concerns table."""
 
@@ -47,7 +17,8 @@ class Concern(db.Model):
     description = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
-    # users = list of User objects with this concern
+    # user_concern_1 = list of User objects with this concern listed as their primary concern
+    # user_concern_2 = list of User objects with this concern listed as their secondary concern
 
     def __repr__(self):
         return f"<Concern concern_id={self.concern_id} concern_name={self.concern_name}>"
@@ -67,6 +38,40 @@ class Skintype(db.Model):
 
     def __repr__(self):
         return f"<Skintype skintype_id={self.skintype_id} skintype_name={self.skintype_name}>"
+
+
+class User(db.Model):
+    """Create a User object for each app user."""
+    __tablename__ = 'users'
+
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    f_name = db.Column(db.String(25))
+    l_name = db.Column(db.String(25), nullable=True)
+    email = db.Column(db.String(50), nullable=False, unique=True)
+    
+    # change data type?
+    hashed_password = db.Column(db.String(50), nullable=False) 
+
+    # skincare-related:
+    skintype_id = db.Column(db.Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # may need to change default skintype_id
+    primary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
+    secondary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
+
+    # If using Twilio API for text notifications:
+    # US phone numbers only, in format: '(555) 555-5555'
+    # phone_number = db.Column(db.String(14))
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+
+    primary_concern = db.relationship('Concern', foreign_keys=[primary_concern_id], backref='user_concern_1')
+    secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
+    skintype = db.relationship('Skintype', backref='users')
+    
+    # am_routines = list of AM_Routine objects
+    # pm_routines = list of PM_Routine objects
+    # cabinets = list of Cabinet objects (associated with skincare Product objects)
+
+    def __repr__(self):
+        return f"<User user_id={self.user_id} email={self.email}>"
 
 
 class SkincareStep(db.Model):
@@ -124,24 +129,6 @@ class Category(db.Model):
         return f"<Category category_id={self.category_id} category_name={self.category_name}>"
 
 
-class Cabinet(db.Model):
-    """Create a Cabinet object for the cabinets table."""
-
-    __tablename__ = 'cabinets'
-
-    cabinet_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'))
-    status = db.Column(db.Boolean, nullable=False, default=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    
-    users = db.relationship('User', backref='cabinets')
-    products = db.relationship('Product', backref='cabinets')
-
-    def __repr__(self):
-        return f"<Cabinet cabinet_id={self.cabinet_id} user_id={self.user_id} status={self.status}>"
-
-
 class Product(db.Model):
     """Create a skincare Product object for the products table."""
 
@@ -149,12 +136,17 @@ class Product(db.Model):
 
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     product_name = db.Column(db.String(100), nullable=False)
-    brand_name = db.Column(db.String(25), nullable=False)
-    url = db.Column(db.String(100), nullable=True)
+    brand_name = db.Column(db.String(25), nullable=True)
+    product_url = db.Column(db.String(100), nullable=True)
     product_size = db.Column(db.String(20), nullable=True)
-    price_GBP = db.Column(db.Numeric, nullable=True)
+    price_GBP = db.Column(db.String(10), nullable=True)  # convert to Numeric later, and add price conversion into crud.py or here
     price_USD = db.Column(db.Numeric, nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
+
+    # Temporarily created the following 3 fields to handle data from Kaggle dataset. Will map it to Categories
+    product_type = db.Column(db.String(20))
+    ingredients = db.Column(db.Text)
+    clean_ingreds = db.Column(db.Text)
 
     # specific recommendations per Sephora dataset from jjone36:
     rec_combination = db.Column(db.Boolean, nullable=False, default=False)
@@ -178,22 +170,22 @@ class Product(db.Model):
         return f"<Product product_id={self.product_id} product_name={self.product_name} status={self.status}>"
 
 
-class ProductIngredient(db.Model):
-    """Create a ProductIngredient object for the product_ingredients table."""
+class Cabinet(db.Model):
+    """Create a Cabinet object for the cabinets table."""
 
-    __tablename__ = 'product_ingredients'
+    __tablename__ = 'cabinets'
 
-    prod_ing_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
-    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'), nullable=True)
-    abundance_order = db.Column(db.Integer)  # auto-increment, but restart at 1 for new product_id
+    cabinet_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'))
+    status = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
-    ingredients = db.relationship('Ingredient', backref='product_ingredients')
-    products = db.relationship('Product', backref='product_ingredients')
+    users = db.relationship('User', backref='cabinets')
+    products = db.relationship('Product', backref='cabinets')
 
     def __repr__(self):
-        return f"<ProductIngredient prod_ing_id={self.prod_ing_id} product_id={self.product_id} ingredient_id={self.ingredient_id} abundance_order={self.abundance_order}>"
+        return f"<Cabinet cabinet_id={self.cabinet_id} user_id={self.user_id} status={self.status}>"
 
 
 class Ingredient(db.Model):
@@ -213,7 +205,8 @@ class Ingredient(db.Model):
     reef_safe = db.Column(db.Boolean, default=False)
     has_fragrance = db.Column(db.Boolean, default=False)
 
-    # interactions = list of Interaction objects (adverse reactions)
+    # interactions1 = list of Interaction objects (adverse reactions)
+    # interactions2 = list of Interaction objects (adverse reactions)
     # product_ingredients = list of ProductIngredient objects
 
     def __repr__(self):
@@ -231,10 +224,29 @@ class Interaction(db.Model):
     reaction_description = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
-    ingredients = db.relationship('Ingredient', backref='interactions')
+    ingredient1 = db.relationship('Ingredient', foreign_keys=[first_ingredient_id], backref='interactions1')
+    ingredient2 = db.relationship('Ingredient', foreign_keys=[second_ingredient_id], backref='interactions2')
 
     def __repr__(self):
         return f"<Interaction interaction_id={self.interaction_id} first_ingredient_id={self.first_ingredient_id} second_ingredient_id={self.second_ingredient_id}>"
+
+
+class ProductIngredient(db.Model):
+    """Create a ProductIngredient object for the product_ingredients table."""
+
+    __tablename__ = 'product_ingredients'
+
+    prod_ing_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
+    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'), nullable=True)
+    abundance_order = db.Column(db.Integer)  # auto-increment, but restart at 1 for new product_id
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
+    ingredients = db.relationship('Ingredient', backref='product_ingredients')
+    products = db.relationship('Product', backref='product_ingredients')
+
+    def __repr__(self):
+        return f"<ProductIngredient prod_ing_id={self.prod_ing_id} product_id={self.product_id} ingredient_id={self.ingredient_id} abundance_order={self.abundance_order}>"
 
 
 class AMRoutine(db.Model):

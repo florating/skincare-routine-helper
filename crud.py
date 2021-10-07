@@ -1,5 +1,20 @@
-from model import User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
+from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
 
+FXN_DICT = {
+    'Cabinet': Cabinet,
+    'Category': Category,
+    'Concern': Concern,
+    'Ingredient': Ingredient,
+    'Interaction': Interaction,
+    'Product': Product,
+    'ProductIngredient': ProductIngredient,
+    'SkincareStep': SkincareStep,
+    'Skintype': Skintype,
+    'User': User,
+
+    'AMRoutine': AMRoutine,
+    'PMRoutine': PMRoutine
+}
 
 def create_user(**kwargs):
     """Create and return a new User object."""
@@ -13,14 +28,47 @@ def create_category(name, desc):
     return categ
 
 
-# def create_table_obj(table_class_name, **kwargs):
-#     """Create and return an instance of class table_class_name."""
-#     pass
+def create_table_obj(table_class_name, **kwargs):
+    """Create and return an instance of class table_class_name."""
+    # if 'price' in kwargs:
+    #     convert_price(kwargs, kwargs['price'])
+    if 'product' == table_class_name.lower():
+        kwargs.pop('ingredients')  # toss
+        ingreds = kwargs.pop('clean_ingreds')
+        obj = FXN_DICT[table_class_name.title()](**kwargs)
+        add_and_commit(obj)
+        
+        # Start adding ingredients to ingredients and product_ingredients tables:
+        # product_id = db.session.query(Product.product_id).count()
+        # for i, ingred in enumerate(ingreds):
+        #     ingred_obj = create_ingredient(ingred)
+        #     create_product_ingredient(p_id=product_id, ing_obj=ingred_obj, abundance_order=(i + 1))
+    else:   
+        obj = FXN_DICT[table_class_name.title()](**kwargs)
+        add_and_commit(obj)
+    return obj
 
 
-def create_concern(**kwargs):
+def convert_price(arg_dict, price_key):
+    """Convert price to Numeric data type and remove currency symbol.
+    This will also remove the price_key from arg_dict.
+    Returns modified arg_dict.
+    """
+    price_str = arg_dict[price_key]
+    # Convert price to USD if BP and vice versa
+    # FIXME: incomplete!
+    return arg_dict
+
+# def create_(**kwargs):
+#     """Create and return a new Concern object."""
+#     obj = Concern(**kwargs)
+#     add_and_commit(obj)
+#     return obj
+
+
+def create_concern(name, desc):
     """Create and return a new Concern object."""
-    obj = Concern(**kwargs)
+    obj = Concern(concern_name=name, description=desc)
     add_and_commit(obj)
     return obj
 
