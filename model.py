@@ -20,7 +20,7 @@ class User(db.Model):
     hashed_password = db.Column(db.String(50), nullable=False) 
 
     # skincare-related:
-    skintype_id = db.Column(db.Integer, db.ForeignKey('skintype.skintype_id'), server_default=1)
+    skintype_id = db.Column(db.Integer, db.ForeignKey('skintype.skintype_id'), server_default='1')  # may need to change default skintype_id
     primary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
     secondary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
 
@@ -132,7 +132,7 @@ class Cabinet(db.Model):
     cabinet_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'))
-    status = db.Column(db.Boolean, nullable=False, server_default=True)
+    status = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     users = db.relationship('User', backref='cabinets')
@@ -157,20 +157,21 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
 
     # specific recommendations per Sephora dataset from jjone36:
-    rec_combination = db.Column(db.Boolean, nullable=False, server_default=False)
-    rec_dry = db.Column(db.Boolean, nullable=False, server_default=False)
-    rec_normal = db.Column(db.Boolean, nullable=False, server_default=False)
-    rec_oily = db.Column(db.Boolean, nullable=False, server_default=False)
-    rec_sensitive = db.Column(db.Boolean, nullable=False, server_default=False)
+    rec_combination = db.Column(db.Boolean, nullable=False, default=False)
+    rec_dry = db.Column(db.Boolean, nullable=False, default=False)
+    rec_normal = db.Column(db.Boolean, nullable=False, default=False)
+    rec_oily = db.Column(db.Boolean, nullable=False, default=False)
+    rec_sensitive = db.Column(db.Boolean, nullable=False, default=False)
     
     # other fields that could be added:
-    fragrance_free = db.Column(db.Boolean, server_default=False)
+    fragrance_free = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     categories = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
+    # product_ingredients = list of ProductIngredient objects
 
 
     def __repr__(self):
@@ -204,14 +205,16 @@ class Ingredient(db.Model):
     common_name = db.Column(db.String(50), nullable=False)
     alternative_name = db.Column(db.String(50), nullable=True)
     active_type = db.Column(db.String(25), nullable=True, server_default=None)
-    pm_only = db.Column(db.Boolean, server_default=False)
+    pm_only = db.Column(db.Boolean, default=False)
     irritation_rating = db.Column(db.Integer)
-    endocrine_disruption = db.Column(db.Boolean, server_default=False)
-    carcinogenic = db.Column(db.Boolean, server_default=False)
-    pregnancy_safe = db.Column(db.Boolean, server_default=False)
-    reef_safe = db.Column(db.Boolean, server_default=False)
-    has_fragrance = db.Column(db.Boolean, server_default=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
+    endocrine_disruption = db.Column(db.Boolean, default=False)
+    carcinogenic = db.Column(db.Boolean, default=False)
+    pregnancy_safe = db.Column(db.Boolean, default=False)
+    reef_safe = db.Column(db.Boolean, default=False)
+    has_fragrance = db.Column(db.Boolean, default=False)
+
+    # interactions = list of Interaction objects (adverse reactions)
+    # product_ingredients = list of ProductIngredient objects
 
     def __repr__(self):
         return f"<Ingredient ingredient_id={self.ingredient_id} ingredient_name={self.ingredient_name} active_type={self.active_type}>"
@@ -243,7 +246,7 @@ class AMRoutine(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     step_id = db.Column(db.Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
-    status = db.Column(db.Boolean, server_default=True)
+    status = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     users = db.relationship('User', backref='am_routines')
@@ -268,7 +271,7 @@ class PMRoutine(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     step_id = db.Column(db.Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
-    status = db.Column(db.Boolean, server_default=True)
+    status = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     users = db.relationship('User', backref='pm_routines')
@@ -277,3 +280,14 @@ class PMRoutine(db.Model):
 
     def __repr__(self):
         return f"<PMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} status={self.status}>"
+
+
+def connect_to_db(flask_app, db_uri=f"postgresql:///{db_name}", echo=True):
+    flask_app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
+    flask_app.config["SQLALCHEMY_ECHO"] = echo
+    flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    db.app = flask_app
+    db.init_app(flask_app)
+
+    print("Connected to the db!")
