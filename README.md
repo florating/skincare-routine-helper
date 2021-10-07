@@ -9,9 +9,14 @@ This is an evidence-based app to help recommend skincare products and general ro
 
 **Setup database with ingredients:
 - [ ] setup sample dataset
-    - [x] sample_products.csv: 2 dummy products with < 10 ingredients
+    - [x] 10/06: sample_products.csv: 2 dummy products with < 10 ingredients
     - [ ] generate sample_ingredients database and save somewhere
-- [ ] test seeding the database
+- [x] 10/06: test seeding the database for skin_concerns.json
+    - [x] 10/06: seed_db.py
+    - [x] 10/06: started crud.py
+    - [ ] 10/07: setup file to load CSV and JSON files into the database
+    - [ ] setup server.py
+
 - [ ] seed the database
     - [ ] products
     - [ ] ingredients
@@ -19,8 +24,8 @@ This is an evidence-based app to help recommend skincare products and general ro
 
 **Display information about a product:
 - [x] setup other json files
-    - [x] about_steps.json
-    - [x] skin_concerns.json
+    - [x] 10/05: about_steps.json
+    - [x] 10/05: skin_concerns.json
 - [ ] setup product display page
 
 **Setup user login:
