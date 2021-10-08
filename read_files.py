@@ -9,6 +9,7 @@ TABLES_NO_DEPENDENCIES = {
     'Skintype'
 }
 
+
 def load_files(table_obj_name, filename):
     """Load JSON or CSV files into the database.
     
@@ -35,32 +36,26 @@ def load_csv(table_obj_name, filename):
     RETURNS: a list of objects that were inserted into the database.
         - eg: [<Concern concern_id=1 ...>, <Concern concern_id=2 ...>]
     """
-    header = []
+    print(f'\n\nStart loading data from {filename} into the {table_obj_name} table!\n\n')
     obj_in_db = []
+    # ingreds_list = []
     with open(f'data/{filename}', mode='r', encoding='utf-8-sig') as file:
         # Create a csv.reader object to read the csv file.
-        csvreader = csv.reader(file)  # delimiter?
+        csvreader = csv.DictReader(file)
 
-        header = next(csvreader)  # eg: header = ['Column1', 'Column2']
-        obj_params = {}
+        # eg: row = {'concern_id': 1, 'concern_name': 'acne', ...}
+        for row in csvreader:  
+            obj = crud.create_table_obj(table_obj_name, **row)
+            # print(f'obj={obj}')
+            # print('Time to go on to the next row or something!\n\n')
+            obj_in_db.append(obj)
+            if table_obj_name == 'Product':
+                print('OMG YES WE MADE IT FAM!!')
+                # ingreds_list.append(row['clean_ingreds'])
+                # crud.create_ingredients_cascade(obj, row['clean_ingreds'])
 
-        for row in csvreader:  # eg: row = ['1', 'hello']
-            for i, header_field in enumerate(header):
-                print(f'row={row}, i={i}')
-                print(f'for i={i}: row[i]={row[i]}')
-                print('*' * 20)
-                print()
-                obj_params[header_field] = row[i]  # row is 0-index
-            
-            if table_obj_name in TABLES_NO_DEPENDENCIES:
-                obj = crud.create_table_obj(table_obj_name, **obj_params)
-                print(f'obj={obj}')
-                print('Time to go on to the next row or something!\n\n')
-                obj_in_db.append(obj)
-            else:
-                pass
-        
-    print(f'Successfully loaded {filename} into the {table_obj_name} table.')
+    # use obj_in_db and ingreds_list to create entries in ingredients and product_ingredients tables
+    print(f'\n\nSuccessfully loaded {filename} into the {table_obj_name} table.\n\n')
     return obj_in_db
 
 

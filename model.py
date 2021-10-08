@@ -143,6 +143,7 @@ class Product(db.Model):
     brand_name = db.Column(db.String(25), nullable=True)
     product_url = db.Column(db.String(100), nullable=True)
     product_size = db.Column(db.String(20), nullable=True)
+    price = db.Column(db.String(10), nullable=True)  # convert to Numeric later, and add price conversion into crud.py or here
     price_GBP = db.Column(db.String(10), nullable=True)  # convert to Numeric later, and add price conversion into crud.py or here
     price_USD = db.Column(db.Numeric, nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))

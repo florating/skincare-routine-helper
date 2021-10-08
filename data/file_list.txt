@@ -2,4 +2,4 @@ Concern skin_concerns.json
 Category product_categories.csv
 SkincareStep skincare_steps.csv
 Skintype skintypes.csv
-Product sample_products.csv
+Product samp_products.csv

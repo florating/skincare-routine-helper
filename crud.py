@@ -1,4 +1,6 @@
 from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
+import ast
+
 
 FXN_DICT = {
     'Cabinet': Cabinet,
@@ -18,12 +20,6 @@ FXN_DICT = {
 
 # These table objects do not have dependencies.
 
-def create_category(name, desc):
-    """Create and return a new Category object."""
-    categ = Category(category_name=name, description=desc)
-    add_and_commit(categ)
-    return categ
-
 
 def create_table_obj(table_class_name, **kwargs):
     """Create and return an instance of class table_class_name.
@@ -35,8 +31,9 @@ def create_table_obj(table_class_name, **kwargs):
     """
     # if 'price' in kwargs:
     #     convert_price(kwargs, kwargs['price'])
+
     if 'product' == table_class_name.lower():
-        create_product_cascade(table_class_name, **kwargs)
+        obj = create_product_cascade(table_class_name, **kwargs)
         
         # Start adding ingredients to ingredients and product_ingredients tables:
         # product_id = db.session.query(Product.product_id).count()
@@ -59,33 +56,6 @@ def create_table_obj(table_class_name, **kwargs):
 #     # FIXME: incomplete!
 #     return arg_dict
 
-# def create_(**kwargs):
-#     """Create and return a new Concern object."""
-#     obj = Concern(**kwargs)
-#     add_and_commit(obj)
-#     return obj
-
-
-def create_concern(name, desc):
-    """Create and return a new Concern object."""
-    obj = Concern(concern_name=name, description=desc)
-    add_and_commit(obj)
-    return obj
-
-
-def create_skintype(name, desc):
-    """Create and return a new Skintype object."""
-    obj = Skintype(skintype_name=name, description=desc)
-    add_and_commit(obj)
-    return obj
-
-
-def create_skincarestep(name, desc):
-    """Create and return a new SkincareStep object."""
-    obj = SkincareStep(step_name=name, description=desc)
-    add_and_commit(obj)
-    return obj
-
 
 def create_user(**kwargs):
     """Create and return a new User object."""
@@ -101,30 +71,49 @@ def create_cabinet(u_id, p_id):
 
 def create_product_cascade(table_class_name, **kwargs):
     """Create and return a new Product object, while also populating the ingredients and product_ingredients tables."""
-    kwargs.pop('ingredients')  # toss
-    ingreds = kwargs.pop('clean_ingreds')
+
+    kwargs.pop('ingredients', None)  # toss
+    ingreds_list = kwargs.pop('clean_ingreds')
     prod_obj = FXN_DICT[table_class_name](**kwargs)
     db.session.add(prod_obj)
     db.session.flush()
-    product_id = prod_obj.product_id
-    print(f'prod_obj={prod_obj}, ingreds={ingreds}')
-    db.session.commit(obj)
+    print(f'prod_obj={prod_obj}, len(ingreds_list)={len(ingreds_list)}')
+    print('\n\n')
+    print(f'ingreds_list = {ingreds_list}')
+    print('\n\n')
+    # result was:
+    # prod_obj=<Product product_id=2 product_name=Weleda Baby Calendula Cream Bath (200ml) category_id=None>, len(ingreds_list)=200
+    actual_ingreds_list = convert_string_to_list(ingreds_list)
+
+    # When I'm feeling brave, I can use product_id to start adding ingredients to the ingredients and product_ingredients tables!
+    create_ingredients_cascade(prod_obj, actual_ingreds_list)
+
+    db.session.commit()
     return prod_obj
 
 
-# def create_product(name, brand, cat_name, url=None, product_size=None, price_GBP=None, price_USD=None):
-#     """Create and return a new Product object."""
-#     cat_id = db.session.query(Category).filter(Category.category_name == cat_name).first().category_id
-#     obj = Product(
-#         product_name=name,
-#         brand_name=brand,
-#         url=url,
-#         product_size=product_size,
-#         price_GBP=price_GBP,
-#         price_USD=price_USD,
-#         category_id=cat_id)
-#     add_and_commit(obj)
-#     return obj
+def convert_string_to_list(list_str):
+    """Convert a list of ingredient names (in string form from a CSV file) into an actual list."""
+    # list_str = ingreds_list = ['prunus amygdalus dulcis', 'sesamium indicum seed oil', 'alcohol', 'glycerin', 'glyceryl oleate', 'calendula officinalis extract', 'sodium cera alba', 'xanthan gum', 'parfum', 'limonene', 'linalool']
+    processed_str = ast.literal_eval(list_str)
+    return processed_str
+
+
+def create_ingredients_cascade(product_obj, ingredient_list):
+    """Create entries for a list of ingredient names in both the ingredients and product_ingredients tables.
+    
+    PARAMETERS:
+        - product_obj (Product object):
+        - ingredient_list (list): a list of strings, referring to the common_names of an Ingredient object
+
+    RETURNS:
+        ???
+    """
+
+    p_id = product_obj.product_id
+    for i, ing_name in enumerate(ingredient_list):
+        ing_obj = create_ingredient(ing_name)
+        create_product_ingredient(p_id, ing_obj, i + 1)
 
 
 def create_ingredient(name, alt_name=None):
@@ -132,7 +121,7 @@ def create_ingredient(name, alt_name=None):
     obj = Ingredient(
         common_name=name,
         alternative_name=alt_name)
-    add_and_commit(obj)
+    db.session.add(obj)
     return obj
 
 
@@ -142,7 +131,7 @@ def create_product_ingredient(p_id, ing_obj, abundance_order):
         product_id=p_id, 
         ingredient_id=ing_obj.ingredient_id, 
         abundance_order=abundance_order)
-    add_and_commit(obj)
+    db.session.add(obj)
     return obj
 
 
