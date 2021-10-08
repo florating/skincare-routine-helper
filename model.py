@@ -1,8 +1,10 @@
 """Models for the Skincare Routine Helper app."""
 
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 
+app = Flask(__name__)
 db = SQLAlchemy()
 db_name = 'project_test'  # change when done with testing
 
@@ -13,8 +15,8 @@ class Concern(db.Model):
     __tablename__ = 'concerns'
 
     concern_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    concern_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.String(200), nullable=False)
+    concern_name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     # user_concern_1 = list of User objects with this concern listed as their primary concern
@@ -31,7 +33,7 @@ class Skintype(db.Model):
 
     skintype_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     skintype_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     # users = list of User objects with this skintype
@@ -81,7 +83,8 @@ class SkincareStep(db.Model):
 
     step_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     step_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    # product_type_id = which products are acceptable for this step?
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     # am_routines = list of AM_Routine objects, linked to individual steps in the routine
@@ -100,6 +103,7 @@ class Category(db.Model):
         Oil
         Mist
         Balm
+        Mask
         Peel
         Eye Care
         Cleanser
@@ -120,7 +124,7 @@ class Category(db.Model):
 
     category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     category_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     # products = list of Product objects
@@ -163,11 +167,11 @@ class Product(db.Model):
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
-    # product_ingredients = list of ProductIngredient objects
+    product_ingredients = db.relationship('ProductIngredient', back_populates='products')
 
 
     def __repr__(self):
-        return f"<Product product_id={self.product_id} product_name={self.product_name} status={self.status}>"
+        return f"<Product product_id={self.product_id} product_name={self.product_name} category_id={self.category_id}>"
 
 
 class Cabinet(db.Model):
@@ -196,6 +200,7 @@ class Ingredient(db.Model):
     ingredient_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     common_name = db.Column(db.String(50), nullable=False)
     alternative_name = db.Column(db.String(50), nullable=True)
+
     active_type = db.Column(db.String(25), nullable=True, server_default=None)
     pm_only = db.Column(db.Boolean, default=False)
     irritation_rating = db.Column(db.Integer)
@@ -204,10 +209,11 @@ class Ingredient(db.Model):
     pregnancy_safe = db.Column(db.Boolean, default=False)
     reef_safe = db.Column(db.Boolean, default=False)
     has_fragrance = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     # interactions1 = list of Interaction objects (adverse reactions)
     # interactions2 = list of Interaction objects (adverse reactions)
-    # product_ingredients = list of ProductIngredient objects
+    product_ingredients = db.relationship('ProductIngredient', back_populates='ingredients')
 
     def __repr__(self):
         return f"<Ingredient ingredient_id={self.ingredient_id} ingredient_name={self.ingredient_name} active_type={self.active_type}>"
@@ -221,7 +227,7 @@ class Interaction(db.Model):
     interaction_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'))
     second_ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'))
-    reaction_description = db.Column(db.String(100), nullable=False)
+    reaction_description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     ingredient1 = db.relationship('Ingredient', foreign_keys=[first_ingredient_id], backref='interactions1')
@@ -242,8 +248,8 @@ class ProductIngredient(db.Model):
     abundance_order = db.Column(db.Integer)  # auto-increment, but restart at 1 for new product_id
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
-    ingredients = db.relationship('Ingredient', backref='product_ingredients')
-    products = db.relationship('Product', backref='product_ingredients')
+    ingredients = db.relationship('Ingredient', back_populates='product_ingredients')
+    products = db.relationship('Product', back_populates='product_ingredients')
 
     def __repr__(self):
         return f"<ProductIngredient prod_ing_id={self.prod_ing_id} product_id={self.product_id} ingredient_id={self.ingredient_id} abundance_order={self.abundance_order}>"
@@ -303,3 +309,14 @@ def connect_to_db(flask_app, db_uri=f"postgresql:///{db_name}", echo=True):
     db.init_app(flask_app)
 
     print("Connected to the db!")
+
+
+if __name__ == '__main__':
+    import os
+
+    os.system('dropdb project_test --if-exists')
+    os.system('createdb project_test')
+
+    connect_to_db(app)
+
+    db.create_all()

@@ -4,7 +4,7 @@ import crud, model, read_files
 from random import choice, randint
 from flask import Flask
 
-os.system('dropdb project_test')
+os.system('dropdb project_test --if-exists')
 os.system('createdb project_test')
 
 app = Flask(__name__)
@@ -15,7 +15,7 @@ model.db.create_all()
 # concerns_in_db = []
 # obj_in_db = []
 
-files_to_load = 'data/file_list.txt'
+files_to_load = 'data/file_list_test2.txt'
 added_objects_dict = read_files.main(files_to_load)
 
 print(f'added_objects_dict.keys() = {added_objects_dict.keys()}')
