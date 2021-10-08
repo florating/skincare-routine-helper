@@ -13,7 +13,7 @@ model.connect_to_db(app)
 model.db.create_all()
 
 # can use data/file_list_test2.txt to test
-files_to_load = 'data/file_list_test2.txt'
+files_to_load = 'data/file_list.txt'
 added_objects_dict = read_files.main(files_to_load)
 
 print(f'list(added_objects_dict.keys()) = {list(added_objects_dict.keys())}')

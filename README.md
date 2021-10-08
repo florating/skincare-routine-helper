@@ -4,7 +4,7 @@
 1. [Overview](#overview)
 2. [Instructions](#instructions)
 3. [Next Steps](#next-steps)
-4. [Completed Steps](#completed-steps)
+4. [Task List](#task-list)
 
 ## Overview
 This is an evidence-based app to help recommend skincare products and general routines based on area of concern and ingredient safety. The app recommends products based on data analytics of user profiles, allowing users to filter for products that are reef-safe, pregnancy-safe, fragrance-free, etc.
@@ -28,11 +28,24 @@ This is an evidence-based app to help recommend skincare products and general ro
 *[Click here](#the-skincare-routine-helper) to go back to the top.*
 #
 ## Next Steps
+- [ ] request API keys
+- [ ] request dataset
+- [ ] setup the server
+- [ ] setup the homepage
+
+
+## Task List
 #### **General:**
 - [ ] request API keys
 - [ ] request dataset
 - [ ] setup the server
 - [ ] setup the homepage
+
+#### **Data model:**
+- [x] 10/06: create data models, [using dbdiagram.io](https://dbdiagram.io/)
+- [x] 10/06: setup model.py
+- [ ] add liked/disliked products
+    - [ ] sanitize comment section
 
 #### **Setup databases with sample data:**
 - [ ] setup sample dataset
@@ -45,7 +58,7 @@ This is an evidence-based app to help recommend skincare products and general ro
     - [x] 10/06: seed_db.py
     - [x] 10/06: started crud.py
     - [x] 10/07: setup file to load CSV and JSON files into the database
-- [x] 10/08: seed the database
+- [x] 10/07: seed the database
     - [x] 10/07: products
     - [x] 10/07: ingredients
     - [x] 10/07: product_ingredients
@@ -75,7 +88,6 @@ This is an evidence-based app to help recommend skincare products and general ro
 
 #
 ## Completed Steps
-- [x] 10/06: create data models, [using dbdiagram.io](https://dbdiagram.io/)
-- [x] 10/06: setup model.py
+
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*

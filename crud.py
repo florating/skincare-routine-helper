@@ -1,5 +1,7 @@
 from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
-import ast
+import ast, re
+from re import sub
+from decimal import Decimal
 
 
 FXN_DICT = {
@@ -18,8 +20,6 @@ FXN_DICT = {
     'PMRoutine': PMRoutine
 }
 
-# These table objects do not have dependencies.
-
 
 def create_table_obj(table_class_name, **kwargs):
     """Create and return an instance of class table_class_name.
@@ -34,27 +34,29 @@ def create_table_obj(table_class_name, **kwargs):
 
     if 'product' == table_class_name.lower():
         obj = create_product_cascade(table_class_name, **kwargs)
-        
-        # Start adding ingredients to ingredients and product_ingredients tables:
-        # product_id = db.session.query(Product.product_id).count()
-        # for i, ingred in enumerate(ingreds):
-        #     ingred_obj = create_ingredient(ingred)
-        #     create_product_ingredient(p_id=product_id, ing_obj=ingred_obj, abundance_order=(i + 1))
     else:   
         obj = FXN_DICT[table_class_name](**kwargs)
         add_and_commit(obj)
     return obj
 
 
-# def convert_price(arg_dict, price_key):
-#     """Convert price to Numeric data type and remove currency symbol.
-#     This will also remove the price_key from arg_dict.
-#     Returns modified arg_dict.
-#     """
-#     price_str = arg_dict[price_key]
-#     # Convert price to USD if BP and vice versa
-#     # FIXME: incomplete!
-#     return arg_dict
+def convert_price(arg_dict, price_key):
+    """Convert price to Numeric data type and remove currency symbol.
+    This will also remove the price_key from arg_dict.
+    Returns modified arg_dict.
+    """
+    price_str = arg_dict[price_key]
+    if re.search(r"^(\$|\£)", price_str):
+        value = Decimal(sub(r'[^\d.]', '', price_str))
+        price_symbol = price_str[:1]
+    if price_symbol == '£':
+        arg_dict['price_GBP'] = value
+        # convert to USD
+        # arg_dict['price_USD'] = price_USD
+        # FIXME: incomplete!
+    elif price_symbol == '$':
+        arg_dict['price_USD'] = price_USD
+    return arg_dict
 
 
 def create_user(**kwargs):
@@ -70,26 +72,47 @@ def create_cabinet(u_id, p_id):
 
 
 def create_product_cascade(table_class_name, **kwargs):
-    """Create and return a new Product object, while also populating the ingredients and product_ingredients tables."""
+    """Create and return a new Product object, while also populating the ingredients and product_ingredients tables.
+    
+    PARAMETERS:
+        - table_class_name (str): name of the table object class (eg: 'Product')
+        - kwargs (dict): a dictionary with key-value pairs for class attribute and value
+            - for Product objects:
+                - kwargs['clean_ingreds'] = "['xanthan gum', 'parfum', 'limonene', 'linalool']" (for example)
+                - calls create_ingredients_cascade() to populate ingredients and product_ingredients tables
+
+    RETURNS:
+        - a Product object, if it was inserted into the table
+        - None, if this product already exists in the database.
+    """
 
     kwargs.pop('ingredients', None)  # toss
+    prod_type = kwargs.pop('product_type', None)
+    if prod_type is not None:
+         cat_obj = Category.query.filter(Category.category_name == prod_type).first()
+         if cat_obj is not None:
+            kwargs['category_id'] = cat_obj.category_id
     ingreds_list = kwargs.pop('clean_ingreds')
-    prod_obj = FXN_DICT[table_class_name](**kwargs)
+
+    prod_obj = Product(**kwargs)
+
+    # FIXME: check if prod_obj.product_name already exists in products table
+    # if Product.query.filter(Product.product_name == prod_obj.product_name).all():
     db.session.add(prod_obj)
     db.session.flush()
-    print(f'prod_obj={prod_obj}, len(ingreds_list)={len(ingreds_list)}')
-    print('\n\n')
-    print(f'ingreds_list = {ingreds_list}')
-    print('\n\n')
-    # result was:
-    # prod_obj=<Product product_id=2 product_name=Weleda Baby Calendula Cream Bath (200ml) category_id=None>, len(ingreds_list)=200
+
+    # result could be:
+    # prod_obj = <Product product_id=2 product_name=Weleda Baby Calendula Cream Bath (200ml) category_id=None>
+    # len(ingreds_list) = 200
+
     actual_ingreds_list = convert_string_to_list(ingreds_list)
-
-    # When I'm feeling brave, I can use product_id to start adding ingredients to the ingredients and product_ingredients tables!
     create_ingredients_cascade(prod_obj, actual_ingreds_list)
-
     db.session.commit()
+    print('Session committed!\n\n')
     return prod_obj
+    # else:
+    #     print('Product with this name already exists in the database.')
+    #     return None
 
 
 def convert_string_to_list(list_str):
@@ -111,9 +134,17 @@ def create_ingredients_cascade(product_obj, ingredient_list):
     """
 
     p_id = product_obj.product_id
+    created_ing_objs = []
     for i, ing_name in enumerate(ingredient_list):
-        ing_obj = create_ingredient(ing_name)
+        ing_obj = Ingredient.query.filter(Ingredient.common_name == ing_name).first()
+        if ing_obj is None:
+            ing_obj = create_ingredient(ing_name)
+            created_ing_objs.append(ing_obj)
         create_product_ingredient(p_id, ing_obj, i + 1)
+    print(f'Sucessfully added {len(created_ing_objs)} ingredient(s) from \n\
+        ingredient_list of length {len(ingredient_list)} to the Ingredient table. \n\
+        Also simultaneously added {len(ingredient_list)} the ProductIngredient table\n\
+        (both not yet committed).')
 
 
 def create_ingredient(name, alt_name=None):
