@@ -117,7 +117,7 @@ def create_product_cascade(table_class_name, **kwargs):
 
 def convert_string_to_list(list_str):
     """Convert a list of ingredient names (in string form from a CSV file) into an actual list."""
-    # list_str = ingreds_list = ['prunus amygdalus dulcis', 'sesamium indicum seed oil', 'alcohol', 'glycerin', 'glyceryl oleate', 'calendula officinalis extract', 'sodium cera alba', 'xanthan gum', 'parfum', 'limonene', 'linalool']
+    # list_str = ingreds_list = ['glycerin', 'glyceryl oleate', 'calendula officinalis extract']
     processed_str = ast.literal_eval(list_str)
     return processed_str
 
@@ -143,8 +143,8 @@ def create_ingredients_cascade(product_obj, ingredient_list):
         create_product_ingredient(p_id, ing_obj, i + 1)
     print(f'Sucessfully added {len(created_ing_objs)} ingredient(s) from \n\
         ingredient_list of length {len(ingredient_list)} to the Ingredient table. \n\
-        Also simultaneously added {len(ingredient_list)} the ProductIngredient table\n\
-        (both not yet committed).')
+        Also simultaneously added {len(ingredient_list)} the ProductIngredient table.\n\
+        (Both not yet committed.)')
 
 
 def create_ingredient(name, alt_name=None):
@@ -170,6 +170,16 @@ def add_and_commit(table_obj):
     """Add this object (table_obj) to the database."""
     db.session.add(table_obj)
     db.session.commit()
+
+
+def get_obj_by_id(class_name, obj_id):
+    """Return a class_name object (eg: User) by its id."""
+    return FXN_DICT[class_name].query.get(obj_id)
+
+
+def get_user_by_email(email):
+    """Return a User object by its email address."""
+    return User.query.filter(email=email).first()
 
 
 if __name__ == '__main__':

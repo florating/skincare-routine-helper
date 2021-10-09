@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Account Registration
+{% endblock title %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+
+{% block body %}
+<h1>Would you like to register for an account?</h1>
+<a href="/register">Click here</a> to register for an account.
+<div>
+  <form id="login" action="/register">
+        <label>First Name:</label><input name="f_name"/>    
+        <label>Last Name:</label><input name="l_name"/>
+		<label>Email:</label><input name="email"/>
+        <!-- Add tooltip about password requirements! -->
+        <div class="tool-tip" id="password-requireemnts">Passwords must be:
+            <ul>
+                <li>Have between eight and twelve characters</li>
+                <li>Contain at least one uppercase letter</li>
+                <li>Contain at least one lowercase letter</li>
+                <li>Contain at least one number</li>
+                <li>Contain at least one special character</li>
+            </ul>
+        </div>
+		<label>Password:</label><input name="password" type="text" maxlength="16" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$"/>
+		<label>Confirm Password:</label><input name="password_2"/>
+		<!-- only allow submission if passwords match -->
+        <!-- Change maxlength? and how do we check that the passwords match? -->
+		<input type="submit">
+	</form>
+</div>
+{% endblock body %}

@@ -1,13 +1,13 @@
 """Models for the Skincare Routine Helper app."""
 
-from flask import Flask
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 
-app = Flask(__name__)
+print("Hello, I'm in model.py and __name__ = {__name__}!")
+
 db = SQLAlchemy()
 db_name = 'project_test'  # change when done with testing
-
 
 class Concern(db.Model):
     """Create a Concern object for the concerns table."""
@@ -71,6 +71,13 @@ class User(db.Model):
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
+
+
+    def check_password(self, input_password):
+        """Return True if input_password is the correct password."""
+        # FIXME: use werkzeug?
+        return check_password_hash(self.hashed_password, input_password)
+
 
     def __repr__(self):
         return f"<User user_id={self.user_id} email={self.email}>"
@@ -164,7 +171,7 @@ class Product(db.Model):
     fragrance_free = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
-    categories = db.relationship('Category', backref='products')
+    category = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
@@ -313,11 +320,13 @@ def connect_to_db(flask_app, db_uri=f"postgresql:///{db_name}", echo=True):
 
 
 if __name__ == '__main__':
+    print("Hello, I'm in model.py's special statement since __name__ == '__main__'!")
     import os
-
     os.system('dropdb project_test --if-exists')
     os.system('createdb project_test')
 
-    connect_to_db(app)
+    from flask import Flask
+    app = Flask(__name__)
 
-    db.create_all()
+    connect_to_db(app)
+    db.create_all()    
