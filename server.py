@@ -7,7 +7,7 @@ import crud, model
 from jinja2 import StrictUndefined
 import os
 
-print("Hello, I'm in server.py and __name__ = {__name__}!")
+print(f"Hello, I'm in server.py and __name__ = {__name__}!")
 
 app = Flask(__name__)
 

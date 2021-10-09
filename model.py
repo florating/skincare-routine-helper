@@ -4,10 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 
-print("Hello, I'm in model.py and __name__ = {__name__}!")
+print(f"Hello, I'm in model.py and __name__ = {__name__}!")
 
 db = SQLAlchemy()
-db_name = 'project_test'  # change when done with testing
+db_name = 'project_test'  # FIXME: change when done with testing
 
 class Concern(db.Model):
     """Create a Concern object for the concerns table."""
@@ -51,11 +51,11 @@ class User(db.Model):
     l_name = db.Column(db.String(25), nullable=True)
     email = db.Column(db.String(50), nullable=False, unique=True)
     
-    # change data type?
+    # FIXME: change data type?
     hashed_password = db.Column(db.String(50), nullable=False) 
 
     # skincare-related:
-    skintype_id = db.Column(db.Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # may need to change default skintype_id
+    skintype_id = db.Column(db.Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # FIXME: may need to change default skintype_id
     primary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
     secondary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
 
@@ -150,12 +150,12 @@ class Product(db.Model):
     brand_name = db.Column(db.String(25), nullable=True)
     product_url = db.Column(db.String(100), nullable=True)
     product_size = db.Column(db.String(20), nullable=True)
-    price = db.Column(db.String(10), nullable=True)  # convert to Numeric later, and add price conversion into crud.py or here
-    price_GBP = db.Column(db.String(10), nullable=True)  # convert to Numeric later, and add price conversion into crud.py or here
+    price = db.Column(db.String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
+    price_GBP = db.Column(db.String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
     price_USD = db.Column(db.Numeric, nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
 
-    # Temporarily created the following 3 fields to handle data from Kaggle dataset. Will map it to Categories
+    # FIXME: Temporarily created the following 3 fields to handle data from Kaggle dataset. Will map it to Categories
     product_type = db.Column(db.String(20))
     ingredients = db.Column(db.Text)
     clean_ingreds = db.Column(db.Text)
