@@ -52,7 +52,7 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False, unique=True)
     
     # FIXME: change data type?
-    hashed_password = db.Column(db.String(50), nullable=False) 
+    hashed_password = db.Column(db.String(200), nullable=False) 
 
     # skincare-related:
     skintype_id = db.Column(db.Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # FIXME: may need to change default skintype_id
@@ -321,12 +321,11 @@ def connect_to_db(flask_app, db_uri=f"postgresql:///{db_name}", echo=True):
 
 if __name__ == '__main__':
     print("Hello, I'm in model.py's special statement since __name__ == '__main__'!")
-    import os
-    os.system('dropdb project_test --if-exists')
-    os.system('createdb project_test')
+    # import os
+    # os.system('dropdb project_test --if-exists')
+    # os.system('createdb project_test')
 
-    from flask import Flask
-    app = Flask(__name__)
+    from server import app
 
     connect_to_db(app)
     db.create_all()    

@@ -1,11 +1,13 @@
 """Server for the skincare routine helper."""
+# import os
 
-from flask import Flask, render_template, redirect, flash, session, request
-from werkzeug.security import generate_password_hash, check_password_hash
-from model import db, connect_to_db
-import crud, model
+from flask import flash, Flask, redirect, render_template, request, session, url_for
 from jinja2 import StrictUndefined
-import os
+from werkzeug.security import generate_password_hash, check_password_hash
+
+import crud
+import model
+from model import db, connect_to_db
 
 print(f"Hello, I'm in server.py and __name__ = {__name__}!")
 
@@ -13,8 +15,9 @@ app = Flask(__name__)
 
 # SECRET_KEY = os.environ['SECRET_KEY']
 # FIXME: set app configurations for SECRET_KEY later, after fixing secrets.sh
-app.config['SECRET_KEY'] = 'secret'
+app.secret_key = 'secret'
 app.jinja_env.undefined = StrictUndefined
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 @app.route('/')
@@ -70,7 +73,7 @@ def process_login():
         session.clear()
         session['user_email'] = user.email
         flash('Welcome, you have successfully logged in.')
-        return redirect('/users', user_id=user.user_id)
+        return redirect(url_for('/users', user_id=user.user_id))
     
     flash(error)
     return redirect('/')

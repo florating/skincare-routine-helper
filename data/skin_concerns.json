@@ -1,27 +1,27 @@
 [
     {
-        "concern_id": "10",
-        "concern_name": "anti-aging",
-        "description": "Fine lines & sun damage"
+        "concern_id": "1",
+        "concern_name": "acne",
+        "description": ""
     },
     {
         "concern_id": "2",
-        "concern_name": "clarity",
-        "description": "Fine lines & sun damage"
+        "concern_name": "aging",
+        "description": "Signs of aging include fine lines and wrinkles, dark spots, rough skin texture, and uneven complexion. The best prevention is to limit sun exposure throughout your life and protect your skin with sunscreen."
     },
     {
         "concern_id": "3",
-        "concern_name": "blemishes",
-        "description": "Blemishes & clogged pores"
+        "concern_name": "inflammation and redness",
+        "description": "Common signs include redness and puffiness, rough skin texture, and stinging sensations."
     },
     {
         "concern_id": "4",
-        "concern_name": "sensitive skin",
-        "description": ""
+        "concern_name": "dullness",
+        "description": "Lackluster, unhealthy complexion. This can occur for many reasons, but the two most common ones are a buildup of dead skin cells, and a lack of oxygen supply in the skin."
     },
     {
         "concern_id": "5",
-        "concern_name": "acne",
-        "description": ""
+        "concern_name": "large pores",
+        "description": "Skin with large pores are normally caused by genetic factors and cannot shrink. However, certain products may help reduce the appearance of their size by clearing up oil within the pores."
     }
 ]

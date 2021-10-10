@@ -1,6 +1,17 @@
 """Initialize the database for tables with no/minimal dependencies."""
 
-import sys, os, json, csv
+import csv
+import json
+import os
+from random import choice, randint
+import sys
+
+# from flask import Flask
+
+import crud
+import model
+import read_files
+# import server?
 
 # os.system('. secrets.sh')  # fix this after figuring out API keys... in server.py
 
@@ -15,10 +26,6 @@ print(f'NOTE: parent = {parent}\n')
 # Adding the parent directory to the sys.path.
 sys.path.append(parent)
 
-import crud, model, read_files
-# import server?
-from random import choice, randint
-# from flask import Flask
 
 os.system('dropdb project_test --if-exists')
 os.system('createdb project_test')
