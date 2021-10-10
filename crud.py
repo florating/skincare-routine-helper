@@ -1,7 +1,9 @@
-from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
-import ast, re
-from re import sub
+import ast
 from decimal import Decimal
+import re
+from re import sub
+
+from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
 
 
 FXN_DICT = {
@@ -45,17 +47,21 @@ def convert_price(arg_dict, price_key):
     This will also remove the price_key from arg_dict.
     Returns modified arg_dict.
     """
+    
     price_str = arg_dict[price_key]
+
     if re.search(r"^(\$|\£)", price_str):
         value = Decimal(sub(r'[^\d.]', '', price_str))
         price_symbol = price_str[:1]
+
     if price_symbol == '£':
         arg_dict['price_GBP'] = value
         # convert to USD
         # arg_dict['price_USD'] = price_USD
         # FIXME: incomplete!
     elif price_symbol == '$':
-        arg_dict['price_USD'] = price_USD
+        arg_dict['price_USD'] = value
+
     return arg_dict
 
 
@@ -115,9 +121,19 @@ def create_product_cascade(table_class_name, **kwargs):
     #     return None
 
 
+def check_if_obj_exists(class_name, param_key, param_val):
+    """Return True if object with this key-value pair already exists in the database."""
+    class_fxn = FXN_DICT[class_name]
+    obj = class_fxn.query.filter_by(param_key=param_val).first()
+    return not not obj
+
+
 def convert_string_to_list(list_str):
-    """Convert a list of ingredient names (in string form from a CSV file) into an actual list."""
-    # list_str = ingreds_list = ['glycerin', 'glyceryl oleate', 'calendula officinalis extract']
+    """Convert a list of ingredient names (in string form from a CSV file) into an actual list.
+    
+    >>> convert_string_to_list('['ingred_1', 'ingred_2', 'ingred_3']')
+    ['ingred_1', 'ingred_2', 'ingred_3']
+    """
     processed_str = ast.literal_eval(list_str)
     return processed_str
 
@@ -177,11 +193,26 @@ def get_obj_by_id(class_name, obj_id):
     return FXN_DICT[class_name].query.get(obj_id)
 
 
+def get_obj_by_param(class_name, param_key, param_val):
+    """Return a class_name object (eg: User) by its expected key-value pair."""
+    class_fxn = FXN_DICT[class_name]
+    return class_fxn.query.filter(class_fxn.param_key == param_val)
+
+
 def get_user_by_email(email):
     """Return a User object by its email address."""
-    return User.query.filter(email=email).first()
+    return User.query.filter_by(email=email).first()
+
+
+def get_all_objs(class_name):
+    """Return a list of all class_name objects."""
+    return db.session.query(class_name).all()
 
 
 if __name__ == '__main__':
-    from model import app
+    import doctest
+
+    from server import app
+    
+    doctest.testmod()
     connect_to_db(app)

@@ -6,10 +6,10 @@
 3. [Next Steps](#next-steps)
 4. [Task List](#task-list)
 
+
 ## Overview
 This is an evidence-based app to help recommend skincare products and general routines based on area of concern and ingredient safety. The app recommends products based on data analytics of user profiles, allowing users to filter for products that are reef-safe, pregnancy-safe, fragrance-free, etc.
 
-#
 
 ## Instructions
 1. Setup virtual environment:
@@ -17,16 +17,15 @@ This is an evidence-based app to help recommend skincare products and general ro
     * `source env/bin/activate`
     * `pip3 install -r requirements.txt`
 2. Run seed_db.py:
-    * If this is your first time running the files, start with this command:
-        * `createdb project_test` (Skip this step if this database already exists.)
     * `python3 seed_db.py`
-3. View contents of database using PostgresQL:
+3. View contents of database using PostgreSQL:
     * `psql project_test`
 
 *Further steps to be added as project development progresses!*
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*
-#
+
+
 ## Next Steps
 - [ ] request API keys
 - [ ] request dataset
@@ -47,8 +46,45 @@ This is an evidence-based app to help recommend skincare products and general ro
 - [ ] add liked/disliked products
     - [ ] sanitize comment section
 
-#### **Setup databases with sample data:**
-- [ ] setup sample dataset
+#### **Setup database with actual data:**
+- [ ] setup Kaggle dataset with clean ingredients (CSV file)
+- [ ] setup other dataset
+- [ ] look for datasets with sunscreen info
+
+#### **Display information about a product:**
+- [x] setup other json files
+    - [x] 10/05: about_steps.json
+    - [x] 10/05: skin_concerns.json
+- [ ] setup product display page
+
+#### **Setup user login:**
+- [ ] setup user login system
+    - [ ] review: hashing passwords
+- [x] 10/08: setup login page
+- [x] 10/08: setup new user registration page
+- [ ] confirm that this connects to the database
+
+#### **Complete questionnaire for user profile:**
+- [ ] complete quick questionnaire for user profile
+- [ ] setup questionnaire page
+
+#### **Setup search:**
+- [ ] setup search
+    - [ ] lookup search tutorials
+- [ ] setup search page
+
+#### **Testing:**
+- [x] 10/09: setup test_crud.py
+- [ ] setup test_model.py
+- [ ] setup test_server.py
+
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
+
+
+## Completed Steps
+
+#### **Setup database with sample data:**
+- [x] 10/07: setup sample dataset
     - [x] 10/06: sample_products.csv: 2 dummy products with < 10 ingredients
     - [x] 10/07: populated tables with no dependencies using sample data
         - specifically: concerns, categories, skintypes, skincare_steps
@@ -62,32 +98,5 @@ This is an evidence-based app to help recommend skincare products and general ro
     - [x] 10/07: products
     - [x] 10/07: ingredients
     - [x] 10/07: product_ingredients
-
-#### **Display information about a product:**
-- [x] setup other json files
-    - [x] 10/05: about_steps.json
-    - [x] 10/05: skin_concerns.json
-- [ ] setup product display page
-
-#### **Setup user login:**
-- [ ] setup user login system
-    - [ ] review: hashing passwords
-- [ ] setup login page
-- [ ] setup new user registration page
-
-#### **Complete questionnaire for user profile:**
-- [ ] complete quick questionnaire for user profile
-- [ ] setup questionnaire page
-
-#### **Setup search:**
-- [ ] setup search
-    - [ ] lookup search tutorials
-- [ ] setup search page
-
-*[Click here](#the-skincare-routine-helper) to go back to the top.*
-
-#
-## Completed Steps
-
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*
