@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Products from Search
+{% endblock title %}
+
+{% block body %}
+<ol>Products from search:</ol>
+{{for prod in product_list }}
+<li>{{ prod.product_name }} - <a href="/products/<product_id>" >{{ prod.product_id }}</a></li>
+{% endblock body %}

@@ -18,4 +18,13 @@
     <h3>My PM Routine</h3>
     <!-- My PM Routine -->
 </div>
+<div class="search" id="search_for_product">
+    <h2>Search for a Product!</h2>
+    <form action="/search" methods="GET">
+    <input type="text" name="product_name" placeholder="Product Name"/>
+    <input type="text" name="product_type" placeholder="Product Type"/>
+    <!-- FIXME: chagne product_type to something else once model.py for Uesr is fixed -->
+    <input type="submit">
+</form>
+</div>
 {% endblock body %}

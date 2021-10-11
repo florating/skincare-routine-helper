@@ -8,7 +8,7 @@
 
 
 ## Overview
-This is an evidence-based app to help recommend skincare products and general routines based on area of concern and ingredient safety. The app recommends products based on data analytics of user profiles, allowing users to filter for products that are reef-safe, pregnancy-safe, fragrance-free, etc.
+This is an evidence-based app to help recommend skincare products and general skincare routines based on area of concern and ingredient safety. The app recommends products based on data analytics of user profiles, allowing users to filter for products that are reef-safe, pregnancy-safe, fragrance-free, etc. Users can start with a beginner-friendly skincare routine, and they can eventually level up to more advanced routines consisting of multiple steps and usage frequencies (per product or step) depending on active ingredients.
 
 
 ## Instructions
@@ -29,7 +29,7 @@ This is an evidence-based app to help recommend skincare products and general ro
 ## Next Steps
 - [ ] request API keys
 - [ ] request dataset
-- [ ] setup the server
+- [x] 10/08: setup the server
 - [ ] setup the homepage
 
 
@@ -37,7 +37,7 @@ This is an evidence-based app to help recommend skincare products and general ro
 #### **General:**
 - [ ] request API keys
 - [ ] request dataset
-- [ ] setup the server
+- [x] 10/08: setup the server
 - [ ] setup the homepage
 
 #### **Data model:**
@@ -59,10 +59,12 @@ This is an evidence-based app to help recommend skincare products and general ro
 
 #### **Setup user login:**
 - [ ] setup user login system
-    - [ ] review: hashing passwords
+    - [x] review: hashing passwords
+    - [x] 10/09: setup basic login system
+    - [ ] setup login system using flask-login
 - [x] 10/08: setup login page
 - [x] 10/08: setup new user registration page
-- [ ] confirm that this connects to the database
+- [x] confirm that this connects to the database
 
 #### **Complete questionnaire for user profile:**
 - [ ] complete quick questionnaire for user profile
@@ -70,7 +72,10 @@ This is an evidence-based app to help recommend skincare products and general ro
 
 #### **Setup search:**
 - [ ] setup search
-    - [ ] lookup search tutorials
+    - [x] 10/09: lookup search tutorials
+    - [x] 10/09: setup basic search using SQL queries
+    - [x] 10/09: setup search using crud functions
+    - [ ] test search functions
 - [ ] setup search page
 
 #### **Testing:**

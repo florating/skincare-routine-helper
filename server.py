@@ -29,11 +29,14 @@ def show_index():
 def register_account():
     """Register a new account."""
 
-    f_name = request.form.get('f_name')
-    l_name = request.form.get('l_name')
-    email = request.form.get('email')
-    password = request.form.get('password')
-    user = model.User.query.filter_by(email=email).first()
+    params = {
+        'f_name': request.form.get('f_name'),
+        'l_name': request.form.get('l_name'),
+        'email': request.form.get('email'),
+        'password': request.form.get('password')  # will be hashed in crud
+    }
+    
+    user = crud.get_user_by_email(params['email'])
 
     if user:
         flash('You cannot use this email to create a new account.')
@@ -41,13 +44,7 @@ def register_account():
     
     # FIXME: not yet complete nor tested
     # serialize? is it better to call generate_password_hash here or in model.py?
-    new_user = model.User(
-        email=email,
-        password=generate_password_hash(password, method='sha256'),
-        f_name=f_name, 
-        l_name=l_name)
-    db.session.add(new_user)
-    db.session.commit()
+    crud.create_user(**params)
     flash('Thank you for creating a new account! Please log in.')
     return redirect('/')
     
@@ -73,9 +70,15 @@ def process_login():
         session.clear()
         session['user_email'] = user.email
         flash('Welcome, you have successfully logged in.')
-        return redirect(url_for('/users', user_id=user.user_id))
+        return redirect(url_for('show_user', user_id=user.user_id))
     
     flash(error)
+    return redirect('/')
+
+
+@app.route('/logout')
+def logout():
+    # FIXME: need to clear session or use flask-login to logout_user()
     return redirect('/')
 
 
@@ -93,6 +96,34 @@ def show_product(product_id):
 
     product_obj = crud.get_obj_by_id('Product', product_id)
     return render_template('product_details.html', product=product_obj)
+
+
+@app.route('/products', methods=['GET'])
+def show_all_products(product_list):
+    return render_template('products.html', product_list=product_list)
+
+
+@app.route('/search', methods=['GET'])
+def show_products_from_search():
+    # form.serialize()
+    params = {
+        'product_name': request.args.get('product_name'),
+        'product_type': request.args.get('product_type'),
+    }
+    # product_results = model.Product.query.filter(model.Product.product_name.like(f'%{params["product_name"]}%')).all()
+    print(f'params["product_type"] = {params["product_type"]}')
+
+    # FIXME: pick one of the following ways to implement search...
+    # FIXME: and also need to remove search parameters if form is empty
+    # Option 1:
+    product_results = crud.get_all_obj_by_param('Product', **params)
+    
+    # Option 2:
+    sql = "SELECT product_id, product_name FROM products WHERE product_name = :product_name"
+    cursor = db.session.execute(sql, **params)
+    result = cursor.fetchall()
+
+    return redirect(url_for('show_all_products', product_list=result))
 
 
 if __name__ == '__main__':

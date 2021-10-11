@@ -1,15 +1,32 @@
 <!doctype html>
 <html>
 	<head>
-		<title>{% block title $}{% endblock %}</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<title>{% block title %}{% endblock %}</title>
 		<!-- Bootstrap 5 -->
+
 		<!-- Bootstrap icons -->
+		
 		<!-- CSS stylesheets -->
+		<link rel="stylesheet" href="static/css/styles.css">
+		
 		<!-- jQuery from https://code.jquery.com (use the latest, uncompressed version) -->
+		
+		{% block head %}{% endblock %}
 	</head>
 	<body>
 		{% block body %}
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<div class="notification is-danger">
+				{{ messages[0] }}
+				</div>
+			{% endif %}
+		{% endwith %}
 		{% endblock %}
+
+		{% block after_body %}{% endblock %}
 		<!-- JavaScript, JSX, AJAX, etc. -->
 	</body>
 </html>
