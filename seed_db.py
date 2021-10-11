@@ -6,11 +6,9 @@ import os
 from random import choice, randint
 import sys
 
-# from flask import Flask
-
 import crud
 import model
-import read_files
+from setup import read_files
 # import server?
 
 # os.system('. secrets.sh')  # fix this after figuring out API keys... in server.py
@@ -26,20 +24,16 @@ print(f'NOTE: parent = {parent}\n')
 # Adding the parent directory to the sys.path.
 sys.path.append(parent)
 
-
 os.system('dropdb project_test --if-exists')
 os.system('createdb project_test')
 
-# app = Flask(__name__)
-
 if __name__ == '__main__':
     import re
+    from server import app
     if re.search(r'skincare$', current):
-        from server import app
         print(f'NOTE: Imported app from server in current directory, which is {current}')
         print(f'NOTE: The parent directory is {parent}')
     else:
-        from parent.server import app
         print(f'NOTE: Imported app from parent.server, and the parent directory is {parent}')
     model.connect_to_db(app)
     model.db.create_all()

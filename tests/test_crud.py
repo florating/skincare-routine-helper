@@ -27,7 +27,7 @@ from model import db, Skintype, User, Concern
 from server import app
 
 
-class TestCrudDatabase(TestCase):
+class TestCrudDatabaseNoDependencies(TestCase):
     """Crud tests that use the database."""
 
     def setUp(self):
@@ -35,22 +35,19 @@ class TestCrudDatabase(TestCase):
         os.system('createdb testdb')
         model.connect_to_db(app, 'postgresql:///testdb')
         db.create_all()
-        example_data()
+
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
         db.engine.dispose()
     
+
     def test_setUp_and_tearDown(self):
         """Test if setUp and tearDown methods are working."""
         self.assertEqual('a', 'a')
     
-    def test_get_user_by_email(self):
-        test_query = User.query.filter_by(email='email_1@email.com').first()
-        test_user = crud.get_user_by_email('email_1@email.com')
-        self.assertEqual(test_user, test_query)
-    
+
     def test_create_table_obj(self):
         """Check that object has been added to the database."""
         table_class_name = 'Concern'
@@ -62,6 +59,75 @@ class TestCrudDatabase(TestCase):
         test_query = Concern.query.filter_by(concern_name = "anti-aging").first()
         print(f"test_obj = {test_obj}, test_query = {test_query}")
         self.assertEqual(test_obj, test_query)
+
+
+class TestCrudDatabase(TestCase):
+    """Crud tests that use the database."""
+
+    def setUp(self):
+        os.system('dropdb testdb --if-exists')
+        os.system('createdb testdb')
+        model.connect_to_db(app, 'postgresql:///testdb')
+        db.create_all()
+        example_data()
+
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+    
+
+    def test_setUp_and_tearDown(self):
+        """Test if setUp and tearDown methods are working."""
+        self.assertEqual('a', 'a')
+    
+
+    def test_get_user_by_email(self):
+        test_query = User.query.filter_by(email='email_1@email.com').first()
+        test_user = crud.get_user_by_email('email_1@email.com')
+        self.assertEqual(test_user, test_query)
+    
+    
+    def test_get_first_obj_by_param(self):
+        trad_queried_prod = model.User.query.get(1)
+        query_param = {
+            "user_id": 1
+        }
+        crud_queried_prod = crud.get_first_obj_by_param("User", **query_param)
+        self.assertEqual(trad_queried_prod, crud_queried_prod)
+    
+
+    def test_create_user(self):
+        obj_params = {
+            "email": "sqrpnts@gmail.com",
+            "password": "Pineapple4!",
+            "f_name": "Spongebob",
+            "l_name": "Squarepants"
+        }
+        new_user = crud.create_user(**obj_params)
+        queried_user = crud.get_user_by_email("sqrpnts@gmail.com")
+        self.assertEqual(new_user, queried_user)
+    
+
+    def test_create_product_cascade(self):
+        obj_params = {
+            "product_name": "Generic Lotion",
+            "product_type": "Moisturizer",
+            "clean_ingreds": "['ingred_1', 'ingred_2', 'ingred_3']"
+        }
+
+        query_param = {
+            "product_name": "Generic Lotion"
+        }
+
+        new_prod = crud.create_product_cascade(**obj_params)
+        queried_prod = crud.get_first_obj_by_param("Product", **query_param)
+        self.assertEqual(new_prod, queried_prod)
+
+
+    def test_create_product_cascade_duplicate(self):
+        pass
 
 
 def example_data():
