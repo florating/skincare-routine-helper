@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
 
-
+# REFACTOR-NOTE: consider using __name__ 
 FXN_DICT = {
     'Cabinet': Cabinet,
     'Category': Category,
@@ -39,6 +39,7 @@ def create_table_obj(table_class_name, **kwargs):
     #     convert_price(kwargs, kwargs['price'])
 
     if 'product' == table_class_name.lower():
+        # REFACTOR-NOTE: can add to FXN_DICT later
         obj = create_product_cascade(**kwargs)
     else:   
         obj = FXN_DICT[table_class_name](**kwargs)
@@ -48,6 +49,7 @@ def create_table_obj(table_class_name, **kwargs):
 
 def create_user(**params):
     """Create and return a new User object."""
+    # REFACTOR-NOTE: can re-define __init__ method in model.py
     params['hashed_password'] = generate_password_hash(params.pop('password'), method='sha256')  # FIXME: could also salt this
     return create_table_obj('User', **params)
 
@@ -85,6 +87,7 @@ def create_product_cascade(**obj_params):
 
     # FIXME: check if prod_obj.product_name already exists in products table
     # if Product.query.filter(Product.product_name == prod_obj.product_name).all():
+        # REFACTOR-NOTE: try using the try/except constructions!
     db.session.add(prod_obj)
     db.session.flush()
 

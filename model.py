@@ -1,8 +1,8 @@
 """Models for the Skincare Routine Helper app."""
 
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
+from werkzeug.security import generate_password_hash, check_password_hash
 
 print(f"Hello, I'm in model.py and __name__ = {__name__}!")
 
@@ -321,11 +321,8 @@ def connect_to_db(flask_app, db_uri=f"postgresql:///{db_name}", echo=True):
 
 if __name__ == '__main__':
     print("Hello, I'm in model.py's special statement since __name__ == '__main__'!")
-    # import os
-    # os.system('dropdb project_test --if-exists')
-    # os.system('createdb project_test')
 
     from server import app
 
     connect_to_db(app)
-    db.create_all()    
+    db.create_all()

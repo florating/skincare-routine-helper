@@ -28,7 +28,7 @@ from server import app
 
 
 class TestCrudDatabaseNoDependencies(TestCase):
-    """Crud tests that use the database."""
+    """Crud tests that use the database without dependencies."""
 
     def setUp(self):
         os.system('dropdb testdb --if-exists')

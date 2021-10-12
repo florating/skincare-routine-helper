@@ -2,6 +2,7 @@
 # import os
 
 from flask import flash, Flask, redirect, render_template, request, session, url_for
+# from flask_login import LoginManager
 from jinja2 import StrictUndefined
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,6 +13,7 @@ from model import db, connect_to_db
 print(f"Hello, I'm in server.py and __name__ = {__name__}!")
 
 app = Flask(__name__)
+# login_manager = LoginManager()
 
 # SECRET_KEY = os.environ['SECRET_KEY']
 # FIXME: set app configurations for SECRET_KEY later, after fixing secrets.sh
@@ -116,12 +118,24 @@ def show_products_from_search():
     # FIXME: pick one of the following ways to implement search...
     # FIXME: and also need to remove search parameters if form is empty
     # Option 1:
-    product_results = crud.get_all_obj_by_param('Product', **params)
+    # product_results = crud.get_all_obj_by_param('Product', **params)
     
     # Option 2:
-    sql = "SELECT product_id, product_name FROM products WHERE product_name = :product_name"
-    cursor = db.session.execute(sql, **params)
-    result = cursor.fetchall()
+    # sql = "SELECT product_id, product_name FROM products WHERE product_name = :product_name"
+    # cursor = db.session.execute(sql, **params)
+    # result = cursor.fetchall()
+    
+
+    # Option 3:
+    # check if product_name exists, then can add a filter
+    # if other params exist, then add those
+    product_query = model.Product.query
+    for param, param_val in params.items():
+        if param_val:
+            # for exact match
+            product_query = product_query.filter_by({param: param_val})
+            # FIXME: add code for partial matches, lowercase, etc.
+    result = product_query.all()
 
     return redirect(url_for('show_all_products', product_list=result))
 

@@ -54,11 +54,6 @@ def load_csv(table_obj_name, filename):
         for row in csvreader:  
             obj = crud.create_table_obj(table_obj_name, **row)
             obj_in_db.append(obj)
-            if table_obj_name == 'Product':
-                # use obj_in_db and ingreds_list to create entries in ingredients and product_ingredients tables
-                # ingreds_list.append(row['clean_ingreds'])
-                # crud.create_ingredients_cascade(obj, row['clean_ingreds'])
-                pass
 
     print(f'\n\nSuccessfully loaded {filename} into the {table_obj_name} table.\n\n')
     return obj_in_db

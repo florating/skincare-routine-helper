@@ -17,13 +17,21 @@ This is an evidence-based app to help recommend skincare products and general sk
     * `source env/bin/activate`
     * `pip3 install -r requirements.txt`
 2. Run seed_db.py:
-    * `python3 seed_db.py`
+    * `python3 seed_db.py` to use the default setup text file
+    * `python3 seed_db.py some_kind_of_setup_file.txt` to use a preset setup text file
+        * Note: You can create your own text file and follow the format of the default text file in `/data/file_list.txt`. Name it whatever you want, and use that name instead of `some_kind_of_setup_file.txt`.
 3. View contents of database using PostgreSQL:
     * `psql project_test`
 
 *Further steps to be added as project development progresses!*
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*
+
+## MVP:
+- [ ] (1) setup user login
+- [ ] (2) complete questionnaire for user profile
+- [ ] (3) setup database with ingredients using Kaggle dataset
+- [ ] (4) search & display info for a product
 
 
 ## Next Steps
