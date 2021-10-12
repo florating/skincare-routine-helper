@@ -200,7 +200,7 @@ def convert_string_to_list(list_str):
 ##### QUERY FUNCTIONS BELOW #####
 
 def get_obj_by_id(class_name, obj_id):
-    """Return a class_name object (eg: User) by its id."""
+    """Return a class_name object (eg: User) by its primary key."""
     return FXN_DICT[class_name].query.get(obj_id)
 
 

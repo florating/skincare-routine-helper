@@ -2,23 +2,24 @@
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Boolean, Column, DateTime, Integer, Numeric, String, Text
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 print(f"Hello, I'm in model.py and __name__ = {__name__}!")
 
 db = SQLAlchemy()
-db_name = 'project_test'  # FIXME: change when done with testing
+_db_name = 'project_test'  # FIXME: change when done with testing
 
 class Concern(db.Model):
     """Create a Concern object for the concerns table."""
 
     __tablename__ = 'concerns'
 
-    concern_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    concern_name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    concern_id = Column(Integer, primary_key=True, autoincrement=True)
+    concern_name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # user_concern_1 = list of User objects with this concern listed as their primary concern
     # user_concern_2 = list of User objects with this concern listed as their secondary concern
@@ -32,10 +33,10 @@ class Skintype(db.Model):
 
     __tablename__ = 'skintypes'
 
-    skintype_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    skintype_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    skintype_id = Column(Integer, primary_key=True, autoincrement=True)
+    skintype_name = Column(String(25), nullable=False)
+    description = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # users = list of User objects with this skintype
 
@@ -47,23 +48,23 @@ class User(UserMixin, db.Model):
     """Create a User object for each app user."""
     __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    f_name = db.Column(db.String(25))
-    l_name = db.Column(db.String(25), nullable=True)
-    email = db.Column(db.String(50), nullable=False, unique=True)
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    f_name = Column(String(25))
+    l_name = Column(String(25), nullable=True)
+    email = Column(String(50), nullable=False, unique=True)
     
     # FIXME: change data type?
-    hashed_password = db.Column(db.String(200), nullable=False) 
+    hashed_password = Column(String(200), nullable=False)
 
     # skincare-related:
-    skintype_id = db.Column(db.Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # FIXME: may need to change default skintype_id
-    primary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
-    secondary_concern_id = db.Column(db.Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
+    skintype_id = Column(Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # FIXME: may need to change default skintype_id
+    primary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
+    secondary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
 
     # If using Twilio API for text notifications:
     # US phone numbers only, in format: '(555) 555-5555'
     # phone_number = db.Column(db.String(14))
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     primary_concern = db.relationship('Concern', foreign_keys=[primary_concern_id], backref='user_concern_1')
     secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
@@ -73,22 +74,18 @@ class User(UserMixin, db.Model):
     # pm_routines = list of PM_Routine objects
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
 
-
     def get_id(self):
         """Returns a unicode that uniquely identifies this user, and can be used to load the user from the user_loader callback function."""
         return str(self.user_id).encode("utf-8").decode("utf-8") 
-
 
     # def get(self, unicode_id):
     #     """Reloads the user object from the user ID stored in unicode in the session."""
     #     return User.query.get(unicode_id)
 
-    
     def check_password(self, input_password):
         """Return True if input_password is the correct password."""
         # FIXME: use werkzeug?
         return check_password_hash(self.hashed_password, input_password)
-
 
     def __repr__(self):
         return f"<User user_id={self.user_id} email={self.email}>"
@@ -99,11 +96,11 @@ class SkincareStep(db.Model):
 
     __tablename__ = 'skincare_steps'
 
-    step_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    step_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    step_id = Column(Integer, primary_key=True, autoincrement=True)
+    step_name = Column(String(25), nullable=False)
+    description = Column(Text, nullable=False)
     # product_type_id = which products are acceptable for this step?
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # am_routines = list of AM_Routine objects, linked to individual steps in the routine
     # pm_routines = list of PM_Routine objects, linked to individual steps in the routine
@@ -140,10 +137,10 @@ class Category(db.Model):
 
     __tablename__ = 'categories'
 
-    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    category_name = db.Column(db.String(25), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    category_id = Column(Integer, primary_key=True, autoincrement=True)
+    category_name = Column(String(25), nullable=False)
+    description = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # products = list of Product objects
 
@@ -156,31 +153,31 @@ class Product(db.Model):
 
     __tablename__ = 'products'
 
-    product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    product_name = db.Column(db.String(100), nullable=False)
-    brand_name = db.Column(db.String(25), nullable=True)
-    product_url = db.Column(db.String(100), nullable=True)
-    product_size = db.Column(db.String(20), nullable=True)
-    price = db.Column(db.String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
-    price_GBP = db.Column(db.String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
-    price_USD = db.Column(db.Numeric, nullable=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
+    product_id = Column(Integer, primary_key=True, autoincrement=True)
+    product_name = Column(String(100), nullable=False)
+    brand_name = Column(String(25), nullable=True)
+    product_url = Column(String(100), nullable=True)
+    product_size = Column(String(20), nullable=True)
+    price = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
+    price_GBP = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
+    price_USD = Column(Numeric, nullable=True)
+    category_id = Column(Integer, db.ForeignKey('categories.category_id'))
 
     # FIXME: Temporarily created the following 3 fields to handle data from Kaggle dataset. Will map it to Categories
-    product_type = db.Column(db.String(20))
-    ingredients = db.Column(db.Text)
-    clean_ingreds = db.Column(db.Text)
+    product_type = Column(String(20))
+    ingredients = Column(Text)
+    clean_ingreds = Column(Text)
 
     # specific recommendations per Sephora dataset from jjone36:
-    rec_combination = db.Column(db.Boolean, nullable=False, default=False)
-    rec_dry = db.Column(db.Boolean, nullable=False, default=False)
-    rec_normal = db.Column(db.Boolean, nullable=False, default=False)
-    rec_oily = db.Column(db.Boolean, nullable=False, default=False)
-    rec_sensitive = db.Column(db.Boolean, nullable=False, default=False)
+    rec_combination = Column(Boolean, nullable=False, default=False)
+    rec_dry = Column(Boolean, nullable=False, default=False)
+    rec_normal = Column(Boolean, nullable=False, default=False)
+    rec_oily = Column(Boolean, nullable=False, default=False)
+    rec_sensitive = Column(Boolean, nullable=False, default=False)
     
     # other fields that could be added:
-    fragrance_free = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    fragrance_free = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     category = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
@@ -188,6 +185,9 @@ class Product(db.Model):
     # pm_routines = list of PM_Routine objects
     product_ingredients = db.relationship('ProductIngredient', back_populates='products')
 
+    def get_num_ingredients(self):
+        """Return number of ingredients (besides water) associated with this product."""
+        return len(self.product_ingredients)
 
     def __repr__(self):
         return f"<Product product_id={self.product_id} product_name={self.product_name} category_id={self.category_id}>"
@@ -198,11 +198,11 @@ class Cabinet(db.Model):
 
     __tablename__ = 'cabinets'
 
-    cabinet_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'))
-    status = db.Column(db.Boolean, nullable=False, default=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    cabinet_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
+    product_id = Column(Integer, db.ForeignKey('products.product_id'))
+    status = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     users = db.relationship('User', backref='cabinets')
     products = db.relationship('Product', backref='cabinets')
@@ -216,26 +216,26 @@ class Ingredient(db.Model):
 
     __tablename__ = 'ingredients'
 
-    ingredient_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    common_name = db.Column(db.String(50), nullable=False)
-    alternative_name = db.Column(db.String(50), nullable=True)
+    ingredient_id = Column(Integer, primary_key=True, autoincrement=True)
+    common_name = Column(String(50), nullable=False)
+    alternative_name = Column(String(50), nullable=True)
 
-    active_type = db.Column(db.String(25), nullable=True, server_default=None)
-    pm_only = db.Column(db.Boolean, default=False)
-    irritation_rating = db.Column(db.Integer)
-    endocrine_disruption = db.Column(db.Boolean, default=False)
-    carcinogenic = db.Column(db.Boolean, default=False)
-    pregnancy_safe = db.Column(db.Boolean, default=False)
-    reef_safe = db.Column(db.Boolean, default=False)
-    has_fragrance = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    active_type = Column(String(25), nullable=True, server_default=None)
+    pm_only = Column(Boolean, default=False)
+    irritation_rating = Column(Integer)
+    endocrine_disruption = Column(Boolean, default=False)
+    carcinogenic = Column(Boolean, default=False)
+    pregnancy_safe = Column(Boolean, default=False)
+    reef_safe = Column(Boolean, default=False)
+    has_fragrance = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # interactions1 = list of Interaction objects (adverse reactions)
     # interactions2 = list of Interaction objects (adverse reactions)
     product_ingredients = db.relationship('ProductIngredient', back_populates='ingredients')
 
     def __repr__(self):
-        return f"<Ingredient ingredient_id={self.ingredient_id} ingredient_name={self.ingredient_name} active_type={self.active_type}>"
+        return f"<Ingredient ingredient_id={self.ingredient_id} common_name={self.common_name} active_type={self.active_type}>"
 
 
 class Interaction(db.Model):
@@ -243,11 +243,11 @@ class Interaction(db.Model):
 
     __tablename__ = 'interactions'
 
-    interaction_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    first_ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'))
-    second_ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'))
-    reaction_description = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    interaction_id = Column(Integer, primary_key=True, autoincrement=True)
+    first_ingredient_id = Column(Integer, db.ForeignKey('ingredients.ingredient_id'))
+    second_ingredient_id = Column(Integer, db.ForeignKey('ingredients.ingredient_id'))
+    reaction_description = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     ingredient1 = db.relationship('Ingredient', foreign_keys=[first_ingredient_id], backref='interactions1')
     ingredient2 = db.relationship('Ingredient', foreign_keys=[second_ingredient_id], backref='interactions2')
@@ -261,11 +261,11 @@ class ProductIngredient(db.Model):
 
     __tablename__ = 'product_ingredients'
 
-    prod_ing_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
-    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.ingredient_id'), nullable=True)
-    abundance_order = db.Column(db.Integer)  # auto-increment, but restart at 1 for new product_id
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    prod_ing_id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(Integer, db.ForeignKey('products.product_id'), nullable=True)
+    ingredient_id = Column(Integer, db.ForeignKey('ingredients.ingredient_id'), nullable=True)    # onUpdate='cascade' ?
+    abundance_order = Column(Integer)  # auto-increment, but restart at 1 for new product_id
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     ingredients = db.relationship('Ingredient', back_populates='product_ingredients')
     products = db.relationship('Product', back_populates='product_ingredients')
@@ -279,12 +279,12 @@ class AMRoutine(db.Model):
 
     __tablename__ = 'am_routines'
 
-    routine_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    step_id = db.Column(db.Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
-    status = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    routine_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
+    step_id = Column(Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
+    product_id = Column(Integer, db.ForeignKey('products.product_id'), nullable=True)
+    status = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     users = db.relationship('User', backref='am_routines')
     products = db.relationship('Product', backref='am_routines')
@@ -304,12 +304,12 @@ class PMRoutine(db.Model):
 
     __tablename__ = 'pm_routines'
 
-    routine_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    step_id = db.Column(db.Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=True)
-    status = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    routine_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
+    step_id = Column(Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
+    product_id = Column(Integer, db.ForeignKey('products.product_id'), nullable=True)
+    status = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     users = db.relationship('User', backref='pm_routines')
     products = db.relationship('Product', backref='pm_routines')
@@ -319,7 +319,7 @@ class PMRoutine(db.Model):
         return f"<PMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} status={self.status}>"
 
 
-def connect_to_db(flask_app, db_uri=f"postgresql:///{db_name}", echo=True):
+def connect_to_db(flask_app, db_uri=f"postgresql:///{_db_name}", echo=True):
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     flask_app.config["SQLALCHEMY_ECHO"] = echo
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
