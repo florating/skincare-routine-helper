@@ -32,7 +32,8 @@
 		<p>You don't have anything in your cabinet yet! Click here to add a product.</p>
 		{% endif %}
 </div>
-<div class="routine" id="user_am_routine">
+<div class="row">
+  <div class="routine col-5" id="user_am_routine">
     <h3>My AM Routine</h3>
     <!-- My AM Routine -->
 		{% if current_user.am_routines %}
@@ -43,10 +44,10 @@
 		{% endfor %}
     </ul>
 		{% else %}
-		<p>You don't have anything in your routine yet! Click here to add a product.</p>
+		<p>You don't have anything in your routine yet! Add something to your cabinet first, and then add products from your cabinet into your skincare routine!</p>
 		{% endif %}
-</div>
-<div class="routine" id="user_pm_routine">
+  </div>
+  <div class="routine col-5 offset-1" id="user_pm_routine">
     <h3>My PM Routine</h3>
     <!-- My PM Routine -->
 		{% if current_user.pm_routines %}
@@ -57,17 +58,29 @@
 		{% endfor %}
     </ul>
 		{% else %}
-		<p>You don't have anything in your routine yet! Click here to add a product.</p>
+		<p>You don't have anything in your routine yet! Add something to your cabinet first, and then add products from your cabinet into your skincare routine!</p>
 		{% endif %}
+  </div>
 </div>
 <div class="search" id="search_for_product">
     <h2>Search for a Product!</h2>
-    <form action="/search" methods="GET">
-    <input type="text" name="product_name" placeholder="Product Name"/>
-    <input type="text" name="product_type" placeholder="Product Type"/>
-    <!-- FIXME: change product_type to something else once model.py for Uesr is fixed -->
+    <form action="/products/search" methods="GET">
+    <input
+      type="text"
+      name="product_name"
+      placeholder="Product Name"
+      title="Leave this blank to get all products!"
+    />
+    <input
+      type="text"
+      name="product_type"
+      placeholder="Product Type"
+    />
+    {# comment #}
+    <!-- FIXME: change product_type to something else once model.py for User is fixed -->
     <input type="submit">
 </form>
 <div id="search_results"></div>
 </div>
+
 {% endblock body %}

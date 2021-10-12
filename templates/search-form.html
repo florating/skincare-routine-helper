@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Skincare Products{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h2>Search for Skincare Products</h2>
+
+      <form method="GET" action="/products/search">
+        <div class="row">
+          <label class="form-label" for="search-keyword">Product Name</label>
+          <!-- <small class="form-text text-muted">
+            Leave this blank to get all events!
+          </small> -->
+
+          <input
+            id="search-keyword"
+            class="form-control"
+            type="text"
+            name="product_name"
+            placeholder="Product Name"
+            title="Leave this blank to get all products!"
+          >
+        </div>
+
+        <!-- <div class="row">
+          <label class="form-label" for="search-zip">Zip Code</label>
+
+          <input
+            id="search-zip"
+            class="form-control"
+            type="text"
+            name="zipcode"
+          >
+        </div> -->
+<!-- 
+        <div class="row">
+          <label class="form-label" for="search-radius">Distance Radius</label>
+          <small class="form-text text-muted">
+            How far to search from your location?
+          </small>
+
+          <div class="col-8">
+              <input
+                id="search-radius"
+                class="form-control"
+                type="number"
+                name="radius"
+              >
+            </div>
+
+            <div class="col-3 offset-1">
+              <select class="form-control form-select" name="unit">
+                <option value="miles">miles</option>
+                <option value="km">kilometers</option>
+              </select>
+            </div>
+        </div> -->
+
+        <div class="row">
+          <label for="search-sort-by">Sort by</label>
+
+          <select
+            id="search-sort-by"
+            class="form-control form-select"
+            name="order_by"
+          >
+            <option value="product_name,asc">Name</option>
+            <option value="product_type,asc">Product Type</option>
+            <option value="relevance,asc">Relevance</option>
+          </select>
+        </div>
+        <div class="row mt-4">
+          <div class="col-3">
+            <input type="submit" value="Search for products!" class="btn btn-primary">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

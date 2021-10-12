@@ -24,7 +24,8 @@ app.jinja_env.undefined = StrictUndefined
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = ""
+login_manager.login_view = ""   # FIXME: not setup yet, may need extra views as well
+
 
 @app.route('/')
 def show_index():
@@ -122,28 +123,40 @@ def show_profile():
     return render_template('user_details.html')
 
 
-@app.route('/products/<int:product_id>')
+@app.route('/products/<product_id>')
 def show_product(product_id):
     """Show product profile for a particular product."""
 
     product_obj = crud.get_obj_by_id('Product', escape(product_id))
+    print(product_obj.product_name)
     return render_template('product_details.html', product=product_obj)
 
 
 @app.route('/products', methods=['GET'])
-def show_all_products(product_list):
-    return render_template('products.html', product_list=product_list)
+def show_all_products():
+    return render_template('search-form.html')
 
 
-@app.route('/search', methods=['GET'])
+@app.route('/products/search', methods=['GET'])
 def show_products_from_search():
+    """Search for skincare products in the database.
+
+    Use form data from /products (in 'search-form.html') to populate any search parameters.
+    """
+
+    parameters = ['product_name', 'brand_name', 'product_type', 'num_ingredients', 'order_by']
+
+    payload = {}
+
+    for item in parameters:
+        payload[item] = request.args.get(item, '')
+    
+    payload['limit'] = 2
+
     # form.serialize()
-    params = {
-        'product_name': request.args.get('product_name'),
-        'product_type': request.args.get('product_type'),
-    }
+    
     # product_results = model.Product.query.filter(model.Product.product_name.like(f'%{params["product_name"]}%')).all()
-    print(f'params["product_type"] = {params["product_type"]}')
+    # print(f'parameters["product_type"] = {parameters["product_type"]}')
 
     # FIXME: pick one of the following ways to implement search...
     # FIXME: and also need to remove search parameters if form is empty
@@ -158,15 +171,13 @@ def show_products_from_search():
     # Option 3:
     # check if product_name exists, then can add a filter
     # if other params exist, then add those
-    product_query = model.Product.query
-    for param, param_val in params.items():
-        if param_val:
-            # for exact match
-            product_query = product_query.filter_by({param: param_val})
-            # FIXME: add code for partial matches, lowercase, etc.
+    product_query = db.session.query(model.Product)
+    for param, param_val in payload.items():
+        if param_val and param == 'product_name':
+            product_query = product_query.filter(model.Product.product_name.ilike(f"%{param_val}%"))
     result = product_query.all()
 
-    return redirect(url_for('show_all_products', product_list=result))
+    return render_template('search-results.html', product_list=result)
 
 
 if __name__ == '__main__':

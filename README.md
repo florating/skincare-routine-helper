@@ -34,15 +34,19 @@ This is an evidence-based app to help recommend skincare products and general sk
     - 10/11: partially completed, but need to test implementation of flask-login extension to restrict views to logged-in (or logged-out) users
 - [ ] (2) complete questionnaire for user profile
 - [ ] (3) setup database with ingredients using Kaggle dataset
-- [ ] (4) search & display info for a product
+- [x] (4) search & display info for a product
+    - 10/12: full product query will display now! time to work on the page for individual product details
 
 
 ## Next Steps
 - [ ] request API keys
 - [ ] test the server
 - [ ] setup the homepage
-- [x] 10/11: setup logout function
-- [x] 10/11: setup login system using flask-login
+- [ ] add product to user's cabinet
+    - [ ] from product results list
+    - [ ] from individual product details page
+- [ ] queries, joins, etc.
+- [ ] test product details page
 
 
 ## Task List
@@ -60,6 +64,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [ ] add liked/disliked products for each user
     - [ ] sanitize comment section
 - [ ] add irritation scores per ingredient and per product
+    - [ ] could use Faker
 
 #### **Setup database with actual data:**
 - [ ] setup Kaggle dataset with clean ingredients (CSV file)
@@ -70,7 +75,8 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [x] setup other json files
     - [x] 10/05: about_steps.json
     - [x] 10/05: skin_concerns.json
-- [ ] setup product display page
+- [x] 10/11: setup product search results page
+- [ ] setup individual product details page
 
 #### **Complete questionnaire for user profile:**
 - [ ] complete quick questionnaire for user profile
@@ -90,6 +96,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 #### **Testing:**
 - [x] 10/09: setup test_crud.py
 - [ ] test user login system
+    - login, logout, restricted views
 - [ ] setup test_model.py
 - [ ] setup test_server.py
 
@@ -104,7 +111,6 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/07: populated tables with no dependencies using sample data
         - specifically: concerns, categories, skintypes, skincare_steps
     - [x] 10/07: generate sample_ingredients database
-    - [ ] save somewhere
 - [x] 10/06: test seeding the database for skin_concerns.json
     - [x] 10/06: seed_db.py
     - [x] 10/06: started crud.py
@@ -115,13 +121,16 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/07: product_ingredients
 
 #### **Setup user login:**
+- [x] 10/08: setup login page
+- [x] 10/08: setup new user registration page
+    - [x] 10/09: confirm that this connects to the database
 - [x] 10/11: setup user login system
     - [x] review: hashing passwords
     - [x] 10/09: setup basic login system
     - [x] 10/11: setup login system using flask-login
-- [x] 10/08: setup login page
-- [x] 10/08: setup new user registration page
-- [x] 10/09: confirm that this connects to the database
-- [x] 10/11: setup logout function
+        - 10/11: had an issue where the terminal in VS code that was running my server crashed with this error message:
+        - `The terminal process "/bin/bash" terminated with exit code: 1.`
+        - Restarting VS code seemed fix it...??
+    - [x] 10/11: setup logout function
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*

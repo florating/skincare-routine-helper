@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Skincare Products{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="col d-flex justify-content-center">
+        <a href="/products" class="lead backlink">
+          Go back to the search form
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div id="results-as-json">
+          <h2>Results:</h2>
+          {% for item in product_list %}
+          <pre>{{item}}</pre>
+          {% endfor %}
+        </div>
+
+        <div id="event-search-results">
+          <h2>Product Search Results</h2>
+
+          <p>
+            <span id="result-count">
+              {{ product_list|length }}
+            </span>
+            products matched your search.
+          </p>
+
+          <ul class="events-list">
+            {% for item in product_list %}
+              <li>
+                <a href="/products/{{ item['product_id'] }}" target="_blank">
+                  {{ item['product_name'] }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
