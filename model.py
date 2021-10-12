@@ -1,5 +1,6 @@
 """Models for the Skincare Routine Helper app."""
 
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -42,7 +43,7 @@ class Skintype(db.Model):
         return f"<Skintype skintype_id={self.skintype_id} skintype_name={self.skintype_name}>"
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """Create a User object for each app user."""
     __tablename__ = 'users'
 
@@ -73,6 +74,16 @@ class User(db.Model):
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
 
 
+    def get_id(self):
+        """Returns a unicode that uniquely identifies this user, and can be used to load the user from the user_loader callback function."""
+        return str(self.user_id).encode("utf-8").decode("utf-8") 
+
+
+    # def get(self, unicode_id):
+    #     """Reloads the user object from the user ID stored in unicode in the session."""
+    #     return User.query.get(unicode_id)
+
+    
     def check_password(self, input_password):
         """Return True if input_password is the correct password."""
         # FIXME: use werkzeug?

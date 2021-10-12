@@ -1,22 +1,64 @@
 {% extends "base.html" %}
 
 {% block title %}
-  {{ user.f_name }}'s Profile
+  {{ current_user.f_name }}'s Profile
 {% endblock title %}
 
 {% block body %}
 <h1>My Profile</h1>
+<div id="user_info">
+    {% if current_user.is_authenticated %}
+        {% for param_key in current_user.__table__.columns.keys() %}
+        <li>
+            {{ param_key }}: {{ current_user[param_key] }}
+        </li>
+        {% endfor %}
+    {% else %}
+        Please login <a href="/login">here</a>.
+    {% endif %}
+    <p class='settings'><i><a href="/#settings">Click here</a> to update your user settings. (Broken!)</i></p>
+</div>
 <div id="user_cabinet">
     <h3>My Cabinet</h3>
+		{% if current_user.cabinets %}
+    <ul>
+    {% for obj in current_user.cabinets %}
+			<li>obj.product_id = {{ obj.product_id }}</li>
+			<li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
+		{% endfor %}
     <!-- My Cabinet -->
+    </ul>
+		{% else %}
+		<p>You don't have anything in your cabinet yet! Click here to add a product.</p>
+		{% endif %}
 </div>
 <div class="routine" id="user_am_routine">
     <h3>My AM Routine</h3>
     <!-- My AM Routine -->
+		{% if current_user.am_routines %}
+    <ul>
+    {% for obj in current_user.am_routines %}
+			<li>obj.product_id = {{ obj.product_id }}</li>
+			<li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
+		{% endfor %}
+    </ul>
+		{% else %}
+		<p>You don't have anything in your routine yet! Click here to add a product.</p>
+		{% endif %}
 </div>
 <div class="routine" id="user_pm_routine">
     <h3>My PM Routine</h3>
     <!-- My PM Routine -->
+		{% if current_user.pm_routines %}
+    <ul>
+    {% for obj in current_user.pm_routines %}
+			<li>obj.product_id = {{ obj.product_id }}</li>
+			<li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
+		{% endfor %}
+    </ul>
+		{% else %}
+		<p>You don't have anything in your routine yet! Click here to add a product.</p>
+		{% endif %}
 </div>
 <div class="search" id="search_for_product">
     <h2>Search for a Product!</h2>

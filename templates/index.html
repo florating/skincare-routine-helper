@@ -10,50 +10,55 @@
 <h1>The Skincare Routine Helper</h1>
 
 <div>
-
-	<h3>Account Registration</h3>
-	{% with messages = get_flashed_messages() %}
-	{% if messages %}
-		<div class="notification is-danger">
-			{{ messages[0] }}
-		</div>
+	{% if current_user.is_authenticated %}
+		Hi {{ current_user.email }}!
+		<div class="logout"><i></i><a href="/logout">Click here</a> to logout.</a></div>
+	{% else %}
+		<h3>Account Registration</h3>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<div class="notification is-danger">
+				{{ messages[0] }}
+			</div>
+		{% endif %}
+		{% endwith %}
+		<form id="register-account" action="/register" method="POST">
+			<div class="field"><!-- <label>First Name:</label> -->
+				<input type="text" name="f_name" placeholder="First Name"/>
+			</div>
+			<div class="field"><!-- <label>Last Name:</label> -->
+				<input type="text" name="l_name" placeholder="Last Name"/>
+			</div>
+			<div class="field"><!-- <label>Email:</label> -->
+				<input type="email" name="email" placeholder="Email"/>
+				<!-- pattern="@(?=.*[a-z])\.(?=.*[a-z])$" -->
+				<!-- FIXME: protect against SQL injection! -->
+			</div><!-- Add tooltip about password requirements! -->
+			<div class="tooltip" id="password-requirements">Password requirements
+				<span class="tooltiptext">
+					<ul>
+						<li>Have between eight and twelve characters</li>
+						<li>Contain at least one uppercase letter</li>
+						<li>Contain at least one lowercase letter</li>
+						<li>Contain at least one number</li>
+						<li>Contain at least one special character</li>
+					</ul></span>
+			</div>
+			<div class="field"><!-- <label>Password:</label> -->
+				<input name="password" type="text" placeholder="Password" title="Password Title Here?" maxlength="12" />
+				<!-- pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$" -->
+			</div>
+			<div class="field"><!-- <label>Confirm Password:</label> -->
+				<input name="password_2" type="text" placeholder="Confirm Password" title="Password Title Here Again?" maxlength="12" /><!--
+					only allow submission if passwords match --><!-- 
+					Change maxlength? and how do we check that the passwords match? -->
+			</div>
+			<div class="submit"><input type="submit" value="Register"></div>
+		</form>
 	{% endif %}
-	{% endwith %}
-  <form id="register-account" action="/register" method="POST">
-		<div class="field"><!-- <label>First Name:</label> -->
-			<input type="text" name="f_name" placeholder="First Name"/>
-		</div>
-		<div class="field"><!-- <label>Last Name:</label> -->
-			<input type="text" name="l_name" placeholder="Last Name"/>
-		</div>
-		<div class="field"><!-- <label>Email:</label> -->
-			<input type="email" name="email" placeholder="Email"/>
-			<!-- pattern="@(?=.*[a-z])\.(?=.*[a-z])$" -->
-			<!-- FIXME: protect against SQL injection! -->
-		</div><!-- Add tooltip about password requirements! -->
-		<div class="tooltip" id="password-requirements">Password requirements
-			<span class="tooltiptext">
-				<ul>
-					<li>Have between eight and twelve characters</li>
-					<li>Contain at least one uppercase letter</li>
-					<li>Contain at least one lowercase letter</li>
-					<li>Contain at least one number</li>
-					<li>Contain at least one special character</li>
-				</ul></span>
-		</div>
-		<div class="field"><!-- <label>Password:</label> -->
-			<input name="password" type="text" placeholder="Password" title="Password Title Here?" maxlength="12" />
-			<!-- pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$" -->
-		</div>
-		<div class="field"><!-- <label>Confirm Password:</label> -->
-			<input name="password_2" type="text" placeholder="Confirm Password" title="Password Title Here Again?" maxlength="12" /><!--
-				only allow submission if passwords match --><!-- 
-				Change maxlength? and how do we check that the passwords match? -->
-		</div>
-		<div class="submit"><input type="submit" value="Register"></div>
-	</form>
 </div>
 
+{% if not current_user.is_authenticated %}
 <div>
 	<h2>Log In</h2>
 	<form action="/login" method="POST" id="login">
@@ -70,4 +75,5 @@
     </p>
 	</form>
 </div>
+{% endif %}
 {% endblock body %}

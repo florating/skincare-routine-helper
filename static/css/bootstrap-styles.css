@@ -1,0 +1,44 @@
+/*   Sitewide  */
+
+.navbar {
+	background-color: #b4c157;
+	color: white;
+	border-radius: 0px;
+}
+
+#ubermelon-logo, #ubermelon-logo:hover, .navbar-dark .navbar-brand {
+	color: #151515;
+}
+
+.navbar-nav>li>a, .navbar-dark .navbar-nav .nav-link {
+	color: white;
+}
+
+section {
+	margin-top: 50px;
+}
+
+
+/*  First row  */
+
+#hero	{
+	height: 400px;
+}
+
+#splash {
+	margin-bottom: 25px;
+	font-size: 18px;
+}
+
+
+/* Features Row */
+
+.feature {
+	text-align: center;
+}
+
+/* Further Study */
+
+#modalLabel {
+	color: black;
+}
