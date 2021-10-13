@@ -113,7 +113,7 @@ class Category(db.Model):
     """Create a Category object for the categories table.
     
     Categories associated with the Kaggle dataaset include:
-        ** Moisturiser
+        Moisturizer
         Serum
         Oil
         Mist
@@ -131,8 +131,6 @@ class Category(db.Model):
     Categories to add:
         Sunscreen
         Essence
-
-    ** = need to change to American English
     """
 
     __tablename__ = 'categories'
@@ -157,33 +155,32 @@ class Product(db.Model):
     product_name = Column(String(100), nullable=False)
     brand_name = Column(String(25), nullable=True)
     product_url = Column(String(100), nullable=True)
-    product_size = Column(String(20), nullable=True)
+    # product_size = Column(String(20), nullable=True)
     price = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
-    price_GBP = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
+    # price_GBP = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
     price_USD = Column(Numeric, nullable=True)
     category_id = Column(Integer, db.ForeignKey('categories.category_id'))
 
-    # FIXME: Temporarily created the following 3 fields to handle data from Kaggle dataset. Will map it to Categories
+    # FIXME: Temporarily created the following field to handle data from 
+    # Kaggle dataset. Will map it to Categories
     product_type = Column(String(20))
-    ingredients = Column(Text)
-    clean_ingreds = Column(Text)
 
     # specific recommendations per Sephora dataset from jjone36:
-    rec_combination = Column(Boolean, nullable=False, default=False)
-    rec_dry = Column(Boolean, nullable=False, default=False)
-    rec_normal = Column(Boolean, nullable=False, default=False)
-    rec_oily = Column(Boolean, nullable=False, default=False)
-    rec_sensitive = Column(Boolean, nullable=False, default=False)
+    # rec_combination = Column(Boolean, nullable=False, default=False)
+    # rec_dry = Column(Boolean, nullable=False, default=False)
+    # rec_normal = Column(Boolean, nullable=False, default=False)
+    # rec_oily = Column(Boolean, nullable=False, default=False)
+    # rec_sensitive = Column(Boolean, nullable=False, default=False)
     
     # other fields that could be added:
-    fragrance_free = Column(Boolean, default=False)
+    # fragrance_free = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     category = db.relationship('Category', backref='products')
-    # cabinets = list of Cabinet objects (associated with skincare Product objects)
+    # cabinets = list of Cabinet objects (associated with this product)
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
-    product_ingredients = db.relationship('ProductIngredient', back_populates='products')
+    product_ingredients = db.relationship('ProductIngredient', back_populates='product')
 
     def get_num_ingredients(self):
         """Return number of ingredients (besides water) associated with this product."""
@@ -232,7 +229,7 @@ class Ingredient(db.Model):
 
     # interactions1 = list of Interaction objects (adverse reactions)
     # interactions2 = list of Interaction objects (adverse reactions)
-    product_ingredients = db.relationship('ProductIngredient', back_populates='ingredients')
+    product_ingredients = db.relationship('ProductIngredient', back_populates='ingredient')
 
     def __repr__(self):
         return f"<Ingredient ingredient_id={self.ingredient_id} common_name={self.common_name} active_type={self.active_type}>"
@@ -267,8 +264,8 @@ class ProductIngredient(db.Model):
     abundance_order = Column(Integer)  # auto-increment, but restart at 1 for new product_id
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    ingredients = db.relationship('Ingredient', back_populates='product_ingredients')
-    products = db.relationship('Product', back_populates='product_ingredients')
+    ingredient = db.relationship('Ingredient', back_populates='product_ingredients')
+    product = db.relationship('Product', back_populates='product_ingredients')
 
     def __repr__(self):
         return f"<ProductIngredient prod_ing_id={self.prod_ing_id} product_id={self.product_id} ingredient_id={self.ingredient_id} abundance_order={self.abundance_order}>"

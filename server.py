@@ -20,7 +20,7 @@ app.secret_key = 'secret'
 
 app.jinja_env.undefined = StrictUndefined
 
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -127,7 +127,7 @@ def show_profile():
 def show_product(product_id):
     """Show product profile for a particular product."""
 
-    product_obj = crud.get_obj_by_id('Product', escape(product_id))
+    product_obj = model.Product.query.get(escape(product_id))
     print(product_obj.product_name)
     return render_template('product_details.html', product=product_obj)
 

@@ -12,22 +12,21 @@
         <li>Product Type: product.product_type = {{ product.product_type }}</li>
         <li>Product Type using category_id: product.category.category_name = {{ product.category.category_name }}</li>
     </ul>
-    
-
     <!-- General info goes here! -->
 </div>
 <div class="routine" id="product_ingredients">
     <h3>Ingredients</h3>
-    product.product_ingredients = {{ product.product_ingredients }}
-    <p>List of Ingredients:</p>{% for ingred in product.product_ingredients %}
-    {{ ingred.ingredients.common_name }}, 
-    {% endfor %}
+    product.product_ingredients =<br><br> {{ product.product_ingredients }}
+    <br><br><p>List of Ingredients:</p><ul>
+    {% for ingred in product.product_ingredients %}
+      <li>{{ ingred.ingredient.common_name }}</li>
+    {% endfor %}</ul>
     <!-- button: show details -->
     <!-- button: hide details -->
     <!-- product ingredients can be hidden in the future... -->
 </div>
-<div class="routine" id="user_pm_routine">
-    <h3>My PM Routine</h3>
-    <!-- My PM Routine -->
+<div class="cabinet" id="add-to-cabinet">
+    <h3>Something Else</h3>
+    <!-- Something Else -->
 </div>
 {% endblock body %}

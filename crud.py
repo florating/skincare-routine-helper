@@ -75,34 +75,38 @@ def create_product_cascade(**obj_params):
         - None (if this product already exists in the database)
     """
 
+    # FIXME: check if prod_obj.product_name already exists in products table
+    if Product.query.filter_by(
+        product_name = obj_params['product_name']
+        ).all():
+
+        print("This product already exists in the database!")
+        return None
+        # REFACTOR-NOTE: try using the try/except constructions!
+    
     obj_params.pop('ingredients', None)  # toss
-    prod_type = obj_params.pop('product_type', None)
-    if prod_type is not None:
-         cat_obj = Category.query.filter(Category.category_name == prod_type).first()
-         if cat_obj is not None:
-            obj_params['category_id'] = cat_obj.category_id
     ingreds_list = obj_params.pop('clean_ingreds')
+    prod_type = obj_params.pop('product_type', None)    
 
     prod_obj = Product(**obj_params)
 
-    # FIXME: check if prod_obj.product_name already exists in products table
-    # if Product.query.filter(Product.product_name == prod_obj.product_name).all():
-        # REFACTOR-NOTE: try using the try/except constructions!
+    if prod_type:
+         cat_obj = Category.query.filter_by(category_name = prod_type).one()
+         if cat_obj:
+            prod_obj.category_id = cat_obj.category_id
+    
+    actual_ingreds_list = convert_string_to_list(ingreds_list)
+    create_ingredients_cascade(prod_obj, actual_ingreds_list)
+
     db.session.add(prod_obj)
-    db.session.flush()
 
     # result could be:
     # prod_obj = <Product product_id=2 product_name=Weleda Baby Calendula Cream Bath (200ml) category_id=None>
     # len(ingreds_list) = 200
 
-    actual_ingreds_list = convert_string_to_list(ingreds_list)
-    create_ingredients_cascade(prod_obj, actual_ingreds_list)
     db.session.commit()
     print('Session committed!\n\n')
     return prod_obj
-    # else:
-    #     print('Product with this name already exists in the database.')
-    #     return None
 
 
 def create_ingredients_cascade(product_obj, ingredient_list):
@@ -116,37 +120,23 @@ def create_ingredients_cascade(product_obj, ingredient_list):
         ???
     """
 
-    p_id = product_obj.product_id
-    created_ing_objs = []
+    # p_id = product_obj.product_id
+    ingreds_obj_list = []
+    proding_obj_list = []
     for i, ing_name in enumerate(ingredient_list):
-        ing_obj = Ingredient.query.filter(Ingredient.common_name == ing_name).first()
-        if ing_obj is None:
-            ing_obj = create_ingredient(ing_name)
-            created_ing_objs.append(ing_obj)
-        create_product_ingredient(p_id, ing_obj, i + 1)
-    print(f'Sucessfully added {len(created_ing_objs)} ingredient(s) from \n\
+        # FIXME: check if ingredient name is in alternative_name field...
+        ing_obj = Ingredient.query.filter_by(common_name=ing_name).first()
+        if not ing_obj:
+            ing_obj = Ingredient(common_name=ing_name)
+            ingreds_obj_list.append(ing_obj)
+        pi_obj = ProductIngredient(abundance_order=(i + 1))
+        proding_obj_list.append(pi_obj)
+        pi_obj.ingredient = ing_obj     # FIXME: what if ing_obj already exists?
+    product_obj.product_ingredients = proding_obj_list
+    print(f'Sucessfully added {len(ingreds_obj_list)} ingredient(s) from \n\
         ingredient_list of length {len(ingredient_list)} to the Ingredient table. \n\
         Also simultaneously added {len(ingredient_list)} the ProductIngredient table.\n\
         (Both not yet committed.)')
-
-
-def create_ingredient(name, alt_name=None):
-    """Create and return a new Ingredient object."""
-    obj = Ingredient(
-        common_name=name,
-        alternative_name=alt_name)
-    db.session.add(obj)
-    return obj
-
-
-def create_product_ingredient(p_id, ing_obj, abundance_order):
-    """Create and return a new ProductIngredient object."""
-    obj = ProductIngredient(
-        product_id=p_id, 
-        ingredient_id=ing_obj.ingredient_id, 
-        abundance_order=abundance_order)
-    db.session.add(obj)
-    return obj
 
 
 def add_and_commit(table_obj):
@@ -161,7 +151,7 @@ def check_if_obj_exists(class_name, param_key, param_val):
     """Return True if object with this key-value pair already exists in the database."""
     class_fxn = FXN_DICT[class_name]
     obj = class_fxn.query.filter_by(param_key=param_val).first()
-    return not not obj
+    return bool(obj)
 
 
 def convert_price(arg_dict, price_key):

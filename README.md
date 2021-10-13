@@ -35,7 +35,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [ ] (2) complete questionnaire for user profile
 - [ ] (3) setup database with ingredients using Kaggle dataset
 - [x] (4) search & display info for a product
-    - 10/12: full product query will display now! time to work on the page for individual product details
+    - 10/12: routes for full product query and individual product details are now functioning and display information!
 
 
 ## Next Steps
@@ -76,7 +76,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/05: about_steps.json
     - [x] 10/05: skin_concerns.json
 - [x] 10/11: setup product search results page
-- [ ] setup individual product details page
+- [x] 10/12: setup individual product details page
 
 #### **Complete questionnaire for user profile:**
 - [ ] complete quick questionnaire for user profile

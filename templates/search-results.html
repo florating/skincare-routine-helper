@@ -14,10 +14,11 @@
 
     <div class="row">
       <div class="col">
-        <div id="results-as-json">
+        <div id="results-as-repr">
           <h2>Results:</h2>
+          {# FIXME: reduce total # of items that will display if the product_list is too long #}
           {% for item in product_list %}
-          <pre>{{item}}</pre>
+          <pre>{{ item }}</pre>
           {% endfor %}
         </div>
 
@@ -30,6 +31,11 @@
             </span>
             products matched your search.
           </p>
+          <div class="row">
+            {% if product_list|length > 10 %}
+              Showing 10 of {{ product_list|length }} products.
+            {% endif %}
+          </div>
 
           <ul class="events-list">
             {% for item in product_list %}
