@@ -151,7 +151,7 @@ def show_products_from_search():
     for item in parameters:
         payload[item] = request.args.get(item, '')
     
-    payload['limit'] = 2
+    payload['limit'] = 10
 
     # form.serialize()
     
@@ -175,6 +175,7 @@ def show_products_from_search():
     for param, param_val in payload.items():
         if param_val and param == 'product_name':
             product_query = product_query.filter(model.Product.product_name.ilike(f"%{param_val}%"))
+            # TODO: add order_by and limit functionality for the search
     result = product_query.all()
 
     return render_template('search-results.html', product_list=result)

@@ -1,4 +1,4 @@
-"""Test crud functions.
+"""Test model functions.
 
 To join a session into an external transaction (for a test suite?), check out this resource:
 https://docs.sqlalchemy.org/en/14/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
@@ -27,38 +27,7 @@ from model import db, Concern, Ingredient, Product, ProductIngredient, Skintype,
 from server import app
 
 
-class TestCrudDatabaseNoDependencies(TestCase):
-    """Crud tests that use the database without dependencies."""
-
-    def setUp(self):
-        os.system('dropdb testdb --if-exists')
-        os.system('createdb testdb')
-        model.connect_to_db(app, 'postgresql:///testdb')
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        db.engine.dispose()
-    
-    def test_setUp_and_tearDown(self):
-        """Test if setUp and tearDown methods are working."""
-        self.assertEqual('a', 'a')
-    
-    def test_create_table_obj(self):
-        """Check that object has been added to the database."""
-        table_class_name = 'Concern'
-        obj_params = {
-            "concern_name": "anti-aging",
-            "description": "Fine lines & sun damage"
-        }
-        test_obj = crud.create_table_obj(table_class_name, **obj_params)
-        test_query = Concern.query.filter_by(concern_name = "anti-aging").first()
-        print(f"test_obj = {test_obj}, test_query = {test_query}")
-        self.assertEqual(test_obj, test_query)
-
-
-class TestCrudDatabase(TestCase):
+class TestModelDatabase(TestCase):
     """Crud tests that use the database."""
 
     def setUp(self):
@@ -66,7 +35,7 @@ class TestCrudDatabase(TestCase):
         os.system('createdb testdb')
         model.connect_to_db(app, 'postgresql:///testdb')
         db.create_all()
-        example_data()
+        # example_data()
 
     def tearDown(self):
         db.session.remove()
@@ -77,29 +46,29 @@ class TestCrudDatabase(TestCase):
         """Test if setUp and tearDown methods are working."""
         self.assertEqual('a', 'a')
     
-    def test_get_user_by_email(self):
-        test_query = User.query.filter_by(email='email_1@email.com').first()
-        test_user = crud.get_user_by_email('email_1@email.com')
-        self.assertEqual(test_user, test_query)
+    # def test_get_user_by_email(self):
+    #     test_query = User.query.filter_by(email='email_1@email.com').first()
+    #     test_user = crud.get_user_by_email('email_1@email.com')
+    #     self.assertEqual(test_user, test_query)
      
-    def test_get_first_obj_by_param(self):
-        trad_queried_prod = model.User.query.get(1)
-        query_param = {
-            "user_id": 1
-        }
-        crud_queried_prod = crud.get_first_obj_by_param("User", **query_param)
-        self.assertEqual(trad_queried_prod, crud_queried_prod)
+    # def test_get_first_obj_by_param(self):
+    #     trad_queried_prod = model.User.query.get(1)
+    #     query_param = {
+    #         "user_id": 1
+    #     }
+    #     crud_queried_prod = crud.get_first_obj_by_param("User", **query_param)
+    #     self.assertEqual(trad_queried_prod, crud_queried_prod)
     
-    def test_create_user(self):
-        obj_params = {
-            "email": "sqrpnts@gmail.com",
-            "password": "Pineapple4!",
-            "f_name": "Spongebob",
-            "l_name": "Squarepants"
-        }
-        new_user = crud.create_user(**obj_params)
-        queried_user = crud.get_user_by_email("sqrpnts@gmail.com")
-        self.assertEqual(new_user, queried_user)
+    # def test_create_user(self):
+    #     obj_params = {
+    #         "email": "sqrpnts@gmail.com",
+    #         "password": "Pineapple4!",
+    #         "f_name": "Spongebob",
+    #         "l_name": "Squarepants"
+    #     }
+    #     new_user = crud.create_user(**obj_params)
+    #     queried_user = crud.get_user_by_email("sqrpnts@gmail.com")
+    #     self.assertEqual(new_user, queried_user)
     
     def test_create_product_cascade(self):
         obj_params = {
@@ -116,7 +85,7 @@ class TestCrudDatabase(TestCase):
         queried_prod = crud.get_first_obj_by_param("Product", **query_param)
         self.assertEqual(new_prod, queried_prod)
 
-    def test_create_product_cascade_duplicate(self):
+    def test_create_product_cascade_ingredients(self):
         """Test object creation cascade for products -> ingredients -> product_ingredients tables.
         SOURCE: https://docs-sqlalchemy.readthedocs.io/ko/latest/orm/cascades.html
         """
@@ -138,6 +107,8 @@ class TestCrudDatabase(TestCase):
             obj2.ingredient = ing_obj
         prod_obj = Product(**params)
         prod_obj.product_ingredients = proding_obj_list
+        print("*"*20)
+        print("*"*20)
         print(f"\nprod_obj.product_ingredients = proding_obj_list \
             \n prod_obj.product_ingredients = {prod_obj.product_ingredients}, \
             \n proding_obj_list = {proding_obj_list}\n\n")
@@ -147,8 +118,20 @@ class TestCrudDatabase(TestCase):
         print(f"\ningreds_obj_list[0] --> {ingreds_obj_list[0]}")
         print(f"ingreds_obj_list[0] in sess --> {ingreds_obj_list[0] in sess}")
         sess.commit()
+        print("*"*20)
+        print("*"*20)
+        print("Session committed!")
+        print("*"*20)
+        print("*"*20)
         self.assertEqual(ingreds_obj_list[0], proding_obj_list[0].ingredient)
         self.assertEqual(prod_obj, proding_obj_list[0].product)
+        print(f"ingreds_obj_list[0] = {ingreds_obj_list[0]}, \
+            \nproding_obj_list[0].ingredient = {proding_obj_list[0].ingredient}")
+        print("*"*20)
+        print(f"prod_obj = {prod_obj}, \
+            \nproding_obj_list[0].product = {proding_obj_list[0].product}")
+        print("*"*20)
+        print("*"*20)
 
 
 def example_data():
