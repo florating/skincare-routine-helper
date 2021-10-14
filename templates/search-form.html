@@ -11,9 +11,6 @@
       <form method="GET" action="/products/search">
         <div class="row">
           <label class="form-label" for="search-keyword">Product Name</label>
-          <!-- <small class="form-text text-muted">
-            Leave this blank to get all events!
-          </small> -->
 
           <input
             id="search-keyword"
@@ -25,43 +22,9 @@
           >
         </div>
 
-        <!-- <div class="row">
-          <label class="form-label" for="search-zip">Zip Code</label>
-
-          <input
-            id="search-zip"
-            class="form-control"
-            type="text"
-            name="zipcode"
-          >
-        </div> -->
-<!-- 
-        <div class="row">
-          <label class="form-label" for="search-radius">Distance Radius</label>
-          <small class="form-text text-muted">
-            How far to search from your location?
-          </small>
-
-          <div class="col-8">
-              <input
-                id="search-radius"
-                class="form-control"
-                type="number"
-                name="radius"
-              >
-            </div>
-
-            <div class="col-3 offset-1">
-              <select class="form-control form-select" name="unit">
-                <option value="miles">miles</option>
-                <option value="km">kilometers</option>
-              </select>
-            </div>
-        </div> -->
-
         <div class="row">
           <label for="search-sort-by">Sort By</label>
-
+<!-- FIXME: include this value in the query in server.py -->
           <select
             id="search-sort-by"
             class="form-control form-select"
@@ -82,3 +45,5 @@
   </div>
 </div>
 {% endblock %}
+
+{% block after_body %}{% endblock %}

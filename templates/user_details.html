@@ -17,7 +17,7 @@
     {% else %}
         Please login <a href="/login">here</a>.
     {% endif %}
-    <p class='settings'><i><a href="/#settings">Click here</a> to update your user profile or settings. (Broken!)</i></p>
+    <p class='settings'><i><a href="/settings">Click here</a> to update your user profile or settings.</i></p>
 </div>
 <div id="user_cabinet">
     <h3>My Cabinet</h3>
@@ -85,3 +85,5 @@
 </div>
 
 {% endblock body %}
+
+{% block after_body %}{% endblock %}

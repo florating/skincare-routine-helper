@@ -1,6 +1,7 @@
 body {
     background-color: #336699;
-    font-family: sans-serif
+    font-family: sans-serif;
+    padding-bottom: 50px;
 }
 
 /* Tooltip container */
@@ -28,4 +29,13 @@ body {
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+div.row {
+    /* border: thick double #32a1ce; */
+    border: dotted #32a1ce;
+}
+
+div.col {
+    border: solid orange;
 }

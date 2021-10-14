@@ -45,11 +45,11 @@
 					</ul></span>
 			</div>
 			<div class="field"><!-- <label>Password:</label> -->
-				<input name="password" type="text" placeholder="Password" title="Password Title Here?" maxlength="12" />
+				<input name="password" type="password" placeholder="Password" title="Password Title Here?" maxlength="12" />
 				<!-- pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$" -->
 			</div>
 			<div class="field"><!-- <label>Confirm Password:</label> -->
-				<input name="password_2" type="text" placeholder="Confirm Password" title="Password Title Here Again?" maxlength="12" /><!--
+				<input name="password_2" type="password" placeholder="Confirm Password" title="Password Title Here Again?" maxlength="12" /><!--
 					only allow submission if passwords match --><!-- 
 					Change maxlength? and how do we check that the passwords match? -->
 			</div>
@@ -77,3 +77,5 @@
 </div>
 {% endif %}
 {% endblock body %}
+
+{% block after_body %}{% endblock %}

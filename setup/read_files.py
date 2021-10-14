@@ -9,14 +9,6 @@ sys.path.append(parent)
 
 import crud
 
-TABLES_NO_DEPENDENCIES = {
-    'Category',
-    'Concern',
-    'Ingredient',
-    'SkincareStep',
-    'Skintype'
-}
-
 
 def load_files(table_obj_name, filename):
     """Load JSON or CSV files into the database.
@@ -100,7 +92,7 @@ def main(filename):
 
     file_dict = {}
     added_objects_dict = {}
-
+    print(f"filename = {filename}")
     with open(filename, 'r') as f:
         data = f.readlines()
         for line in data:

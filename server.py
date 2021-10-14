@@ -2,6 +2,7 @@
 # import os
 
 from flask import flash, Flask, redirect, render_template, request, session, url_for
+import flask_login
 from flask_login import LoginManager, login_required, login_user, logout_user
 from jinja2 import StrictUndefined
 from markupsafe import escape
@@ -103,7 +104,6 @@ def process_login():
 @app.route('/logout')
 @login_required
 def logout():
-    # FIXME: need to clear session or use flask-login to logout_user()
     logout_user()
     return redirect('/')
 
@@ -121,6 +121,37 @@ def show_user(user_id):
 @login_required
 def show_profile():
     return render_template('user_details.html')
+
+
+@app.route('/settings')
+@login_required
+def show_profile_settings():
+    concerns = model.Concern.query.all()
+    skintypes = model.Skintype.query.all()
+
+    return render_template('profile_settings.html', concerns=concerns, skintypes=skintypes)
+
+
+@app.route('/quiz', methods=['POST'])
+@login_required
+def update_skin_profile():
+    params = ['skintype_id', 'primary_concern_id', 'secondary_concern_id']
+    try:
+        for param in params:
+            val = request.form.get(param)
+            if val:
+                if 'skintype_id' in param:
+                    flask_login.current_user.skintype_id = val
+                elif 'primary_concern_id' in param:
+                    flask_login.current_user.primary_concern_id = val
+                elif 'secondary_concern_id' in param:
+                    flask_login.current_user.secondary_concern_id = val
+        db.session.commit()
+        flash('You have successfully updated your skin profile!')
+    except:
+        db.session.rollback()
+        flash('Something did not work...')
+    return redirect('/settings')
 
 
 @app.route('/products/<product_id>')
@@ -160,6 +191,7 @@ def show_products_from_search():
 
     # FIXME: pick one of the following ways to implement search...
     # FIXME: and also need to remove search parameters if form is empty
+    
     # Option 1:
     # product_results = crud.get_all_obj_by_param('Product', **params)
     
@@ -176,7 +208,7 @@ def show_products_from_search():
         if param_val and param == 'product_name':
             product_query = product_query.filter(model.Product.product_name.ilike(f"%{param_val}%"))
             # TODO: add order_by and limit functionality for the search
-    result = product_query.all()
+    result = product_query.all()[:10]
 
     return render_template('search-results.html', product_list=result)
 

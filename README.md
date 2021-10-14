@@ -6,6 +6,7 @@
 3. [MVP](#mvp)
 4. [Next Steps](#next-steps)
 5. [Task List](#task-list)
+6. [Journal](#journal)
 
 
 ## Overview
@@ -32,8 +33,10 @@ This is an evidence-based app to help recommend skincare products and general sk
 ## MVP:
 - [x] (1) setup user login
     - 10/11: partially completed, but need to test implementation of flask-login extension to restrict views to logged-in (or logged-out) users
-- [ ] (2) complete questionnaire for user profile
-- [ ] (3) setup database with ingredients using Kaggle dataset
+- [x] (2) complete questionnaire for user profile
+    - 10/13: completed! will add images later
+- [x] (3) setup database with ingredients using Kaggle dataset
+    - 10/12: completed! may need to migrate data from database to add TimestampMixin to the appropriate classes in model.py
 - [x] (4) search & display info for a product
     - 10/12: routes for full product query and individual product details are now functioning and display information!
 
@@ -51,12 +54,12 @@ This is an evidence-based app to help recommend skincare products and general sk
 
 ## Task List
 #### **General:**
+- [x] 10/08: setup the server
+- [x] 10/11: setup general navbar (temporary)
 - [ ] request API keys
 - [ ] setup API calls in separate directory/layer
 - [ ] request additional datasets (?)
-- [x] 10/08: setup the server
-- [ ] setup the homepage
-- [x] 10/11: setup general navbar
+- [ ] look into how to setup `login_manager.login_view`
 
 #### **Data model:**
 - [x] 10/06: create data models, [using dbdiagram.io](https://dbdiagram.io/)
@@ -65,33 +68,39 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [ ] sanitize comment section
 - [ ] add irritation scores per ingredient and per product
     - [ ] could use Faker
+- [ ] add ability to commit changes to name and email (user profile page)
 
 #### **Setup database with actual data:**
-- [ ] setup Kaggle dataset with clean ingredients (CSV file)
+- [x] 10/12: setup Kaggle dataset with clean ingredients (CSV file)
 - [ ] setup other dataset
 - [ ] look for datasets with sunscreen info
 
-#### **Display information about a product:**
-- [x] setup other json files
-    - [x] 10/05: about_steps.json
-    - [x] 10/05: skin_concerns.json
-- [x] 10/11: setup product search results page
-- [x] 10/12: setup individual product details page
+#### **Webpages:**
+- [x] 10/09: setup basic homepage
+    - [ ] reorganize
+- [x] 10/13: setup user settings page
+- [ ] add questionnaire page
+- [ ] add library to learn more
+    - [ ] skin types
+    - [ ] skin concerns
 
-#### **Complete questionnaire for user profile:**
-- [ ] complete quick questionnaire for user profile
-- [ ] setup questionnaire page
-- [x] 10/11: setup user profile page
-    - [x] 10/11: display user's cabinet, AM routine, and PM routine
+#### **Cabinet and routine functionality:**
+- [x] 10/11: display user's cabinet, AM routine, and PM routine
 - [ ] add products to user's cabinet, AM routine, and/or PM routine
 
+#### **Complete questionnaire for user profile:**
+- [x] 10/11: setup user profile page
+- [x] 10/13: complete quick questionnaire for user profile within the settings page
+- [ ] add descriptions and images to questionnaire
+
 #### **Setup search:**
-- [ ] setup product search
+- [x] 10/11: setup search page
     - [x] 10/09: lookup search tutorials
     - [x] 10/09: setup basic search using SQL queries
     - [x] 10/09: setup search using crud functions
-    - [ ] test product search functions
-- [ ] setup search page
+- [ ] maybe setup pagination or multiple queries with OFFSET and LIMIT parameters
+    - [ ] setup better search by relevance
+    - [x] 10/13: limit search results that are displayed using list concatenation
 
 #### **Testing:**
 - [x] 10/09: setup test_crud.py
@@ -99,6 +108,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - login, logout, restricted views
 - [ ] setup test_model.py
 - [ ] setup test_server.py
+- [ ] test product search functions
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*
 
@@ -132,5 +142,84 @@ This is an evidence-based app to help recommend skincare products and general sk
         - `The terminal process "/bin/bash" terminated with exit code: 1.`
         - Restarting VS code seemed fix it...??
     - [x] 10/11: setup logout function
+
+#### **Display information about a product:**
+- [x] 10/05: setup JSON and CSV files for sample dataset
+    - [x] 10/05: files with general info:
+        - about_steps.json
+        - maybe more later?
+    - [x] 10/05: files to seed db are listed in `/data/file_list.txt` or `/data/file_list_test2.txt`
+- [x] 10/11: setup product search results page
+- [x] 10/12: setup individual product details page
+
+
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
+
+
+## Journal:
+
+#### Wed, 10/13:
+**HIGHLIGHT:** finished MVP!
+<details>
+    <summary>Click to expand!</summary>
+
+**accomplishments:**
+- setup user_settings.html template and route to the resource on the server
+- complete quick questionnaire for user profile within the user settings page
+    - not hard-coded in, so will update with new entries into the skintypes and concerns tables!
+- limit the number of products displayed from a search using list concatenation in `server.py` for this route
+- add a (non-functional) button to add to personal cabinet
+    - TODO: use JS...?
+
+**blockers (somewhat resolved):**
+- `<div>` tag madness using classes for `flex-container`, `d-flex`, etc.
+- deciding whether to add `TimestampMixin` to User and other tables in `model.py`.
+    - will require data migration or re-seeding the db (manageable if done early on)
+    - TODO: is it important to track date last updated? if so, schedule time to add this
+- setting up general layout for `user_details.html`, `profile_settings.html`, and `product_details.html` using `<div class="col-#">`
+
+**refactoring:**
+    - added `{% block after_body %}{% endblock %}` to the end of all 6 HTML templates that extend `base.html`
+    - deleted `products.html` because it is not being used (actually using `product_details.html`)
+</details>
+
+
+#### Tue, 10/12:
+
+**HIGHLIGHT:** nearly finished MVP!
+<details>
+<summary>Click to expand!</summary>
+
+**accomplishments:**
+- updated Product constructor function, which calls Ingredient and ProductIngredient constructor functions from `crud.py`
+    - checks for duplicate products and ingredient
+    - TODO: check for duplicate entries in ingredients list... some products have ingredient lists with repeated items!!
+        - eg: CeraVe Moisturising Cream 50ml has "cetearyl alcohol" repeated 2x
+- things are talking from front-end to back-end!
+
+**yesterday's blockers (resolved!):**
+- VS code error (`exit code: 1`)
+- could not import `flask_login`, but was bc of env
+
+**questions:**
+- use `cascade` vs `onUpdate` vs something else for models when updating assignments?
+- how to add Trello card-like elements for routines/cabinet, such that they can snap into position?
+
+**project goal:**
+- setup data visualization for:
+    - possible allergens per user
+    - brands with cleaner ingredients
+- help people level up skincare routine
+- filters for products:
+    - cruelty-free
+    - vegan
+    - recommended for specific skintypes
+- filter for brands:
+    - parse brand names from product names
+    - black-owned business
+    - no recent scandals..??
+
+Note: I keep comitting to my repo starting with `Refactor code` and I could probably be more descriptive... Unless it's actually just a minor change.
+</details>
 
 *[Click here](#the-skincare-routine-helper) to go back to the top.*

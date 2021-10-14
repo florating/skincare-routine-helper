@@ -1,5 +1,7 @@
 """Models for the Skincare Routine Helper app."""
 
+from datetime import datetime, timezone
+
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, DateTime, Integer, Numeric, String, Text
@@ -10,6 +12,12 @@ print(f"Hello, I'm in model.py and __name__ = {__name__}!")
 
 db = SQLAlchemy()
 _db_name = 'project_test'  # FIXME: change when done with testing
+
+
+class TimestampMixin(object):
+    created_at = Column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+    updated = Column(DateTime, onupdate=datetime.now(timezone.utc))
+
 
 class Concern(db.Model):
     """Create a Concern object for the concerns table."""
@@ -57,7 +65,7 @@ class User(UserMixin, db.Model):
     hashed_password = Column(String(200), nullable=False)
 
     # skincare-related:
-    skintype_id = Column(Integer, db.ForeignKey('skintypes.skintype_id'), default='1')  # FIXME: may need to change default skintype_id
+    skintype_id = Column(Integer, db.ForeignKey('skintypes.skintype_id'), default=None)
     primary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
     secondary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
 
@@ -70,6 +78,11 @@ class User(UserMixin, db.Model):
     secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
     skintype = db.relationship('Skintype', backref='users')
     
+    perm_user_settings = [user_id, created_at]
+    display_fields = [f_name, l_name, email]
+    skin_display_fields = [skintype, primary_concern, secondary_concern]
+    modifiable_user_settings = [f_name, l_name, email]
+
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
@@ -84,7 +97,6 @@ class User(UserMixin, db.Model):
 
     def check_password(self, input_password):
         """Return True if input_password is the correct password."""
-        # FIXME: use werkzeug?
         return check_password_hash(self.hashed_password, input_password)
 
     def __repr__(self):
@@ -152,9 +164,9 @@ class Product(db.Model):
     __tablename__ = 'products'
 
     product_id = Column(Integer, primary_key=True, autoincrement=True)
-    product_name = Column(String(100), nullable=False)
+    product_name = Column(String(200), nullable=False)
     brand_name = Column(String(25), nullable=True)
-    product_url = Column(String(100), nullable=True)
+    product_url = Column(String(200), nullable=True)
     # product_size = Column(String(20), nullable=True)
     price = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
     # price_GBP = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
@@ -214,10 +226,10 @@ class Ingredient(db.Model):
     __tablename__ = 'ingredients'
 
     ingredient_id = Column(Integer, primary_key=True, autoincrement=True)
-    common_name = Column(String(50), nullable=False)
-    alternative_name = Column(String(50), nullable=True)
+    common_name = Column(String(100), nullable=False)
+    alternative_name = Column(Text, nullable=True)
 
-    active_type = Column(String(25), nullable=True, server_default=None)
+    active_type = Column(String(50), nullable=True, server_default=None)
     pm_only = Column(Boolean, default=False)
     irritation_rating = Column(Integer)
     endocrine_disruption = Column(Boolean, default=False)

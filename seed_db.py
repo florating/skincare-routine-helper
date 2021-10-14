@@ -14,8 +14,10 @@ from setup import read_files
 current = os.path.dirname(os.path.realpath(__file__))
 print(f'NOTE: current os.path.dirname(os.path.realpath(__file__)) = {current} for __file__ = {__file__}\n')
 
-# Add parent directory if this file is currently in a nested directory.
-# Assumes root directory named 'skincare' is,, one level above this one, at most.
+
+# If the current filepath does not end in the word "skincare" (because we are in a nested directory)...
+# and assuming the root directory named 'skincare' is one level above this one (at most),
+# then perform the following actions:
 if not re.search(r'skincare$', current):
     # Get name of the parent directory, relative to the current directory this file is in.
     parent = os.path.dirname(current)
@@ -41,7 +43,7 @@ if __name__ == '__main__':
 
     if not files_to_load:
         # Default: use data/file_list_test2.txt to test seeding the database
-        files_to_load = '/data/file_list.txt'
+        files_to_load = os.path.abspath('./data/file_list.txt')
 
     added_objects_dict = read_files.main(files_to_load)
     

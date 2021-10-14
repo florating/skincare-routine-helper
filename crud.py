@@ -68,14 +68,15 @@ def create_product_cascade(**obj_params):
         - obj_params (dict): a dictionary with key-value pairs for class attribute and value
             - eg: obj_params['clean_ingreds'] = "['xanthan gum', 'parfum', 'limonene', 'linalool']" (for example)
     
-    If this product does not already exist in the database, then this function also calls create_ingredients_cascade() to populate the ingredients and product_ingredients tables.
+    OTHER BEHAVIOR:
+        If this product does not already exist in the database, then this function also calls create_ingredients_cascade() to populate the ingredients and product_ingredients tables.
 
     RETURNS:
         - a Product object (if it was inserted into the table)
         - None (if this product already exists in the database)
     """
 
-    # FIXME: check if prod_obj.product_name already exists in products table
+    # TODO: (TEST THIS!) check if prod_obj.product_name already exists in products table
     if Product.query.filter_by(
         product_name = obj_params['product_name']
         ).all():
@@ -120,18 +121,17 @@ def create_ingredients_cascade(product_obj, ingredient_list):
         ???
     """
 
-    # p_id = product_obj.product_id
     ingreds_obj_list = []
     proding_obj_list = []
     for i, ing_name in enumerate(ingredient_list):
-        # FIXME: check if ingredient name is in alternative_name field...
+        # TODO: check if ingredient name is in alternative_name field...
         ing_obj = Ingredient.query.filter_by(common_name=ing_name).first()
         if not ing_obj:
             ing_obj = Ingredient(common_name=ing_name)
             ingreds_obj_list.append(ing_obj)
         pi_obj = ProductIngredient(abundance_order=(i + 1))
         proding_obj_list.append(pi_obj)
-        pi_obj.ingredient = ing_obj     # FIXME: what if ing_obj already exists?
+        pi_obj.ingredient = ing_obj
     product_obj.product_ingredients = proding_obj_list
     print(f'Sucessfully added {len(ingreds_obj_list)} ingredient(s) from \n\
         ingredient_list of length {len(ingredient_list)} to the Ingredient table. \n\
