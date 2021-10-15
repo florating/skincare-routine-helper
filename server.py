@@ -1,7 +1,7 @@
 """Server for the skincare routine helper."""
 # import os
 
-from flask import flash, Flask, redirect, render_template, request, session, url_for
+from flask import flash, Flask, jsonify, redirect, render_template, request, session, url_for
 import flask_login
 from flask_login import LoginManager, login_required, login_user, logout_user
 from jinja2 import StrictUndefined
@@ -168,6 +168,31 @@ def show_all_products():
     return render_template('search-form.html')
 
 
+@app.route('/test')
+def test_search():
+    return render_template('livesearch.html')
+
+
+@app.route('/livesearch', methods=['POST', 'GET'])
+def livesearch():
+    """Perform a search as the user types into the searchbox.
+    Uses jQuery and AJAX.
+    """
+    sql_query = "SELECT * FROM products WHERE product_name LIKE :product_name LIMIT :limit"
+    #  ORDER BY :order_by LIMIT :limit"
+    params = {
+        'product_name': "%" + request.form.get('text') + "%",
+        'order_by': request.form.get('order_by'),
+        'limit': 10
+    }
+    # To protect against SQL injection attacks, use SQLAlchemy's
+    # built-in parameter substitution.
+    cursor = db.session.execute(sql_query, params)
+    result = cursor.fetchone()
+    print(f"result = {result}")
+    return result
+
+
 @app.route('/products/search', methods=['GET'])
 def show_products_from_search():
     """Search for skincare products in the database.
@@ -180,7 +205,7 @@ def show_products_from_search():
     payload = {}
 
     for item in parameters:
-        payload[item] = request.args.get(item, '')
+        payload[item] = escape(request.args.get(item, ''))
     
     payload['limit'] = 10
 
@@ -203,14 +228,45 @@ def show_products_from_search():
     # Option 3:
     # check if product_name exists, then can add a filter
     # if other params exist, then add those
-    product_query = db.session.query(model.Product)
+    q = model.Product.query
     for param, param_val in payload.items():
-        if param_val and param == 'product_name':
-            product_query = product_query.filter(model.Product.product_name.ilike(f"%{param_val}%"))
+        if param_val:
+            if param == 'product_name':
+                q = q.filter(model.Product.product_name.ilike(f'%{param_val}%'))
+            elif param == 'order_by':
+                q = q.order_by(param_val)
+            elif param == 'limit':
+                q = q.limit(param_val)
             # TODO: add order_by and limit functionality for the search
-    result = product_query.all()[:10]
+    result = q.all()
 
     return render_template('search-results.html', product_list=result)
+
+
+@app.route('/add_to_cabinet', methods=['POST'])
+def add_products_to_cabinet():
+    data_pojo = request.form
+    print(f"NOTE: not in for loop... data_pojo = {data_pojo}")
+    # print(f"type(data_pojo) = {type(data_pojo)}")
+    # print(f"data_pojo.to_dict(flat=False) = {data_pojo.to_dict(flat=False)}")
+
+    # NOTE: not in for loop... data_pojo = ImmutableMultiDict([('product_id', '75'), ('product_id', '342')])
+    # NOTE: type(data_pojo) = <class 'werkzeug.datastructures.ImmutableMultiDict'>
+    # NOTE: data_pojo.to_dict(flat=False) = {'product_id': ['75', '342']}
+    p_id_list = data_pojo.to_dict(flat=False)['product_id']
+    for p_id in p_id_list:
+        print(f"NOTE: we in the for loop yoooo... p_id_list = {p_id_list}")
+        print(f"YO YO YO: the session is {session}")
+        print(f"session.get('user_id') = {session.get('user_id')}")
+        obj = model.Cabinet(
+            user_id=session['_user_id'],
+            product_id=p_id
+        )
+        print(f"I just created a Cabinet obj = {obj}")
+        print(f"Its product_id is {obj.product_id}")
+    print("I tried to add things to the cabinet!")
+    flash("You successfully added these products to your cabinet!")
+    return 'Hello'  # shouldn't happen...
 
 
 if __name__ == '__main__':

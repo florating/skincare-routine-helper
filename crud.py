@@ -129,6 +129,7 @@ def create_ingredients_cascade(product_obj, ingredient_list):
         if not ing_obj:
             ing_obj = Ingredient(common_name=ing_name)
             ingreds_obj_list.append(ing_obj)
+        # pi_query = ProductIngredient.query.filter_by(common_name=ing_name).first()
         pi_obj = ProductIngredient(abundance_order=(i + 1))
         proding_obj_list.append(pi_obj)
         pi_obj.ingredient = ing_obj

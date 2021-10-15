@@ -16,36 +16,66 @@
       <div class="col">
         <div id="results-as-repr">
           <h2>Results:</h2>
-          {# FIXME: reduce total # of items that will display if the product_list is too long #}
-          {% for item in product_list %}
-          <pre>{{ item }}</pre>
-          {% endfor %}
+          {% if product_list %}
+            {% for item in product_list %}
+            <pre>{{ item }}</pre>
+            {% endfor %}
+          {% else %}
+            <p>There are no products to display.</p>
+          {% endif %}
         </div>
 
+        
         <div id="product-search-results">
           <h2>Product Search Results</h2>
 
-          <p>
-            <span id="result-count">
-              {{ product_list|length }}
-            </span>
-            products matched your search.
-          </p>
-          <div class="row">
-            {% if product_list|length > 10 %}
-              Showing 10 of {{ product_list|length }} products.
-            {% endif %}
-          </div>
+          {% if not product_list %}
+            <p>There are no products to display.</p>
+          {% else %}
+            <p>
+              <span id="result-count">
+                {{ product_list|length }}
+              </span>
+              products matched your search.
+            </p>
+            <div class="row">
+              {# FIXME: change the wording for results shown #}
+              {% if product_list|length > 10 %}
+                Showing 10 of {{ product_list|length }} products.
+              {% endif %}
+            </div>
 
-          <ul class="product-list">
-            {% for item in product_list %}
-              <li>
-                <a href="/products/{{ item['product_id'] }}" target="_blank">
-                  {{ item['product_name'] }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
+            <!-- FORM STARTS HERE -->
+            <form id="add_to_cabinet" method="POST" action="/add_to_cabinet">
+              <table class="product-list">
+                <tr>
+                  <td></td>
+                  <td>Product</td>
+                  <td>Product Type</td>
+                  <!-- <td>Product Image</td> -->
+                </tr>
+                {% for item in product_list %}
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}">
+                    </td>
+                    <td>
+                      <a href="/products/{{ item['product_id'] }}" target="_blank">
+                        {{ item['product_name'] }}
+                      </a>
+                    </td>
+                    <td>
+                      {{ item['category']['category_name'] }}
+                    </td>
+                    <!-- <td>
+                      <img id="product_id_{{ item['product_id'] }}" src="">
+                    </td> -->
+                  </tr>
+                {% endfor %}
+              </table>
+              <input type="submit" value="Add to my cabinet!">
+            </form>
+          {% endif %}
         </div>
       </div>
     </div>

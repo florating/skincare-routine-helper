@@ -10,7 +10,7 @@
     <h1>{{ product.product_name }}</h1>
   </div>
   <div class="cabinet col-4" id="add-to-cabinet">
-    <button id="add-to-cabinet"></button>Add to Your Cabinet!
+    <button id="add-to-cabinet-button"></button>Add to Your Cabinet!
   </div>
 </div>
 <div class="row">
@@ -38,4 +38,6 @@
 </div>
 {% endblock body %}
 
-{% block after_body %}{% endblock %}
+{% block after_body %}
+<script type="text/jsx" src="/static/cabinets.jsx"></script>
+{% endblock %}

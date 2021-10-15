@@ -15,7 +15,7 @@
         </li>
         {% endfor %}
     {% else %}
-        Please login <a href="/login">here</a>.
+      Please login <a href="/login">here</a>.
     {% endif %}
     <p class='settings'><i><a href="/settings">Click here</a> to update your user profile or settings.</i></p>
 </div>
@@ -86,4 +86,6 @@
 
 {% endblock body %}
 
-{% block after_body %}{% endblock %}
+{% block after_body %}
+<script type="text/jsx" src="/static/routines.jsx"></script>
+{% endblock %}

@@ -23,8 +23,13 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 		<script
 			src="https://code.jquery.com/jquery-3.6.0.js"   
 			integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="   
-			crossorigin="anonymous"></script>
+			crossorigin="anonymous"
+    ></script>
 		
+    <!-- React, React DOM, and Babel -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
         
 		{% block head %}{% endblock %}
 	</head>
@@ -102,7 +107,7 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 				</div>
 			{% endif %}
 		{% endwith %}
-    <div class="body-container">
+    <div class="root">
       {% block body %}
       {% endblock %}
     </div>
