@@ -75,7 +75,8 @@ def create_product_cascade(**obj_params):
         - a Product object (if it was inserted into the table)
         - None (if this product already exists in the database)
     """
-
+    # parse product_size out of the product_name field in obj_params
+    obj_params = parse_out_product_size(**obj_params)
     # TODO: (TEST THIS!) check if prod_obj.product_name already exists in products table
     if Product.query.filter_by(
         product_name = obj_params['product_name']
@@ -92,7 +93,7 @@ def create_product_cascade(**obj_params):
     prod_obj = Product(**obj_params)
 
     if prod_type:
-         cat_obj = Category.query.filter_by(category_name = prod_type).one()
+         cat_obj = Category.query.filter_by(category_name=prod_type).one()
          if cat_obj:
             prod_obj.category_id = cat_obj.category_id
     
@@ -129,7 +130,10 @@ def create_ingredients_cascade(product_obj, ingredient_list):
         if not ing_obj:
             ing_obj = Ingredient(common_name=ing_name)
             ingreds_obj_list.append(ing_obj)
+        # check if this product_name was already added to the product_ingredients table for this product!
         # pi_query = ProductIngredient.query.filter_by(common_name=ing_name).first()
+        # if pi_query:
+        #     continue
         pi_obj = ProductIngredient(abundance_order=(i + 1))
         proding_obj_list.append(pi_obj)
         pi_obj.ingredient = ing_obj
@@ -148,10 +152,19 @@ def add_and_commit(table_obj):
 
 ##### HELPER FUNCTIONS BELOW #####
 
-def check_if_obj_exists(class_name, param_key, param_val):
+def parse_out_product_size(**obj_params):
+    """Return a dict of parameters in which (1) product_name no longer contains the product_size, and (2) a new key-value pair for product_size now exists in obj_params."""
+    first, *middle, last = obj_params['product_name'].split()
+    obj_params['product_name'] = ' '.join([first] + middle)
+    obj_params['product_size'] = last.lstrip('([').rstrip('])')
+    return obj_params
+
+
+def check_if_obj_exists(class_name, param_dict):
     """Return True if object with this key-value pair already exists in the database."""
     class_fxn = FXN_DICT[class_name]
-    obj = class_fxn.query.filter_by(param_key=param_val).first()
+    # was param_key=param_val instead of **param_dict, this might still be wrong...
+    obj = class_fxn.query.filter_by(**param_dict).first()
     return bool(obj)
 
 

@@ -210,14 +210,15 @@ class Cabinet(db.Model):
     cabinet_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     product_id = Column(Integer, db.ForeignKey('products.product_id'))
-    status = Column(Boolean, nullable=False, default=True)
+    # status = Column(Boolean, nullable=False, default=True)  # FIXME: change name
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     users = db.relationship('User', backref='cabinets')
-    products = db.relationship('Product', backref='cabinets')
+    product = db.relationship('Product', backref='cabinets')
 
     def __repr__(self):
-        return f"<Cabinet cabinet_id={self.cabinet_id} user_id={self.user_id} status={self.status}>"
+        # TODO: test that product={...} will show up properly
+        return f"<Cabinet cabinet_id={self.cabinet_id} user_id={self.user_id} product={self.product.product_name}>"
 
 
 class Ingredient(db.Model):
@@ -292,15 +293,16 @@ class AMRoutine(db.Model):
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     step_id = Column(Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
     product_id = Column(Integer, db.ForeignKey('products.product_id'), nullable=True)
-    status = Column(Boolean, default=True)
+    # status = Column(Boolean, default=True)    # FIXME: change name
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     users = db.relationship('User', backref='am_routines')
-    products = db.relationship('Product', backref='am_routines')
+    product = db.relationship('Product', backref='am_routines')
     steps = db.relationship('SkincareStep', backref='am_routines')
 
     def __repr__(self):
-        return f"<AMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} status={self.status}>"
+        # TODO: test that product={...} will show up properly
+        return f"<AMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} product={self.product.product_name}>"
     
     def retire(self):
         """Remove product from current routine."""
@@ -317,15 +319,16 @@ class PMRoutine(db.Model):
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     step_id = Column(Integer, db.ForeignKey('skincare_steps.step_id'), nullable=False)
     product_id = Column(Integer, db.ForeignKey('products.product_id'), nullable=True)
-    status = Column(Boolean, default=True)
+    # status = Column(Boolean, default=True)    # FIXME: change name
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     users = db.relationship('User', backref='pm_routines')
-    products = db.relationship('Product', backref='pm_routines')
+    product = db.relationship('Product', backref='pm_routines')
     steps = db.relationship('SkincareStep', backref='pm_routines')
 
     def __repr__(self):
-        return f"<PMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} status={self.status}>"
+        # TODO: test that product={...} will show up properly
+        return f"<PMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} product={self.product.product_name}>"
 
 
 def connect_to_db(flask_app, db_uri=f"postgresql:///{_db_name}", echo=True):
