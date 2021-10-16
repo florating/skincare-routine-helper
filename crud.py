@@ -88,7 +88,7 @@ def create_product_cascade(**obj_params):
     
     obj_params.pop('ingredients', None)  # toss
     ingreds_list = obj_params.pop('clean_ingreds')
-    prod_type = obj_params.pop('product_type', None)    
+    prod_type = obj_params.pop('product_type', None)
 
     prod_obj = Product(**obj_params)
 
@@ -154,10 +154,19 @@ def add_and_commit(table_obj):
 
 def parse_out_product_size(**obj_params):
     """Return a dict of parameters in which (1) product_name no longer contains the product_size, and (2) a new key-value pair for product_size now exists in obj_params."""
-    first, *middle, last = obj_params['product_name'].split()
-    obj_params['product_name'] = ' '.join([first] + middle)
-    obj_params['product_size'] = last.lstrip('([').rstrip('])')
+    first, *middle, last = obj_params['product_name'].rstrip().split()
+    digit_in_last = re.search(r'\d', last)
+    open_paren_in_last = re.search(r'\(', last)
+    close_paren_in_last = re.search(r'\)', last)
+    if digit_in_last and logical_xnor(open_paren_in_last, close_paren_in_last):
+        obj_params['product_name'] = ' '.join([first] + middle)
+        obj_params['product_size'] = last.lstrip('([').rstrip('])')
     return obj_params
+
+
+def logical_xnor(a, b):
+    """Returns true if bool(a) == bool(b)."""
+    return bool(a) == bool(b)
 
 
 def check_if_obj_exists(class_name, param_dict):

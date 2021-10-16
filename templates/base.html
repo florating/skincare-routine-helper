@@ -52,7 +52,7 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-2">
 					<li class="nav-item active">
-						<a class="nav-link" href="/">Home <span class="sr-only">(current - broken)</span></a>
+						<a class="nav-link" href="/">Home <span class="sr-only"></span></a>
 					</li>
 					{% if current_user.is_authenticated %}
 					<li class="nav-item">
@@ -67,7 +67,7 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 					</li>
 					{% endif %}
           <li class="nav-item">
-						<a class="nav-link" href="/products">Products</a>
+						<a class="nav-link" href="/products">Product Search</a>
 					</li>
 					<li class="nav-item dropdown">
 						<a
@@ -79,7 +79,7 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 							aria-haspopup="true"
 							aria-expanded="false"
 						>
-							Dropdown (broken)
+							Dropdown (under construction)
 						</a>
 						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 							<li><a class="dropdown-item" href="#">Action</a></li>
@@ -94,20 +94,24 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 						<a class="nav-link disabled" href="#">Disabled</a>
 					</li>
 				</ul>
-				<form class="d-flex" action="/products/search">
+
+                <!-- SEARCH FORM STARTS HERE -->
+				<form class="d-flex" action="/products/search" method="POST">
 					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="product_name" />
 					<button class="btn btn-outline-success me-2" type="submit">Search</button>
 				</form>
 			</div>
 		</nav>
-    {% with messages = get_flashed_messages() %}
+    <div class="root">
+      {% with messages = get_flashed_messages() %}
 			{% if messages %}
+      <div class="row flex-container justify-content-center">
 				<div class="notification is-danger">
           {{ messages[0] }}
 				</div>
+      </div>
 			{% endif %}
 		{% endwith %}
-    <div class="root">
       {% block body %}
       {% endblock %}
     </div>

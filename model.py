@@ -167,7 +167,7 @@ class Product(db.Model):
     product_name = Column(String(200), nullable=False)
     brand_name = Column(String(25), nullable=True)
     product_url = Column(String(200), nullable=True)
-    # product_size = Column(String(20), nullable=True)
+    product_size = Column(String(20), nullable=True)
     price = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
     # price_GBP = Column(String(10), nullable=True)  # FIXME: convert to Numeric later, and add price conversion into crud.py or here
     price_USD = Column(Numeric, nullable=True)

@@ -165,7 +165,7 @@ def show_product(product_id):
 
 @app.route('/products', methods=['GET'])
 def show_all_products():
-    return render_template('search-form.html')
+    return render_template('search_form.html', categories_table = model.Category.query.all())
 
 
 @app.route('/test')
@@ -193,26 +193,59 @@ def livesearch():
     return result
 
 
-@app.route('/products/search', methods=['GET'])
+@app.route('/products/search', methods=['POST'])
 def show_products_from_search():
     """Search for skincare products in the database.
 
-    Use form data from /products (in 'search-form.html') to populate any search parameters.
+    Use form data from /products (in 'search_form.html') to populate any search parameters.
     """
 
-    parameters = ['product_name', 'brand_name', 'product_type', 'num_ingredients', 'order_by']
+    # form_params = request.form.to_dict(flat=False)
+    # form_params = normal dict (flattened ImmutableMultiDict)
 
-    payload = {}
+    form_params = {
+        'product_name': request.form.get('product_name', ''),
+        'order_by': request.form.get('order_by', ''),
+        # 'category_id': request.form.get('category_id', ''),
+        'limit': 10
+    }
 
-    for item in parameters:
-        payload[item] = escape(request.args.get(item, ''))
-    
-    payload['limit'] = 10
 
-    # form.serialize()
-    
-    # product_results = model.Product.query.filter(model.Product.product_name.like(f'%{params["product_name"]}%')).all()
-    # print(f'parameters["product_type"] = {parameters["product_type"]}')
+    print("\n\n\n")
+    print(f"request.form = {request.form}")
+    # request.form = ImmutableMultiDict(
+    #   [
+    #       ('product_name', 'lotion'),
+    #       ('order_by', 'product_name'),
+    #       ('category_id', '1'),
+    #       ('category_id', '2')
+    #   ]
+    # )
+
+    print("\n\n\n")
+    print(f"form_params = {form_params}\n\n\n")
+    # form_params = {
+    #   'product_name': ['lotion'],
+    #   'order_by': ['product_name'],
+    #   'category_id': ['1', '2']
+    # }
+
+    # Handle the user input for the checkboxes in for category_id separately:
+    # cat_id_list_length = len(form_params.pop('category_id', None))
+
+    # test_retrieval_list = request.form.getlist('category_id')
+
+    # print(f"cat_id_list_length = {cat_id_list_length}\n\n\n")
+    # i = 0
+    # payload['category_id'] = []
+    # while i < cat_id_list_length:
+    #     test_thing = request.form.get('category_id', type=int)
+    #     print(f"test_thing = {test_thing}\n\n\n")
+    #     payload['category_id'].append(test_thing)
+    #     i += 1
+    # for i, cat_id_str in enumerate(cat_id_list):
+    #     cat_id_list[i] = int(cat_id_str)
+    # payload['category_id'] = cat_id_list
 
     # FIXME: pick one of the following ways to implement search...
     # FIXME: and also need to remove search parameters if form is empty
@@ -229,15 +262,27 @@ def show_products_from_search():
     # check if product_name exists, then can add a filter
     # if other params exist, then add those
     q = model.Product.query
-    for param, param_val in payload.items():
+    print("ABOUT TO START FOR LOOP!\n\n\n")
+    for param, param_val in form_params.items():
+        print(f"for param = {param} and param_val = {param_val}\n\n")
         if param_val:
+            print(f"I'M IN LINE 277!")
             if param == 'product_name':
                 q = q.filter(model.Product.product_name.ilike(f'%{param_val}%'))
+            # FIXME: no product types allowed...
+            # elif param == 'category_id':
+            #     q = q.filter(
+            #       model.Product
+            #       .category_id
+            #       .in_(param_val)
+            #     )
+            # TODO: add order_by and limit functionality for the search
             elif param == 'order_by':
+                print(f"param_val = {param_val}\n\n\n")
                 q = q.order_by(param_val)
             elif param == 'limit':
                 q = q.limit(param_val)
-            # TODO: add order_by and limit functionality for the search
+    print(f"q = {q}\n\n\n")
     result = q.all()
 
     return render_template('search-results.html', product_list=result)
