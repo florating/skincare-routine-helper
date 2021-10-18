@@ -92,12 +92,12 @@ def process_login():
             # session['user_email'] = user.email
 
             flash('Welcome, you have successfully logged in.')
-            return redirect(url_for('show_user', user_id=user.user_id))
+            return redirect(url_for('show_profile'))
         
         flash(error)
         return redirect('/')
     else:
-        flash(error)
+        flash("You are not using a POST request.")
         return redirect('/')
 
 
@@ -106,15 +106,6 @@ def process_login():
 def logout():
     logout_user()
     return redirect('/')
-
-
-@app.route('/users/<user_id>')
-@login_required
-def show_user(user_id):
-    """Show user profile for a particular user."""
-
-    user_obj = crud.get_obj_by_id('User', escape(user_id))
-    return render_template('user_details.html', user=user_obj)
 
 
 @app.route('/user_profile')
@@ -178,6 +169,8 @@ def livesearch():
     """Perform a search as the user types into the searchbox.
     Uses jQuery and AJAX.
     """
+    # use SQLAlchemy queries
+
     sql_query = "SELECT * FROM products WHERE product_name LIKE :product_name LIMIT :limit"
     #  ORDER BY :order_by LIMIT :limit"
     params = {
@@ -191,6 +184,10 @@ def livesearch():
     result = cursor.fetchone()
     print(f"result = {result}")
     return result
+    # eg: result =
+    # (1, 'The Ordinary Natural Moisturising Factors + HA', None, 'https://www.lookfantastic.com/the-ordinary-natural-moisturising-factors-ha-30ml/11396687.html', '30ml', '£5.20', None, 1, None, datetime.datetime(2021, 10, 15, 21, 31, 19, 813822, tzinfo=datetime.timezone.utc))
+
+    # return jsonify(json_list=result.serialize)
 
 
 @app.route('/products/search', methods=['POST'])
@@ -198,57 +195,7 @@ def show_products_from_search():
     """Search for skincare products in the database.
 
     Use form data from /products (in 'search_form.html') to populate any search parameters.
-    """
-
-    # form_params = request.form.to_dict(flat=False)
-    # form_params = normal dict (flattened ImmutableMultiDict)
-
-    form_params = {
-        'product_name': request.form.get('product_name', ''),
-        'order_by': request.form.get('order_by', ''),
-        # 'category_id': request.form.get('category_id', ''),
-        'limit': 10
-    }
-
-
-    print("\n\n\n")
-    print(f"request.form = {request.form}")
-    # request.form = ImmutableMultiDict(
-    #   [
-    #       ('product_name', 'lotion'),
-    #       ('order_by', 'product_name'),
-    #       ('category_id', '1'),
-    #       ('category_id', '2')
-    #   ]
-    # )
-
-    print("\n\n\n")
-    print(f"form_params = {form_params}\n\n\n")
-    # form_params = {
-    #   'product_name': ['lotion'],
-    #   'order_by': ['product_name'],
-    #   'category_id': ['1', '2']
-    # }
-
-    # Handle the user input for the checkboxes in for category_id separately:
-    # cat_id_list_length = len(form_params.pop('category_id', None))
-
-    # test_retrieval_list = request.form.getlist('category_id')
-
-    # print(f"cat_id_list_length = {cat_id_list_length}\n\n\n")
-    # i = 0
-    # payload['category_id'] = []
-    # while i < cat_id_list_length:
-    #     test_thing = request.form.get('category_id', type=int)
-    #     print(f"test_thing = {test_thing}\n\n\n")
-    #     payload['category_id'].append(test_thing)
-    #     i += 1
-    # for i, cat_id_str in enumerate(cat_id_list):
-    #     cat_id_list[i] = int(cat_id_str)
-    # payload['category_id'] = cat_id_list
-
     # FIXME: pick one of the following ways to implement search...
-    # FIXME: and also need to remove search parameters if form is empty
     
     # Option 1:
     # product_results = crud.get_all_obj_by_param('Product', **params)
@@ -261,6 +208,16 @@ def show_products_from_search():
     # Option 3:
     # check if product_name exists, then can add a filter
     # if other params exist, then add those
+    """
+
+    form_params = {
+        'product_name': request.form.get('product_name', ''),
+        'order_by': request.form.get('order_by', ''),
+        # 'product_type': request.form.get('product_type', ''),
+        'category_id': request.form.get('category_id', ''),
+        'limit': 10
+    }
+
     q = model.Product.query
     print("ABOUT TO START FOR LOOP!\n\n\n")
     for param, param_val in form_params.items():
@@ -270,48 +227,72 @@ def show_products_from_search():
             if param == 'product_name':
                 q = q.filter(model.Product.product_name.ilike(f'%{param_val}%'))
             # FIXME: no product types allowed...
-            # elif param == 'category_id':
-            #     q = q.filter(
-            #       model.Product
-            #       .category_id
-            #       .in_(param_val)
-            #     )
+            elif param == 'category_id':
+                q = q.filter(model.Product.category_id == int(param_val))
+                #   .in_(param_val)
             # TODO: add order_by and limit functionality for the search
             elif param == 'order_by':
                 print(f"param_val = {param_val}\n\n\n")
                 q = q.order_by(param_val)
             elif param == 'limit':
                 q = q.limit(param_val)
+
     print(f"q = {q}\n\n\n")
     result = q.all()
 
-    return render_template('search-results.html', product_list=result)
+    cab_prod_id_list = []
+    for cab_obj in flask_login.current_user.cabinets:
+        cab_prod_id_list.append(cab_obj.product_id)
+
+    return render_template('search-results.html', product_list=result, current_cabinet=cab_prod_id_list)
 
 
 @app.route('/add_to_cabinet', methods=['POST'])
 def add_products_to_cabinet():
-    data_pojo = request.form
-    print(f"NOTE: not in for loop... data_pojo = {data_pojo}")
+    
     # print(f"type(data_pojo) = {type(data_pojo)}")
     # print(f"data_pojo.to_dict(flat=False) = {data_pojo.to_dict(flat=False)}")
 
     # NOTE: not in for loop... data_pojo = ImmutableMultiDict([('product_id', '75'), ('product_id', '342')])
     # NOTE: type(data_pojo) = <class 'werkzeug.datastructures.ImmutableMultiDict'>
     # NOTE: data_pojo.to_dict(flat=False) = {'product_id': ['75', '342']}
+    data_pojo = request.form
+    print(f"NOTE: not in for loop... data_pojo = {data_pojo}")
+
     p_id_list = data_pojo.to_dict(flat=False)['product_id']
+
+    # This works for 1 or more product_ids in the data_pojo.
     for p_id in p_id_list:
-        print(f"NOTE: we in the for loop yoooo... p_id_list = {p_id_list}")
-        print(f"YO YO YO: the session is {session}")
-        print(f"session.get('user_id') = {session.get('user_id')}")
+        print(f"\n\n\nNOTE: we in the for loop yoooo... p_id_list = {p_id_list}\n\n\n")
+        print(f"YO YO YO: the session is {session}\n\n\n")
+        print(f"session.get('user_id') = {session.get('user_id')}\n\n\n")
+
+        # check if this product_id is already in this user's cabinet
+        model.Cabinet.query.filter_by(user_id=session['_user_id'])
+        # filter_by(product_id... using in_?)
+
+        user_cabinet_list = flask_login.current_user.cabinets
+        print(f"user_cabinet_list = {user_cabinet_list}\n\n\n")
+
         obj = model.Cabinet(
             user_id=session['_user_id'],
             product_id=p_id
         )
-        print(f"I just created a Cabinet obj = {obj}")
-        print(f"Its product_id is {obj.product_id}")
-    print("I tried to add things to the cabinet!")
+        print(f"I just created a Cabinet obj = {obj}\n\n\n")
+        print(f"Its product_id is {obj.product_id}\n\n\n")
+        db.session.add(obj)
+
+    print("I'm out of the for loop and tried to add things to the cabinet!\n\n\n")
+    db.session.commit()
     flash("You successfully added these products to your cabinet!")
-    return 'Hello'  # shouldn't happen...
+    print("We got to line 283! Hopefully that's good news!\n\n\n")
+    print(f"user_cabinet_list = {user_cabinet_list}\n\n\n")
+    return redirect(url_for('show_profile'))
+
+
+@app.route('/routine')
+def setup_routine():
+    return render_template('routine.html')
 
 
 if __name__ == '__main__':

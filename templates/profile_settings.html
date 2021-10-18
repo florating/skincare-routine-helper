@@ -7,69 +7,70 @@
 
 
 {% block body %}
-<div class="row">
-  <h1>Profile Settings</h1>
-  <div class="col d-flex flex-column" id="user_info">
-    {% if current_user.is_authenticated %}
-      <div class="col">Hi {{ current_user.email }}!</div>
-      <div class="col logout">
-        <i></i><a href="/logout">Click here</a> to logout.</a>
-      </div>
-    {% endif %}
-  </div>
+<div class="container">
   <div class="row">
-    <div class="col d-flex justify-content-center">
-      <h3>
-        Update Your User Profile
-      </h3>
+    <h1>Profile Settings</h1>
+    <div class="col d-flex flex-column" id="user_info">
+      {% if current_user.is_authenticated %}
+        <div class="col">Hi {{ current_user.email }}!</div>
+        <div class="col logout">
+          <i></i><a href="/logout">Click here</a> to logout.</a>
+        </div>
+      {% endif %}
     </div>
-  </div>
-
-  <div class="row">
-    <div class="offset-1 col d-flex flex-column justify-content-center">
-      <div class="col">
-        <h5>General Info - FIXME: Broken!</h5>
-      </div>
-      <div class="col col-6">
-        <table>
-          <tr>
-            <td><h5>Field</h5></td>
-            <td><h5>Value</h5></td>
-            <td><h5>Edit? - FIXME: Broken!</h5></td>
-          </tr>
-          {% if current_user.is_authenticated %}
-            <form action="#" id="user-settings">
-            {% for param_key in current_user.__table__.columns.keys() %}
-              {% if param_key not in ['skintype_id', 'primary_concern_id', 'secondary_concern_id'] %}
-                <tr>
-                  <td>{{ 'password' if param_key in ['hashed_password'] else param_key }}</td>
-                  <td>
-                    {% if param_key in ['hashed_password'] %}
-                      <i><a href="#" title="FIXME">Click here</a> to change your password.</i>
-                    {% else %}
-                      {{ current_user[param_key] }}
-                    {% endif %}
-                  </td>
-                  <td>
-                    <!-- FIXME: after migrating db! -->
-                    <!-- if param_key in [current_user.modifiable_user_settings] -->
-                    {% if param_key in ['f_name', 'l_name'] %}
-                    <input type="text" name={{ param_key }} placeholder="type the desired value here">
-                    {% else %}
-                      ---
-                    {% endif %}
-                  </td>
-                </tr>
-              {% endif %}
-            {% endfor %}
-            <tr><input type="submit" value="Save Changes"></tr>
-          </form>
-          {% endif %}
-        </table>  
+    <div class="row">
+      <div class="col d-flex justify-content-center">
+        <h3>
+          Update Your User Profile
+        </h3>
       </div>
     </div>
-  </div>
 
+    <div class="row">
+      <div class="offset-1 col d-flex flex-column justify-content-center">
+        <div class="col">
+          <h5>General Info - TODO</h5>
+        </div>
+        <div class="col col-6">
+          <table>
+            <tr>
+              <td><h5>Field</h5></td>
+              <td><h5>Value</h5></td>
+              <td><h5>Edit - TODO</h5></td>
+            </tr>
+            {% if current_user.is_authenticated %}
+              <form action="#" id="user-settings">
+              {% for param_key in current_user.__table__.columns.keys() %}
+                {% if param_key not in ['skintype_id', 'primary_concern_id', 'secondary_concern_id'] %}
+                  <tr>
+                    <td>{{ 'password' if param_key in ['hashed_password'] else param_key }}</td>
+                    <td>
+                      {% if param_key in ['hashed_password'] %}
+                        <i><a href="#" title="FIXME">Click here</a> to change your password.</i>
+                      {% else %}
+                        {{ current_user[param_key] }}
+                      {% endif %}
+                    </td>
+                    <td>
+                      <!-- FIXME: after migrating db! -->
+                      <!-- if param_key in [current_user.modifiable_user_settings] -->
+                      {% if param_key in ['f_name', 'l_name'] %}
+                      <input type="text" name={{ param_key }} placeholder="type the desired value here">
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+              <tr><input type="submit" value="Save Changes"></tr>
+            </form>
+            {% endif %}
+          </table>  
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 

@@ -1,6 +1,9 @@
 __pycache__
 *.pyc
 env
-testing
 proposal*
 secrets
+settings.json
+testing
+trial*
+venv*

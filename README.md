@@ -81,7 +81,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 
 - [x] 10/12: setup Kaggle dataset with clean ingredients (CSV file)
 - [ ] setup other dataset
-- [ ] look for datasets with sunscreen info
+- [x] look for datasets with sunscreen info
 </details>
 
 #### **Webpages:**
@@ -90,10 +90,11 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [x] 10/09: setup basic homepage
     - [ ] reorganize
 - [x] 10/13: setup user settings page
-- [ ] add questionnaire page
+- [x] 10/13: add questionnaire page (part of user settings for now)
 - [ ] add library to learn more
     - [ ] skin types
     - [ ] skin concerns
+    - [ ] specific hazardous ingredients
 </details>
 
 #### **Cabinet and routine functionality:**
@@ -102,7 +103,12 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [x] 10/11: display user's cabinet, AM routine, and PM routine
 - [ ] add products to user's cabinet, AM routine, and/or PM routine
     - [x] 10/14: to cabinet from search results page
-        - [ ] need to check if a the product already exists in the cabinet
+        - [x] 10/15: checkbox (to add to cabinet) is disabled if the product already exists in the user's cabinet
+    - [x] 10/18: setup generic AM routine page
+        - [x] 10/18: setup draggable/sortable feature
+        - [ ] connect to db to save results (AJAX)
+        - [ ] customize dropdown menu for each product type (as indicated in SkincareStep object)
+        - [ ] optional: for custom routines, will need to add a button to add a new step to the routine (React component?)
 </details>
 
 #### **Complete questionnaire for user profile:**
@@ -126,6 +132,11 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/14: setup ability to use ORDER BY in the query
 - [ ] consider livesearch options
     - [x] 10/14: setup `livesearch.js`, but need to serialize or jsonify data...
+    - [x] 10/18: setup serialize property for ORM classes
+    - [ ] test that results will jsonify from SQLAlchemy query
+    - [ ] rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query
+        
+
 </details>
 
 #### **Testing:**
@@ -195,6 +206,68 @@ This is an evidence-based app to help recommend skincare products and general sk
 
 ## Journal:
 
+#### Mon, 10/18:
+**HIGHLIGHT:** TBD
+
+<details>
+
+**accomplishments:**
+- setup serialize property for Product ORM class in model.py
+- setup draggable and snappable skincare steps
+- revamped livesearch in testing mode
+
+**blockers:**
+- build familiarity with React, to use it to make some components...
+- using jQuery with AJAX, it is expecting a valid response from the server to display the db query:
+    - valid: "a string, dict, tuple, Response instance, or WSGI callable"
+    - invalid (what the server was sending): a Row
+</details>
+
+#### Weekend, 10/16-10/17:
+**HIGHLIGHT:** Now I understand how difficult it is to manage one's dev setup... I'll be using Docker for the rest of project development!
+
+<details>
+
+**accomplishments:**
+- looked into hazardous skincare ingredients
+- created a sample dataset of hazardous ingredients, which will be used to update various fields for the Product and Ingredient ORM classes in model.py
+
+**blockers (somewhat resolved):**
+- tried to setup my dev environment apart from Docker container and had many obstacles involving:
+    - virtualenv only setting up directories that with symlinks for python, python3, and python3.10 that all point to Python3.10 and not any other version (and I don't have Python3.10 on my computer, since that was just released earlier this month ~10/4!)
+    - homebrew not having an easy way to install the prior version of virtualenv
+    - unable to downgrade virtualenv because I never had virtualenv installed natively...
+    - psql@13 uses separate directories than psql from Docker container (even though both are version 13...)
+
+**next steps:**
+- look into data visualization ideas
+</details>
+
+#### Fri, 10/15:
+**HIGHLIGHT:** Recorded a short video of my current project, walking through MVP features!
+
+<details>
+
+**accomplishments:**
+Recorded a short video of my current project, walking through MVP features and more:
+- account registration
+- user login/logout + restricted views
+- questionnaire completion
+- product search
+    - list format, limit of 10 by default
+    - ordered by product type or name (but can only choose one checkbox for now)
+- display of individual product details
+- addition of skincare products to the user's cabinet
+    - disabled addition of products that already exist in the user's cabinet
+- display of user's cabinet
+
+**blockers (somewhat resolved):**
+- moved all indexing related changes to ORM classes in model.py to **git branch iss01**
+    - too many errors, possibly due to Docker container setup...
+    - will look into using my own environment instead
+    - also moved TimestampMixin to this branch as well
+</details>
+
 #### Thu, 10/14:
 **HIGHLIGHT:** Added products to each user's cabinet! Downloaded [UNII codes](https://fdasis.nlm.nih.gov/srs/jsp/srs/uniiListDownload.jsp) for ingredient identification.
 <details>
@@ -208,7 +281,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 - added ability to modify product search query using ORDER BY, LIMIT
 
 **blockers (somewhat resolved):**
-- changed almost everything in models.py, so I will need to re-seed the database
+- changed almost everything in model.py, so I will need to re-seed the database
     - `index_property`: added to data models for products, ingredients, am_routines, and pm_routines tables
     - `TimestampMixin`: added to all tables
     - `BaseQuery`: add to products table? to allow for pagination of results...

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ current_user.f_name }}'s Test Routine | The Skincare Routine Helper
+{% endblock title %}
+
+
+{% block head %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/static/css/draggable.css">
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+<script src="/static/js/draggable.js"></script>
+{% endblock %}
+
+
+{% block body %}
+  <ul>
+    <li id="draggable" class="ui-state-highlight">AM Routine</li>
+  </ul>
+   
+  <ul id="sortable">
+    <li class="ui-state-default">Cleanser: 
+      <select>
+        <option val="">--Select--</option>
+        <option val="prod_1">prod_1</option>
+        <option val="prod_2">prod_2</option>
+      </select>
+    </li>
+    <li class="ui-state-default">Moisturizer:
+      <select>
+        <option val="">--Select--</option>
+        <option val="prod_1">prod_1</option>
+        <option val="prod_2">prod_2</option>
+      </select>
+    </li>
+    <li class="ui-state-default">Optional Item 1:
+      <select>
+        <option val="">--Select--</option>
+        <option val="prod_1">prod_1</option>
+        <option val="prod_2">prod_2</option>
+      </select>
+    </li>
+    <li class="ui-state-default">Optional Item 2:
+      <select>
+        <option val="">--Select--</option>
+        <option val="prod_1">prod_1</option>
+        <option val="prod_2">prod_2</option>
+      </select>
+    </li>
+    <li class="ui-state-default">Sunscreen:
+      <select>
+        <option val="">--Select--</option>
+        <option val="prod_1">prod_1</option>
+        <option val="prod_2">prod_2</option>
+      </select>
+    </li>
+  </ul>
+{% endblock body %}
+
+
+{% block after_body %}
+
+{% endblock %}

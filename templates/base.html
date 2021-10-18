@@ -36,7 +36,7 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
 	<body>
 		<!-- Static navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-			<a class="navbar-brand mb-2 ms-2" href="#">Navbar</a>
+			<a class="navbar-brand mb-2 ms-2" href="/">The Skincare Routine Helper</a>
 			<button
 				class="navbar-toggler"
 				type="button"
@@ -51,9 +51,9 @@ integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG
   
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-2">
-					<li class="nav-item active">
+					<!-- <li class="nav-item active">
 						<a class="nav-link" href="/">Home <span class="sr-only"></span></a>
-					</li>
+					</li> -->
 					{% if current_user.is_authenticated %}
 					<li class="nav-item">
 						<a class="nav-link" href="/user_profile">User Profile</a>

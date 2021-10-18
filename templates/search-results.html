@@ -57,7 +57,12 @@
                 {% for item in product_list %}
                   <tr>
                     <td>
-                      <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}">
+                      {% if item.product_id in current_cabinet %}
+                      <!-- FIXME: add DOM stuff later -->
+                        <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}" disabled="true">
+                      {% else %}
+                        <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}">
+                      {% endif %}
                     </td>
                     <td>
                       <a href="/products/{{ item['product_id'] }}" target="_blank">

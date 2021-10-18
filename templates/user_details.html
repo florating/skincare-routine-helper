@@ -27,15 +27,42 @@
     <div id="user_cabinet" col="col-lg-5">
         <h3>My Cabinet</h3>
         {% if current_user.cabinets %}
-        <ul>
-        {% for obj in current_user.cabinets %}
-          <li>obj.product_id = {{ obj.product_id }}</li>
-          <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
-        {% endfor %}
+        
+        <!-- {% for obj in current_user.cabinets %}
+          <li>obj.product = {{ obj.product }}</li>
+        {% endfor %} -->
         <!-- My Cabinet -->
-        </ul>
+
+        <table class="cabinet-list">
+          <tr>
+            <td>--</td>
+            <td><b>Product</b></td>
+            <td><b>Product Type</b></td>
+            <!-- <td>Product Image</td> -->
+          </tr>
+          {% for obj in current_user.cabinets %}
+            <tr>
+              <td>
+                Check
+
+              </td>
+              <td>
+                <a href="/products/{{ obj['product_id'] }}" target="_blank">
+                  {{ obj.product.product_name }}
+                </a>
+              </td>
+              <td>
+                {{ obj.product['category']['category_name'] }}
+              </td>
+              <!-- <td>
+                <img id="product_id_{{ obj['product_id'] }}" src="">
+              </td> -->
+            </tr>
+          {% endfor %}
+        </table>
+
         {% else %}
-        <p>You don't have anything in your cabinet yet! Click here to add a product.</p>
+          <p>You don't have anything in your cabinet yet! <a href="/products/search">Click here</a> to search for a skincare product.</p>
         {% endif %}
     </div>
   </div>
@@ -52,7 +79,13 @@
       {% endfor %}
       </ul>
       {% else %}
-      <p>You don't have anything in your routine yet! Add something to your cabinet first, and then add products from your cabinet into your skincare routine!</p>
+      <p>You don't have anything in your routine yet!
+          {% if not current_user.cabinets %}
+            Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
+          {% else %}
+            Add something from your cabinet to your skincare routine! (Currently under construction!)
+          {% endif %}
+      </p>
       {% endif %}
     </div>
     <div class="routine col-5 offset-1" id="user_pm_routine">
@@ -66,7 +99,13 @@
       {% endfor %}
       </ul>
       {% else %}
-      <p>You don't have anything in your routine yet! Add something to your cabinet first, and then add products from your cabinet into your skincare routine!</p>
+      <p>You don't have anything in your routine yet!
+        {% if not current_user.cabinets %}
+          Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
+        {% else %}
+          Add something from your cabinet to your skincare routine! (Currently under construction!)
+        {% endif %}
+      </p>
       {% endif %}
     </div>
   </div>
@@ -85,8 +124,8 @@
         placeholder="Product Type"
       />
       {# comment #}
-      <!-- FIXME: change product_type to something else once model.py for User is fixed -->
-      <input type="submit">
+      <!-- FIXME: change product_type to something else once model.py for User is fixed, maybe use dropdown menu -->
+      <input type="submit" value="Go!">
   </form>
   <div id="search_results"></div>
   </div>
@@ -94,5 +133,5 @@
 {% endblock body %}
 
 {% block after_body %}
-<script type="text/jsx" src="/static/routines.jsx"></script>
+<!-- <script type="text/jsx" src="/static/routines.jsx"></script> -->
 {% endblock %}

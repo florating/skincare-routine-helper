@@ -78,10 +78,10 @@ class User(UserMixin, db.Model):
     secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
     skintype = db.relationship('Skintype', backref='users')
     
-    perm_user_settings = [user_id, created_at]
-    display_fields = [f_name, l_name, email]
-    skin_display_fields = [skintype, primary_concern, secondary_concern]
-    modifiable_user_settings = [f_name, l_name, email]
+    # perm_user_settings = [user_id, created_at]
+    # display_fields = [f_name, l_name, email]
+    # skin_display_fields = [skintype, primary_concern, secondary_concern]
+    # modifiable_user_settings = [f_name, l_name, email]
 
     # am_routines = list of AM_Routine objects
     # pm_routines = list of PM_Routine objects
@@ -194,6 +194,13 @@ class Product(db.Model):
     # pm_routines = list of PM_Routine objects
     product_ingredients = db.relationship('ProductIngredient', back_populates='product')
 
+    @property
+    def serialize(self):
+        return {
+            'product_id': self.product_id,
+            'product_name': self.product_name
+        }
+
     def get_num_ingredients(self):
         """Return number of ingredients (besides water) associated with this product."""
         return len(self.product_ingredients)
@@ -217,8 +224,9 @@ class Cabinet(db.Model):
     product = db.relationship('Product', backref='cabinets')
 
     def __repr__(self):
-        # TODO: test that product={...} will show up properly
-        return f"<Cabinet cabinet_id={self.cabinet_id} user_id={self.user_id} product={self.product.product_name}>"
+        # NOTE: {self.product.product_name} does not show up properly in Jinja, and results in this message:
+        # AttributeError: 'NoneType' object has no attribute 'product_name'
+        return f"<Cabinet cabinet_id={self.cabinet_id} user_id={self.user_id} product_id={self.product_id}>"
 
 
 class Ingredient(db.Model):
