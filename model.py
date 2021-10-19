@@ -88,8 +88,19 @@ class User(UserMixin, db.Model):
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
 
     @property
+    def serialize(self):
+        return {
+            'user_id': self.user_id,
+            'skintype_id': self.skintype_id,
+            'primary_concern_id': self.primary_concern_id,
+            'secondary_concern_id': self.secondary_concern_id,
+            'cabinets': self.serialize_cabinets,
+            'am_routines': self.serialize_am_routines,
+            'pm_routines': self.serialize_pm_routines
+        }
+    @property
     def serialize_cabinets(self):
-        return [ item.product.serialize for item in self.cabinets ]
+        return [ item.serialize for item in self.cabinets ]
 
     def get_id(self):
         """Returns a unicode that uniquely identifies this user, and can be used to load the user from the user_loader callback function."""
@@ -157,6 +168,13 @@ class Category(db.Model):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # products = list of Product objects
+    
+    @property
+    def serialize(self):
+        return {
+            'category_id': self.category_id,
+            'category_name': self.category_name
+        }
 
     def __repr__(self):
         return f"<Category category_id={self.category_id} category_name={self.category_name}>"
@@ -202,7 +220,8 @@ class Product(db.Model):
     def serialize(self):
         return {
             'product_id': self.product_id,
-            'product_name': self.product_name
+            'product_name': self.product_name,
+            'category': self.category.serialize
         }
 
     def get_num_ingredients(self):
@@ -224,9 +243,20 @@ class Cabinet(db.Model):
     # status = Column(Boolean, nullable=False, default=True)  # FIXME: change name
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    users = db.relationship('User', backref='cabinets')
+    user = db.relationship('User', backref='cabinets')
     product = db.relationship('Product', backref='cabinets')
 
+    @property
+    def serialize(self):
+        return {
+            'cabinet_id': self.cabinet_id,
+            'user_id': self.user_id,
+            'product_id': self.product_id,
+            'product_name': self.product.product_name,
+            # 'product': self.product.serialize,
+            'category_id': self.product.category_id
+        }
+    
     def __repr__(self):
         # NOTE: {self.product.product_name} does not show up properly in Jinja, and results in this message:
         # AttributeError: 'NoneType' object has no attribute 'product_name'
@@ -308,10 +338,20 @@ class AMRoutine(db.Model):
     # status = Column(Boolean, default=True)    # FIXME: change name
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    users = db.relationship('User', backref='am_routines')
+    user = db.relationship('User', backref='am_routines')
     product = db.relationship('Product', backref='am_routines')
     steps = db.relationship('SkincareStep', backref='am_routines')
 
+    @property
+    def serialize(self):
+        return {
+            'routine_id': self.routine_id,
+            'user_id': self.user_id,
+            'product_name': self.product_name,
+            # 'product': self.product.serialize,
+            'category_id': self.product.category_id
+        }
+    
     def __repr__(self):
         # TODO: test that product={...} will show up properly
         return f"<AMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} product={self.product.product_name}>"
@@ -338,6 +378,16 @@ class PMRoutine(db.Model):
     product = db.relationship('Product', backref='pm_routines')
     steps = db.relationship('SkincareStep', backref='pm_routines')
 
+    @property
+    def serialize(self):
+        return {
+            'routine_id': self.routine_id,
+            'user_id': self.user_id,
+            'product_name': self.product_name,
+            # 'product': self.product.serialize,
+            'category_id': self.product.category_id
+        }
+    
     def __repr__(self):
         # TODO: test that product={...} will show up properly
         return f"<PMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} product={self.product.product_name}>"

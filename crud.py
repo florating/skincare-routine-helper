@@ -239,6 +239,11 @@ def get_all_obj_by_param(class_name, **param):
     return class_fxn.query.filter_by(**param).first()
 
 
+def get_category_dict():
+    """Return a list of category names, ordered by category_id."""
+    return {item.category_id: item.category_name for item in Category.query.order_by('category_id').all()}
+
+
 if __name__ == '__main__':
     import doctest
 

@@ -167,26 +167,19 @@ def test_search():
 @app.route('/livesearch', methods=['POST', 'GET'])
 def livesearch():
     """Perform a search as the user types into the searchbox.
-    Uses jQuery and AJAX.
+    Uses jQuery and AJAX with SQLAlchemy queries.
     """
-    # use SQLAlchemy queries
 
     search_text = request.form.get('text')
     search_order_by = request.form.get('order_by')
     search_limit = 10  # can change this later
     
-    q = model.Product.query.filter(model.Product.product_name.ilike(f'%{search_text}%')).order_by(search_order_by).limit(search_limit)
-    print("\n\n\n")
-    print(f"q = {q}")
+    q = model.Product.query.filter(
+        model.Product.product_name.ilike(f'%{search_text}%')
+        ).order_by(search_order_by).limit(search_limit)
+    
     ser_obj = q.first().serialize
-    print("\n\n\n")
-    print(f"ser_obj = {ser_obj}")
-    q_json = jsonify(ser_obj)
-    print("\n\n\n")
-    print(f"q_json = {q_json}")
-    print("\n\n\n")
-
-    return q_json
+    return jsonify(ser_obj)
     # eg: result =
     # (1, 'The Ordinary Natural Moisturising Factors + HA', None, 'https://www.lookfantastic.com/the-ordinary-natural-moisturising-factors-ha-30ml/11396687.html', '30ml', '£5.20', None, 1, None, datetime.datetime(2021, 10, 15, 21, 31, 19, 813822, tzinfo=datetime.timezone.utc))
 
@@ -198,19 +191,7 @@ def show_products_from_search():
     """Search for skincare products in the database.
 
     Use form data from /products (in 'search-form.html') to populate any search parameters.
-    # FIXME: pick one of the following ways to implement search...
-    
-    # Option 1:
-    # product_results = crud.get_all_obj_by_param('Product', **params)
-    
-    # Option 2:
-    # sql = "SELECT product_id, product_name FROM products WHERE product_name = :product_name"
-    # cursor = db.session.execute(sql, **params)
-    # result = cursor.fetchall()
-    
-    # Option 3:
-    # check if product_name exists, then can add a filter
-    # if other params exist, then add those
+    # TODO: consider if crud functions would be better
     """
 
     form_params = {
@@ -222,25 +203,23 @@ def show_products_from_search():
     }
 
     q = model.Product.query
-    print("ABOUT TO START FOR LOOP!\n\n\n")
+    # print("ABOUT TO START FOR LOOP!\n\n\n")
     for param, param_val in form_params.items():
-        print(f"for param = {param} and param_val = {param_val}\n\n")
+        # print(f"for param = {param} and param_val = {param_val}\n\n")
         if param_val:
-            print(f"I'M IN LINE 277!")
             if param == 'product_name':
                 q = q.filter(model.Product.product_name.ilike(f'%{param_val}%'))
-            # FIXME: no product types allowed...
             elif param == 'category_id':
                 q = q.filter(model.Product.category_id == int(param_val))
+                # TODO: add ability to check multiple product types in a single search query
                 #   .in_(param_val)
-            # TODO: add order_by and limit functionality for the search
             elif param == 'order_by':
-                print(f"param_val = {param_val}\n\n\n")
+                # print(f"param_val = {param_val}\n\n\n")
                 q = q.order_by(param_val)
             elif param == 'limit':
                 q = q.limit(param_val)
 
-    print(f"q = {q}\n\n\n")
+    # print(f"q = {q}\n\n\n")
     result = q.all()
 
     cab_prod_id_list = []
@@ -252,44 +231,25 @@ def show_products_from_search():
 
 @app.route('/add_to_cabinet', methods=['POST'])
 def add_products_to_cabinet():
-    
-    # print(f"type(data_pojo) = {type(data_pojo)}")
-    # print(f"data_pojo.to_dict(flat=False) = {data_pojo.to_dict(flat=False)}")
-
-    # NOTE: not in for loop... data_pojo = ImmutableMultiDict([('product_id', '75'), ('product_id', '342')])
-    # NOTE: type(data_pojo) = <class 'werkzeug.datastructures.ImmutableMultiDict'>
-    # NOTE: data_pojo.to_dict(flat=False) = {'product_id': ['75', '342']}
     data_pojo = request.form
-    print(f"NOTE: not in for loop... data_pojo = {data_pojo}")
-
     p_id_list = data_pojo.to_dict(flat=False)['product_id']
 
     # This works for 1 or more product_ids in the data_pojo.
     for p_id in p_id_list:
-        print(f"\n\n\nNOTE: we in the for loop yoooo... p_id_list = {p_id_list}\n\n\n")
-        print(f"YO YO YO: the session is {session}\n\n\n")
-        print(f"session.get('user_id') = {session.get('user_id')}\n\n\n")
-
         # check if this product_id is already in this user's cabinet
         model.Cabinet.query.filter_by(user_id=session['_user_id'])
         # filter_by(product_id... using in_?)
 
         user_cabinet_list = flask_login.current_user.cabinets
-        print(f"user_cabinet_list = {user_cabinet_list}\n\n\n")
-
         obj = model.Cabinet(
             user_id=session['_user_id'],
             product_id=p_id
         )
-        print(f"I just created a Cabinet obj = {obj}\n\n\n")
-        print(f"Its product_id is {obj.product_id}\n\n\n")
         db.session.add(obj)
 
-    print("I'm out of the for loop and tried to add things to the cabinet!\n\n\n")
     db.session.commit()
     flash("You successfully added these products to your cabinet!")
-    print("We got to line 283! Hopefully that's good news!\n\n\n")
-    print(f"user_cabinet_list = {user_cabinet_list}\n\n\n")
+    # print(f"user_cabinet_list = {user_cabinet_list}\n\n\n")
     return redirect(url_for('show_profile'))
 
 
@@ -297,16 +257,18 @@ def add_products_to_cabinet():
 @login_required
 def get_cabinet_list():
     """TODO: Test and fix, alongside routines.js file.
-    CURRENT ERROR:
-        cabs = flask_login.current_user.serialize_cabinets()
-        TypeError: 'list' object is not callable
     """
-    cabs = flask_login.current_user.serialize_cabinets()
+    cabs = flask_login.current_user.serialize_cabinets
     print('\n\n\n')
     print(f'cabs = {cabs}')
-    j_cabs = jsonify(json_list = cabs)
+    j_cabs = jsonify(json_list = [cabs])
     print(f'j_cabs = {j_cabs}')
-    return j_cabs
+    cat_dict = [crud.get_category_dict()]
+    print('\n\n\n')
+    print(f'cat_dict = {cat_dict}')
+    j_cats = jsonify(cat_dict = cat_dict)
+    print(f'j_cats = {j_cats}')
+    return jsonify(cat_dict = cat_dict, cabinet = cabs)
 
 
 @app.route('/routine')

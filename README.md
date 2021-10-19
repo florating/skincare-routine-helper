@@ -74,6 +74,8 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [ ] add irritation scores per ingredient and per product
     - [ ] could use Faker
 - [ ] add ability to commit changes to name and email (user profile page)
+- [x] 10/19: add serialize properties in model.py for Cabinet, Category, Product, User, AM_Routine, and PM_Routine ORM classes (for AJAX calls in JS)
+- [ ] 10/19: setup database migration with alembic
 </details>
 
 #### **Setup database with actual data:**
@@ -107,7 +109,9 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/18: setup generic AM routine page
         - [x] 10/18: setup draggable/sortable feature
         - [ ] connect to db to save results (AJAX)
-        - [ ] customize dropdown menu for each product type (as indicated in SkincareStep object)
+        - [x] 10/19: customize dropdown menu for each product type
+            - [ ] as indicated in SkincareStep object?
+            - [x] 10/19: add get_category_dict() function to crud
         - [ ] optional: for custom routines, will need to add a button to add a new step to the routine (React component?)
 </details>
 
@@ -130,7 +134,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [ ] setup better search by relevance
     - [x] 10/13: limit search results that are displayed using list concatenation
     - [x] 10/14: setup ability to use ORDER BY in the query
-- [ ] consider livesearch options
+- [x] 10/14: consider livesearch options
     - [x] 10/14: setup `livesearch.js`, but need to serialize or jsonify data...
     - [x] 10/18: setup serialize property for ORM classes
     - [x] 10/18: test that results will jsonify from SQLAlchemy query
