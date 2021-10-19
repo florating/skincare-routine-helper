@@ -2,6 +2,17 @@
 
 {% block title %}Find Skincare Products{% endblock %}
 
+{% block head%}
+<style>
+  .category-selection-form ul {
+    -webkit-column-count: 3; /* Chrome, Safari, Opera */
+    -moz-column-count: 3; /* Firefox */
+    column-count: 3;
+    list-style: none;
+  }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="container">
   <div class="row">
@@ -36,23 +47,33 @@
           </select>
         </div>
         <div class="row">
-            <label for="category-selection-form">Filter by Product Type?</label><p><i>The search will query all product types by default.</i></p>
+          <details>
+            <!-- <fieldset class="group"> -->
+              <summary><label for="category-selection-form">Filter by Product Type?</label>
+              </summary>
+                <p><i>The search will query all product types by default. (Under construction.)</i></p>
             <!-- FIXME: include this value in the query in server.py -->
-              {% for row in categories_table %}
+              
               <div class="category-selection-form" display="inline-block">
+                <ul>
+                {% for row in categories_table %}
                 <!-- FIXME: show buttons as in-line blocks?
                 see: https://css-tricks.com/when-do-you-use-inline-block/ -->
-                <input
+                <li><span style="white-space: nowrap;"><input
                   type="checkbox"
                   name="category_id"
                   value="{{ row.category_id }}"
                 >
                 {{ row.category_name }}
-                </input>
+                </input></span></li>
+                {% endfor %}
+                </ul>
               </div>
-              {% endfor %}
+              
             </select>
-          </div>
+          <!-- </fieldset> -->
+          </details>
+        </div>
         <div class="row mt-4">
           <div class="col-3">
             <input type="submit" value="Search for products!" class="btn btn-primary">

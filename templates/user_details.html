@@ -4,6 +4,8 @@
   {{ current_user.f_name }}'s Profile
 {% endblock title %}
 
+{% block head %}{% endblock %}
+
 {% block body %}
 <div class="container">
   <div class="row">
@@ -44,7 +46,7 @@
             <tr>
               <td>
                 Check
-
+                {# FIXME #}
               </td>
               <td>
                 <a href="/products/{{ obj['product_id'] }}" target="_blank">
@@ -72,40 +74,40 @@
       <h3>My AM Routine</h3>
       <!-- My AM Routine -->
       {% if current_user.am_routines %}
-      <ul>
-      {% for obj in current_user.am_routines %}
-        <li>obj.product_id = {{ obj.product_id }}</li>
-        <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
-      {% endfor %}
-      </ul>
+        <ul>
+          {% for obj in current_user.am_routines %}
+            <li>obj.product_id = {{ obj.product_id }}</li>
+            <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
+          {% endfor %}
+        </ul>
       {% else %}
-      <p>You don't have anything in your routine yet!
+        <p>You don't have anything in your routine yet!
           {% if not current_user.cabinets %}
             Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
           {% else %}
-            Add something from your cabinet to your skincare routine! (Currently under construction!)
+            <a href="/routine">Click here</a> to add something from your cabinet to your skincare routine! (Currently under construction!)
           {% endif %}
-      </p>
+        </p>
       {% endif %}
     </div>
     <div class="routine col-5 offset-1" id="user_pm_routine">
       <h3>My PM Routine</h3>
       <!-- My PM Routine -->
       {% if current_user.pm_routines %}
-      <ul>
-      {% for obj in current_user.pm_routines %}
-        <li>obj.product_id = {{ obj.product_id }}</li>
-        <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
-      {% endfor %}
-      </ul>
+        <ul>
+          {% for obj in current_user.pm_routines %}
+            <li>obj.product_id = {{ obj.product_id }}</li>
+            <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
+          {% endfor %}
+        </ul>
       {% else %}
-      <p>You don't have anything in your routine yet!
-        {% if not current_user.cabinets %}
-          Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
-        {% else %}
-          Add something from your cabinet to your skincare routine! (Currently under construction!)
-        {% endif %}
-      </p>
+        <p>You don't have anything in your routine yet!
+          {% if not current_user.cabinets %}
+            Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
+          {% else %}
+            <a href="/routine">Click here</a> to add something from your cabinet to your skincare routine! (Currently under construction!)
+          {% endif %}
+        </p>
       {% endif %}
     </div>
   </div>

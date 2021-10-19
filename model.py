@@ -87,6 +87,10 @@ class User(UserMixin, db.Model):
     # pm_routines = list of PM_Routine objects
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
 
+    @property
+    def serialize_cabinets(self):
+        return [ item.product.serialize for item in self.cabinets ]
+
     def get_id(self):
         """Returns a unicode that uniquely identifies this user, and can be used to load the user from the user_loader callback function."""
         return str(self.user_id).encode("utf-8").decode("utf-8") 

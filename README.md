@@ -133,8 +133,9 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [ ] consider livesearch options
     - [x] 10/14: setup `livesearch.js`, but need to serialize or jsonify data...
     - [x] 10/18: setup serialize property for ORM classes
-    - [ ] test that results will jsonify from SQLAlchemy query
-    - [ ] rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query
+    - [x] 10/18: test that results will jsonify from SQLAlchemy query
+    - [x] 10/18: rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query
+    - [ ] add livesearch capability to old search forms
         
 
 </details>
@@ -207,14 +208,14 @@ This is an evidence-based app to help recommend skincare products and general sk
 ## Journal:
 
 #### Mon, 10/18:
-**HIGHLIGHT:** TBD
+**HIGHLIGHT:** Livesearch now works!
 
 <details>
 
 **accomplishments:**
 - setup serialize property for Product ORM class in model.py
-- setup draggable and snappable skincare steps
-- revamped livesearch in testing mode
+- revamped livesearch in testing mode to use SQLAlchemy instead of pure SQL for queries
+- setup draggable and snappable skincare steps for skincare routines
 
 **blockers:**
 - build familiarity with React, to use it to make some components...
@@ -224,7 +225,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 </details>
 
 #### Weekend, 10/16-10/17:
-**HIGHLIGHT:** Now I understand how difficult it is to manage one's dev setup... I'll be using Docker for the rest of project development!
+**HIGHLIGHT:** Now I understand how difficult it is to manage a dev setup... I'll be using Docker for the rest of project development!
 
 <details>
 

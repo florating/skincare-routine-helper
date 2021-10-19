@@ -156,7 +156,7 @@ def show_product(product_id):
 
 @app.route('/products', methods=['GET'])
 def show_all_products():
-    return render_template('search_form.html', categories_table = model.Category.query.all())
+    return render_template('search-form.html', categories_table = model.Category.query.all())
 
 
 @app.route('/test')
@@ -171,19 +171,22 @@ def livesearch():
     """
     # use SQLAlchemy queries
 
-    sql_query = "SELECT * FROM products WHERE product_name LIKE :product_name LIMIT :limit"
-    #  ORDER BY :order_by LIMIT :limit"
-    params = {
-        'product_name': "%" + request.form.get('text') + "%",
-        'order_by': request.form.get('order_by'),
-        'limit': 10
-    }
-    # To protect against SQL injection attacks, use SQLAlchemy's
-    # built-in parameter substitution.
-    cursor = db.session.execute(sql_query, params)
-    result = cursor.fetchone()
-    print(f"result = {result}")
-    return result
+    search_text = request.form.get('text')
+    search_order_by = request.form.get('order_by')
+    search_limit = 10  # can change this later
+    
+    q = model.Product.query.filter(model.Product.product_name.ilike(f'%{search_text}%')).order_by(search_order_by).limit(search_limit)
+    print("\n\n\n")
+    print(f"q = {q}")
+    ser_obj = q.first().serialize
+    print("\n\n\n")
+    print(f"ser_obj = {ser_obj}")
+    q_json = jsonify(ser_obj)
+    print("\n\n\n")
+    print(f"q_json = {q_json}")
+    print("\n\n\n")
+
+    return q_json
     # eg: result =
     # (1, 'The Ordinary Natural Moisturising Factors + HA', None, 'https://www.lookfantastic.com/the-ordinary-natural-moisturising-factors-ha-30ml/11396687.html', '30ml', '£5.20', None, 1, None, datetime.datetime(2021, 10, 15, 21, 31, 19, 813822, tzinfo=datetime.timezone.utc))
 
@@ -194,7 +197,7 @@ def livesearch():
 def show_products_from_search():
     """Search for skincare products in the database.
 
-    Use form data from /products (in 'search_form.html') to populate any search parameters.
+    Use form data from /products (in 'search-form.html') to populate any search parameters.
     # FIXME: pick one of the following ways to implement search...
     
     # Option 1:
@@ -288,6 +291,22 @@ def add_products_to_cabinet():
     print("We got to line 283! Hopefully that's good news!\n\n\n")
     print(f"user_cabinet_list = {user_cabinet_list}\n\n\n")
     return redirect(url_for('show_profile'))
+
+
+@app.route('/get_cabinet', methods=['POST'])
+@login_required
+def get_cabinet_list():
+    """TODO: Test and fix, alongside routines.js file.
+    CURRENT ERROR:
+        cabs = flask_login.current_user.serialize_cabinets()
+        TypeError: 'list' object is not callable
+    """
+    cabs = flask_login.current_user.serialize_cabinets()
+    print('\n\n\n')
+    print(f'cabs = {cabs}')
+    j_cabs = jsonify(json_list = cabs)
+    print(f'j_cabs = {j_cabs}')
+    return j_cabs
 
 
 @app.route('/routine')

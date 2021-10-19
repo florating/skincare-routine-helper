@@ -6,9 +6,16 @@ $( () => {
         helper: "clone",
         revert: "invalid"
     });
-    $("ul, li").disableSelection();
+    $(".routine ul, .routine li").disableSelection();
 });
 
 $( () => {
     $( "#sortable" ).sortable();
-  } );
+  }
+);
+
+
+// TODO: Test and fix, alongside this route in server.py.
+$.post('/get_cabinet', '', (res) => {
+  console.log(res);
+});
