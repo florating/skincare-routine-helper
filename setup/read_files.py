@@ -1,11 +1,15 @@
-import csv
-import json
+"""Initialize the database by loading data from files in the data directory."""
+
+# # # This code is for connecting nested directories/files/making variables accessable # # #
 import os
 import sys
 
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_PATH)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+import csv
+import json
 
 import crud
 

@@ -4,22 +4,17 @@ To join a session into an external transaction (for a test suite?), check out th
 https://docs.sqlalchemy.org/en/14/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
 """
 
+# # # This code is for connecting nested directories/files/making variables accessable # # #
 import os
 import sys
+
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_PATH)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 from unittest import TestCase
 
 from werkzeug.security import generate_password_hash, check_password_hash
-
-# Get name of the directory where this file is present.
-current = os.path.dirname(os.path.realpath(__file__))
-print(f'NOTE: current os.path.dirname(os.path.realpath(__file__)) = {current} for __file__ = {__file__}\n')
-
-# Get name of the parent directory, relative to the current directory.
-parent = os.path.dirname(current)
-print(f'NOTE: parent = {parent}\n')
-
-# Adding the parent directory to the sys.path.
-sys.path.append(parent)
 
 import crud
 import model
