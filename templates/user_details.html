@@ -64,7 +64,7 @@
         </table>
 
         {% else %}
-          <p>You don't have anything in your cabinet yet! <a href="/products/search">Click here</a> to search for a skincare product.</p>
+          <p>You don't have anything in your cabinet yet! <a href="/products">Click here</a> to search for a skincare product.</p>
         {% endif %}
     </div>
   </div>
@@ -113,7 +113,7 @@
   </div>
   <div class="offset-3 col-5 search" id="search_for_product">
       <h2>Search for a Product!</h2>
-      <form action="/products/search" methods="POST">
+      <form action="/products" methods="POST">
       <input
         type="text"
         name="product_name"

@@ -14,6 +14,12 @@ $( () => {
   }
 );
 
+let BEGINNER_ROUTINE = {
+  9: "Cleanser",
+  1: "Moisturizer",
+  16: "Sun Protection",
+};
+
 
 // TODO: Test and fix, alongside this route in server.py.
 $.post('/get_cabinet', '', (res) => {
@@ -26,11 +32,7 @@ $.post('/get_cabinet', '', (res) => {
   console.log(`categories_dict = ${categories_dict}`);
 
   let NUM = 10;
-  let BEGINNER_ROUTINE = {
-    9: "Cleanser",
-    1: "Moisturizer",
-    16: "Sun Protection",
-  };
+  
 
   // AM ROUTINE:
   for (const [key, value] of Object.entries(BEGINNER_ROUTINE)) {
