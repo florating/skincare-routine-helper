@@ -43,14 +43,20 @@ This is an evidence-based app to help recommend skincare products and general sk
 
 ## Next Steps
 - [ ] request API keys
-- [ ] test the server
 - [x] 10/09: setup a basic homepage
 - [x] 10/14: add product to user's cabinet
     - [x] 10/14: from product results list
     - [ ] from individual product details page
 - [ ] queries, joins, etc.
-- [ ] test product details page
-
+- [x] 10/19: display summary of database info on homepage (this takes nearly 1 min!)
+    - [x] 10/20: setup maintenance.py so the calculation of the summary table only happens when new products are loaded into the db
+    - [x] 10/20: save results in db_summary.csv
+    - [ ] setup CSV reader to display on homepage
+    - [ ] setup data visualization with D3
+- [ ] add livesearch capability to old search forms
+- [ ] save a user's skincare routine to the db
+- [x] 10/20: setup imports from nested directories
+    - [ ] test that nothing broke
 
 ## Task List
 #### **General:**
@@ -62,6 +68,7 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [ ] setup API calls in separate directory/layer
 - [ ] request additional datasets (?)
 - [ ] look into how to setup `login_manager.login_view`
+- [ ] setup datetime timezone converter for ORM classes (move from maintenance.py)
 </details>
 
 #### **Data model:**
@@ -75,7 +82,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [ ] could use Faker
 - [ ] add ability to commit changes to name and email (user profile page)
 - [x] 10/19: add serialize properties in model.py for Cabinet, Category, Product, User, AM_Routine, and PM_Routine ORM classes (for AJAX calls in JS)
-- [ ] 10/19: setup database migration with alembic
+- [ ] setup database migration with alembic
 </details>
 
 #### **Setup database with actual data:**
@@ -139,20 +146,45 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/18: setup serialize property for ORM classes
     - [x] 10/18: test that results will jsonify from SQLAlchemy query
     - [x] 10/18: rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query
-    - [ ] add livesearch capability to old search forms
-        
+    - [ ] add livesearch capability to old search forms 
+</details>
 
+#### **Design:**
+<details><summary>To be completed after code freeze on 10/31.</summary>
+    <details><summary>UX and UI</summary>
+    - [x] 10/20: navbar - make it stick to the top
+    - [ ] redesign dropdown menu
+    - [ ] review user flow diagram again
+    </details>
+    <details><summary>Overall Design</summary>
+    - [ ] draw wireframes again
+        - based on user flow diagram
+    </details>
 </details>
 
 #### **Testing:**
+<details><summary>Covers unit tests, integration tests, and UI tests.</summary>
 <details>
+<summary>Unit Tests</summary>
 
 - [x] 10/09: setup test_crud.py
-- [ ] test user login system
-    - login, logout, restricted views
 - [ ] setup test_model.py
+</details>
+<details>
+<summary>Integration Tests</summary>
+
 - [ ] setup test_server.py
 - [ ] test product search functions
+</details>
+<details>
+<summary>UI Tests</summary>
+
+- [x] test user login system
+    - login, logout, restricted views
+- [x] test product search functions
+</details>
+
+- [ ] check test coverage
 </details>
 
 

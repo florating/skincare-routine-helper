@@ -203,7 +203,7 @@ def convert_price(arg_dict, price_key):
 def convert_string_to_list(list_str):
     """Convert a list of ingredient names (in string form from a CSV file) into an actual list.
     
-    >>> convert_string_to_list('['ingred_1', 'ingred_2', 'ingred_3']')
+    >>> convert_string_to_list("['ingred_1', 'ingred_2', 'ingred_3']")
     ['ingred_1', 'ingred_2', 'ingred_3']
     """
     processed_str = ast.literal_eval(list_str)
@@ -242,6 +242,60 @@ def get_all_obj_by_param(class_name, **param):
 def get_category_dict():
     """Return a list of category names, ordered by category_id."""
     return {item.category_id: item.category_name for item in Category.query.order_by('category_id').all()}
+
+
+def count_products_by_category(order_by="category_name"):
+    """Count number of products by category_id, returning results as a list of tuples.
+    Can order by "category_name" or "category_id".
+    EG: [(category_id, category_name, num_products), ...]
+    SQL query:
+        SELECT c.category_id, c.category_name, COUNT(p.category_id) AS num_products
+        FROM products AS p
+        INNER JOIN categories AS c ON (p.category_id = c.category_id)
+        GROUP BY c.category_id, p.category_id, c.category_name
+        ORDER BY c.category_id;
+    """
+    q = "SELECT c.category_id, c.category_name, COUNT(p.category_id) AS num_products\
+        FROM products AS p\
+        INNER JOIN categories AS c ON (p.category_id = c.category_id)\
+        GROUP BY c.category_id, p.category_id, c.category_name\
+        ORDER BY c."
+    q += order_by
+    print(f"\n\n\n q = {q}")
+    cursor = db.session.execute(q)
+    result = cursor.fetchall()
+    return result
+
+
+def get_summary_prod_table():
+    """Returns summary data for products currently in the database.
+    
+    each element in the returned list:
+        [(category_id, category_name, num_products), avg_num_ingredients]
+        [(1, 'Moisturizer', 108), avg_num_ingredients]
+    # TODO: ONLY DO THIS WHENEVER THE TABLE CHANGES, AND THEN SAVE THE RESULT!
+    """
+    results = count_products_by_category()
+    summary = []
+    for result in results:
+        cat_id = result[0]
+        summary.append([result, get_avg_num_ingredients_by_category(cat_id)])
+    return summary
+
+
+def get_avg_num_ingredients():
+    # results = count_products_by_category
+    pass
+
+
+def get_avg_num_ingredients_by_category(cat_id=1):
+    """Returns the average number of ingredients for products with this category_id."""
+    prod_list = Product.query.filter_by(category_id=cat_id).all()
+
+    sum_ingreds = 0
+    for prod in prod_list:
+        sum_ingreds += prod.get_num_ingredients()
+    return sum_ingreds / len(prod_list)
 
 
 if __name__ == '__main__':

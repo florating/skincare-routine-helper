@@ -30,7 +30,9 @@ login_manager.login_view = ""   # FIXME: not setup yet, may need extra views as 
 
 @app.route('/')
 def show_index():
-    return render_template('index.html')
+    # TODO: read db_summary.csv file instead of calculating db_counts
+    db_counts = crud.get_summary_prod_table()
+    return render_template('index.html', db_counts=db_counts)
 
 
 @login_manager.user_loader

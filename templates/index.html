@@ -76,6 +76,31 @@
     </div>
 	{% endif %}
 </div>
+<div class="container">
+  <div class="row">
+    <div class="col-5">
+      <h3>About Our Database</h3>
+      <p>We are always adding more products to our database! Here's how the database looks now.</p>
+      <table>
+        <tr>
+          <td><b>Product Type</b></td>
+          <td><b># of Products</b></td>
+          <td><b>AVG # of Ingredients</b><br>(per product)</td>
+        </tr>
+        {% for row in db_counts %}
+        <tr>
+          <td>{{ row[0][1] }}</td>
+          <td>{{ row[0][2] }}</td>
+          <td>{{ '%0.1f'| format(row[1]|float) }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col-5 offset-1">
+      <h3>Data Visualization</h3>
+    </div>
+  </div>
+</div>
 {% endblock body %}
 
 {% block after_body %}{% endblock %}
