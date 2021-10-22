@@ -53,6 +53,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/20: save results in db_summary.csv
     - [ ] setup CSV reader to display on homepage
     - [ ] setup data visualization with D3
+    - [x] 10/20: read up on D3
 - [ ] add livesearch capability to old search forms
 - [ ] save a user's skincare routine to the db
 - [x] 10/20: setup imports from nested directories
@@ -162,6 +163,11 @@ This is an evidence-based app to help recommend skincare products and general sk
     </details>
 </details>
 
+#### **JavScript:**
+<details><summary>When setting up production build...</summary>
+- [ ] switch to the [production build of React](https://www.npmjs.com/package/react) when deploying the application
+</details>
+
 #### **Testing:**
 <details><summary>Covers unit tests, integration tests, and UI tests.</summary>
 <details>
@@ -242,6 +248,27 @@ This is an evidence-based app to help recommend skincare products and general sk
 *[Click here](#the-skincare-routine-helper) to go back to the top.*
 
 ## Journal:
+
+#### Wed, 10/20:
+**HIGHLIGHT:** 
+
+<details>
+
+**accomplishments:**
+- looked up D3 tutorials
+- used `npm install` command for D3, semantic-ui and their dependencies
+    - blocked!!
+
+
+**to do:**
+- save draggable and snappable skincare steps for skincare routines
+- connect livesearch to our search forms
+- maybe serialize property for Product ORM class in model.py
+
+**blockers:**
+- still need to build familiarity with React, to use it to make some components...
+- setting up D3.js using npm
+</details>
 
 #### Mon, 10/18:
 **HIGHLIGHT:** Livesearch now works!

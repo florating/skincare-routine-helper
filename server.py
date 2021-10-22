@@ -165,6 +165,7 @@ def livesearch():
         search_order_by = request.form.get('order_by')
         search_limit = 10  # can change this later
         
+        # TODO: sanitize user input in search_text
         q = model.Product.query.filter(
             model.Product.product_name.ilike(f'%{search_text}%')
             ).order_by(search_order_by).limit(search_limit)
@@ -236,7 +237,6 @@ def add_products_to_cabinet():
         # flask_login.current_user.serialize_cabinets
 
         obj = model.Cabinet(user_id=session['_user_id'], product_id=p_id)
-
         db.session.add(obj)
 
     db.session.commit()
@@ -247,18 +247,63 @@ def add_products_to_cabinet():
 @app.route('/get_cabinet', methods=['POST'])
 @login_required
 def get_cabinet_list():
-    """TODO: Test and fix, alongside routines.js file."""
+    """Return a list of products within a user's cabinet to send to routines.js."""
 
-    cabs = flask_login.current_user.serialize_cabinets
-    # print(f'\n\n\ncabs = {cabs}')
     cat_dict = [crud.get_category_dict()]
-    # print(f'\n\n\ncat_dict = {cat_dict}')
+    cabs = flask_login.current_user.serialize_cabinets
     return jsonify(cat_dict = cat_dict, cabinet = cabs)
 
 
-@app.route('/routine')
+@app.route('/routine', methods=['GET', 'POST'])
 def setup_routine():
-    return render_template('routine.html')
+    """
+    NOTE: request.form looks like this:
+        ImmutableMultiDict([
+            ('routine_type', 'am'),
+            ('steps[0][category_id]', '1'),
+            ('steps[0][product_id]', '64')
+        ])
+    NOTE: request.form.to_dict(flat=False) looks like this:
+        {'routine_type': ['am'], 'steps[0][category_id]': ['1'], 'steps[0][product_id]': ['64']}
+    NOTE: request.form.to_dict(flat=True) looks like this:
+        {'routine_type': 'am', 'steps[0][category_id]': '1', 'steps[0][product_id]': '64'}
+    """
+    if request.method == 'POST':
+        data = request.form
+        print(data)
+        
+        am_or_pm = request.form.get("routine_type")
+        form_dict = request.form.to_dict(flat=True)
+        print("form_dict is...")
+        print(form_dict)
+
+        steps_dict = form_dict['steps'][0]
+        print("steps_dict is...")
+        print(steps_dict)
+
+        print(f'\n\n\nCreating a new {am_or_pm.upper()} routine:')
+        for cat_id, p_id in steps_dict.items():
+            category_name = model.Category.query.filter_by(
+                category_id=cat_id).first().category_name
+            print(f'\n\n{category_name} step with cat_id = {cat_id}')
+            print(f'p_id = {p_id}')
+            p_obj = crud.get_obj_by_id('Product', p_id)  # change p_id to int?
+            print('\n\n\np_obj is:')
+            print(p_obj)
+        
+        print("We went to /routine with a POST request successfully!")
+        return "Success!"
+    return render_template('test/routine_blank.html')
+
+
+@app.route('/routine_blank')
+def setup_routine_blank():
+    return render_template('test/routine_blank.html')
+
+
+@app.route('/test')
+def test_react():
+    return render_template('test/test_transition.html')
 
 
 if __name__ == '__main__':
