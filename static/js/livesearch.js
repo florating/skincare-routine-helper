@@ -1,6 +1,6 @@
 "use strict";
 
-$(document).ready(() => {
+$( () => {
   $("#livebox").on("input", (evt) => {
     $("#datalist").empty();
 

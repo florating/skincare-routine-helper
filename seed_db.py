@@ -2,30 +2,12 @@
 
 import os
 # from random import choice, randint
-import re
 import sys
 
-import model
+from database import model
 from setup import read_files
 
-# os.system('. secrets.sh')  # fix this after figuring out API keys... in server.py
-
-# Get name of the directory where this file is present.
-current = os.path.dirname(os.path.realpath(__file__))
-print(f'NOTE: current os.path.dirname(os.path.realpath(__file__)) = {current} for __file__ = {__file__}\n')
-
-
-# If the current filepath does not end in the word "skincare" (because we are in a nested directory)...
-# and assuming the root directory named 'skincare' is one level above this one (at most),
-# then perform the following actions:
-if not re.search(r'skincare$', current):
-    # Get name of the parent directory, relative to the current directory this file is in.
-    parent = os.path.dirname(current)
-    print(f'NOTE: parent = {parent}\n')
-
-    # Adding the parent directory to the sys.path.
-    sys.path.append(parent)
-
+# os.system('. secrets.sh')  # FIXME: after figuring out API keys
 os.system('dropdb project_test --if-exists')
 os.system('createdb project_test')
 

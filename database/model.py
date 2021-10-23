@@ -1,4 +1,12 @@
-"""Models for the Skincare Routine Helper app."""
+"""Models for the database."""
+
+# # # This code is for connecting nested directories/files/making variables accessable # # #
+import os
+import sys
+
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_PATH)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 from datetime import datetime, timezone
 
@@ -8,7 +16,6 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, Numeric, String, Text
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
-print(f"Hello, I'm in model.py and __name__ = {__name__}!")
 
 db = SQLAlchemy()
 _db_name = 'project_test'  # FIXME: change when done with testing

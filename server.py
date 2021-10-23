@@ -1,16 +1,15 @@
-"""Server for the skincare routine helper."""
-# import os
+"""Server routes and view functions."""
 
 from flask import flash, Flask, jsonify, redirect, render_template, request, session, url_for
 import flask_login
 from flask_login import LoginManager, login_required, login_user, logout_user
 from jinja2 import StrictUndefined
 from markupsafe import escape
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 
-import crud
-import model
-from model import db, connect_to_db
+from database import crud
+from database import model
+from database.model import db, connect_to_db
 
 print(f"Hello, I'm in server.py and __name__ = {__name__}!")
 
@@ -31,8 +30,8 @@ login_manager.login_view = ""   # FIXME: not setup yet, may need extra views as 
 @app.route('/')
 def show_index():
     # TODO: read db_summary.csv file instead of calculating db_counts
-    db_counts = crud.get_summary_prod_table()
-    return render_template('index.html', db_counts=db_counts)
+    # db_counts = crud.get_summary_prod_table()
+    return render_template('index.html')
 
 
 @login_manager.user_loader
@@ -303,6 +302,9 @@ def setup_routine_blank():
 
 @app.route('/test')
 def test_react():
+    test_obj = crud.get_obj_by_id('Product', 1)
+    print('\n\n\n test_obj')
+    print(test_obj)
     return render_template('test/test_transition.html')
 
 

@@ -19,7 +19,7 @@ from model import db
 
 
 def write_summary_prod_table():
-    """Writes summary data for products currently in the database to '/data/generated_data/db_summary.csv'.
+    """Writes summary data for products currently in the database to '/static/files/db_summary.csv'.
     
     This also returns a list for which each element looks like the following:
         [(category_id, category_name, num_products), avg_num_ingredients]
@@ -31,7 +31,7 @@ def write_summary_prod_table():
     results = count_products_by_category(order_by='category_id')
     summary = []
 
-    filepath = os.path.abspath('../data/generated_data/db_summary.csv')
+    filepath = os.path.abspath('../static/files/db_summary.csv')
     with open(filepath, mode='w', encoding='utf-8') as db_summary_file:
         data_writer = csv.writer(db_summary_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 

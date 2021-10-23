@@ -1,3 +1,13 @@
+"""CRUD functions for the database."""
+
+# # # This code is for connecting nested directories/files/making variables accessable # # #
+import os
+import sys
+
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_PATH)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import ast
 from decimal import Decimal
 import re
@@ -5,7 +15,8 @@ from re import sub
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Ingredient, Interaction, AMRoutine, PMRoutine, connect_to_db
+from . import model
+from database.model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Interaction, AMRoutine, PMRoutine, connect_to_db
 
 # REFACTOR-NOTE: consider using __name__ 
 FXN_DICT = {
