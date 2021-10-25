@@ -90,7 +90,7 @@ def create_product_cascade(**obj_params):
     obj_params = parse_out_product_size(**obj_params)
     # TODO: (TEST THIS!) check if prod_obj.product_name already exists in products table
     if Product.query.filter_by(
-        product_name = obj_params['product_name']
+        product_name = obj_params['product_name'].rstrip()
         ).all():
 
         print("This product already exists in the database!")
@@ -137,9 +137,10 @@ def create_ingredients_cascade(product_obj, ingredient_list):
     proding_obj_list = []
     for i, ing_name in enumerate(ingredient_list):
         # TODO: check if ingredient name is in alternative_name field...
-        ing_obj = Ingredient.query.filter_by(common_name=ing_name).first()
+        clean_ing_name = ing_name.rstrip()
+        ing_obj = Ingredient.query.filter(Ingredient.common_name.ilike(clean_ing_name)).first()
         if not ing_obj:
-            ing_obj = Ingredient(common_name=ing_name)
+            ing_obj = Ingredient(common_name=clean_ing_name)
             ingreds_obj_list.append(ing_obj)
         # check if this product_name was already added to the product_ingredients table for this product!
         # pi_query = ProductIngredient.query.filter_by(common_name=ing_name).first()

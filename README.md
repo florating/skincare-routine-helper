@@ -43,21 +43,30 @@ This is an evidence-based app to help recommend skincare products and general sk
 
 ## Next Steps
 - [ ] request API keys
-- [x] 10/09: setup a basic homepage
 - [x] 10/14: add product to user's cabinet
     - [x] 10/14: from product results list
     - [ ] from individual product details page
 - [ ] queries, joins, etc.
-- [x] 10/19: display summary of database info on homepage (this takes nearly 1 min!)
-    - [x] 10/20: setup maintenance.py so the calculation of the summary table only happens when new products are loaded into the db
-    - [x] 10/20: save results in db_summary.csv
-    - [ ] setup CSV reader to display on homepage
-    - [ ] setup data visualization with D3
-    - [x] 10/20: read up on D3
+- [x] 10/19: display summary of database info on homepage (this takes nearly 1 min to load the page!)
+    - [x] 10/22: setup CSV reader to display on homepage (now only takes a few seconds!)
+    - [x] 10/22: setup data visualization with D3: horizontal lollipop histogram
+        - [x] 10/22: animate graph
+            - [ ] fix up the animations start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis)
+        - [x] 10/22: add ability to show two graphs with a button click and JS
+        - [ ] add legend to the graph
 - [ ] add livesearch capability to old search forms
 - [ ] save a user's skincare routine to the db
+    - [x] 10/24: update data model diagram
+    - [ ] implement data model changes to ORM classes
+    - [ ] re-seed the database
 - [x] 10/20: setup imports from nested directories
     - [ ] test that nothing broke
+- [ ] add hazard info to the ingredients within the ingredients table
+    - [x] 10/24: review the CSCP product database
+        - [ ] add to db
+    - [x] review the IARC monographs of carcinogenic agents
+        - last updated on 27 September 2021 (yay!)
+        - [ ] add to db
 
 ## Task List
 #### **General:**
@@ -92,6 +101,12 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [x] 10/12: setup Kaggle dataset with clean ingredients (CSV file)
 - [ ] setup other dataset
 - [x] look for datasets with sunscreen info
+- [x] 10/24: saw some duplicate ingredient entries, so update code to strip off trailing whitespace
+- [x] 10/25: generate table of number of ingredients by product by category using maintenance.py
+    - [x] 10/22: add write_summary_ingredients_table() and helper functions to maintenance.py
+    - [x] 10/25: fix import statements
+    - db_ingred_summary.csv is within static/files directory
+    - generated in 0.00024s
 </details>
 
 #### **Webpages:**
@@ -105,6 +120,16 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [ ] skin types
     - [ ] skin concerns
     - [ ] specific hazardous ingredients
+- [ ] add page about me and the project
+- [ ] add explanation about CAS ID, INCI code, UNII code for each ingredient
+    - [ ] Californai Safe Cosmetics Program (CSCP):
+        - part of the CA Department of Public Health (CDPH)
+        - [product database](https://cscpsearch.cdph.ca.gov/search/publicsearch)
+        - [example query](https://cscpsearch.cdph.ca.gov/search/detailresult/656)
+    - [ ] International Agency for Research on Cancer (IARC):
+        - part of the World Health Organization (WHO)
+        - [revised preamble with helpful diagram of review steps](https://monographs.iarc.who.int/wp-content/uploads/2019/07/2019-SR-001-Revised_Preamble.pdf)
+        - [ingredient classifications](https://monographs.iarc.who.int/list-of-classifications)
 </details>
 
 #### **Cabinet and routine functionality:**
@@ -116,11 +141,15 @@ This is an evidence-based app to help recommend skincare products and general sk
         - [x] 10/15: checkbox (to add to cabinet) is disabled if the product already exists in the user's cabinet
     - [x] 10/18: setup generic AM routine page
         - [x] 10/18: setup draggable/sortable feature
-        - [ ] connect to db to save results (AJAX)
+        - [x] 10/21: send routine info back to the server (AJAX)
         - [x] 10/19: customize dropdown menu for each product type
             - [ ] as indicated in SkincareStep object?
             - [x] 10/19: add get_category_dict() function to crud
         - [ ] optional: for custom routines, will need to add a button to add a new step to the routine (React component?)
+- [ ] save a user's skincare routine to the db
+    - [x] 10/24: update data model diagram
+    - [ ] implement data model changes to ORM classes
+    - [ ] re-seed the database
 </details>
 
 #### **Complete questionnaire for user profile:**
@@ -129,6 +158,8 @@ This is an evidence-based app to help recommend skincare products and general sk
 - [x] 10/11: setup user profile page
 - [x] 10/13: complete quick questionnaire for user profile within the settings page
 - [ ] add descriptions and images to questionnaire
+- [ ] add question about familiarity with routines/difficulty level
+    - gamify?
 </details>
 
 #### **Setup search:**
@@ -150,17 +181,37 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [ ] add livesearch capability to old search forms 
 </details>
 
+#### **Data visualization:**
+<details>
+
+- [x] 10/19: display summary of database info on homepage (this takes nearly 1 min to load the page!)
+    - [x] 10/20: setup maintenance.py so the calculation of the summary table only happens when new products are loaded into the db
+    - [x] 10/20: save results in db_summary.csv
+    - [x] 10/20: read up on D3
+    - [x] 10/22: setup CSV reader to display on homepage (now only takes a few seconds!)
+    - [x] 10/22: setup data visualization with D3: horizontal lollipop histogram
+        - [x] 10/22: animate graph
+            - [ ] fix up the animations start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis)
+        - [x] 10/22: add ability to show two graphs with a button click and JS
+        - [ ] add legend to the graph
+</details>
+
 #### **Design:**
 <details><summary>To be completed after code freeze on 10/31.</summary>
-    <details><summary>UX and UI</summary>
-    - [x] 10/20: navbar - make it stick to the top
-    - [ ] redesign dropdown menu
-    - [ ] review user flow diagram again
-    </details>
-    <details><summary>Overall Design</summary>
-    - [ ] draw wireframes again
-        - based on user flow diagram
-    </details>
+
+<details><summary>UX and UI</summary>
+
+- [x] 10/20: navbar - make it stick to the top
+- [ ] redesign dropdown menu
+- [ ] review user flow diagram again
+</details>
+    
+<details><summary>Overall Design</summary>
+
+- [ ] draw wireframes again
+    - based on user flow diagram
+</details>
+
 </details>
 
 #### **JavScript:**

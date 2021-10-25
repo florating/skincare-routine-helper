@@ -13,9 +13,8 @@ from datetime import datetime
 
 import pytz
 
-import crud
-import model
-from model import db
+from database import crud
+from database import model
 
 
 def write_summary_prod_table():
@@ -49,6 +48,20 @@ def write_summary_prod_table():
     return summary
 
 
+def write_summary_ingredients_table():
+    """SELECT c.category_name, pi.product_id, COUNT(pi.product_id) AS num_ingredients ..."""
+    filepath = os.path.abspath('../static/files/db_ingred_summary.csv')
+    header = ['category_id', 'category_name', 'product_id', 'num_ingredients', 'date_updated']
+    with open(filepath, mode='w', encoding='utf-8') as file:
+        data_writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        data_writer.writerow(header)
+        for cat_id in range(1, 15):
+            results = count_ingredients_by_category(cat_id)
+            for result in results:
+                current_dt = get_current_datetime()
+                data_writer.writerow([cat_id, result[0], result[1], result[2], current_dt])
+
+
 def get_current_datetime():
     """Return current datetime as an aware datetime object with a UTC timezone."""
     # ISO 8601 format (aware): '2016-11-16T22:31:18.130822+00:00'
@@ -79,7 +92,20 @@ def count_products_by_category(order_by='category_name'):
         ORDER BY c.'
     q += order_by
     # print(f'\n\n\n q = {q}')
-    cursor = db.session.execute(q)
+    cursor = model.db.session.execute(q)
+    result = cursor.fetchall()
+    return result
+
+
+def count_ingredients_by_category(category_id):
+    """Counts number of ingredients per product by category_id, returning a list of tuples."""
+    q = f"SELECT c.category_name, pi.product_id, COUNT(pi.product_id) AS num_ingredients\
+        FROM product_ingredients AS pi\
+        JOIN products AS p ON (pi.product_id = p.product_id)\
+        FULL OUTER JOIN categories AS c ON (p.category_id = c.category_id)\
+        WHERE p.category_id = {category_id}\
+            GROUP BY pi.product_id, p.category_id, c.category_name"
+    cursor = model.db.session.execute(q)
     result = cursor.fetchall()
     return result
 
@@ -102,4 +128,5 @@ if __name__ == '__main__':
     from server import app
 
     model.connect_to_db(app)
-    write_summary_prod_table()
+    # write_summary_prod_table()
+    write_summary_ingredients_table()
