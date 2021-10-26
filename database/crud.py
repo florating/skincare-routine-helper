@@ -15,24 +15,24 @@ from re import sub
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from . import model
-from database.model import db, User, Concern, Cabinet, Category, Skintype, SkincareStep, Product, Ingredient, ProductIngredient, Interaction, AMRoutine, PMRoutine, connect_to_db
+from database import model
+from database.model import db, User, Concern, Cabinet, Category, Frequency, Skintype, Step, Product, Ingredient, ProductIngredient, Interaction, Routine, connect_to_db
 
 # REFACTOR-NOTE: consider using __name__ 
 FXN_DICT = {
     'Cabinet': Cabinet,
     'Category': Category,
     'Concern': Concern,
+    'Frequency': Frequency,
     'Ingredient': Ingredient,
     'Interaction': Interaction,
     'Product': Product,
     'ProductIngredient': ProductIngredient,
-    'SkincareStep': SkincareStep,
+    'Step': Step,
     'Skintype': Skintype,
     'User': User,
 
-    'AMRoutine': AMRoutine,
-    'PMRoutine': PMRoutine
+    'Routine': Routine
 }
 
 
@@ -88,10 +88,10 @@ def create_product_cascade(**obj_params):
     """
     # parse product_size out of the product_name field in obj_params
     obj_params = parse_out_product_size(**obj_params)
-    # TODO: (TEST THIS!) check if prod_obj.product_name already exists in products table
-    if Product.query.filter_by(
-        product_name = obj_params['product_name'].rstrip()
-        ).all():
+    # TODO: test if prod_obj.product_name already exists in products table, case in-sensitive
+    obj_params['product_name'] = obj_params['product_name'].strip()
+    if Product.query.filter(
+        Product.product_name.ilike(obj_params['product_name'])).all():
 
         print("This product already exists in the database!")
         return None
@@ -104,7 +104,7 @@ def create_product_cascade(**obj_params):
     prod_obj = Product(**obj_params)
 
     if prod_type:
-         cat_obj = Category.query.filter_by(category_name=prod_type).one()
+         cat_obj = Category.query.filter(Category.category_name.ilike(prod_type)).one()
          if cat_obj:
             prod_obj.category_id = cat_obj.category_id
     
@@ -137,7 +137,7 @@ def create_ingredients_cascade(product_obj, ingredient_list):
     proding_obj_list = []
     for i, ing_name in enumerate(ingredient_list):
         # TODO: check if ingredient name is in alternative_name field...
-        clean_ing_name = ing_name.rstrip()
+        clean_ing_name = ing_name.strip()
         ing_obj = Ingredient.query.filter(Ingredient.common_name.ilike(clean_ing_name)).first()
         if not ing_obj:
             ing_obj = Ingredient(common_name=clean_ing_name)

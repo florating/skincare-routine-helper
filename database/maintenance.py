@@ -9,9 +9,6 @@ sys.path.append(BASE_PATH)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import csv
-from datetime import datetime
-
-import pytz
 
 from database import crud
 from database import model
@@ -41,7 +38,7 @@ def write_summary_prod_table():
         for result in results:
             cat_id = result[0]
             avg_ingreds = get_avg_num_ingredients_by_category(cat_id)
-            current_dt = get_current_datetime()
+            current_dt = model.get_current_datetime()
             data_writer.writerow([cat_id, result[1], result[2], avg_ingreds, current_dt])
             summary.append([result, avg_ingreds])
             
@@ -58,25 +55,8 @@ def write_summary_ingredients_table():
         for cat_id in range(1, 15):
             results = count_ingredients_by_category(cat_id)
             for result in results:
-                current_dt = get_current_datetime()
+                current_dt = model.get_current_datetime()
                 data_writer.writerow([cat_id, result[0], result[1], result[2], current_dt])
-
-
-def get_current_datetime():
-    """Return current datetime as an aware datetime object with a UTC timezone."""
-    # ISO 8601 format (aware): '2016-11-16T22:31:18.130822+00:00'
-    # current_dt = datetime.utcnow().isoformat()
-
-    # current_dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # looks like: '1984-01-10 23:30:00'
-    # current_dt = datetime.now().isoformat()  # ISO 8601 format (naive): '1984-01-10T23:30:00'
-
-    return datetime.utcnow()
-
-
-def convert_to_PST(aware_datetime):
-    """Return a converted version of this aware datetime object (UTC --> PST)."""
-    # TODO: check if this converts to PST (with daylight saving time status) or just PT
-    return aware_datetime.astimezone(pytz.timezone("America/Los_Angeles"))
 
 
 def count_products_by_category(order_by='category_name'):
