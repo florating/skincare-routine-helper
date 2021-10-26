@@ -4,8 +4,8 @@ import os
 # from random import choice, randint
 import sys
 
-from database import model
-from setup import read_files
+from database import model, read_files
+# from setup import read_files
 
 # os.system('. secrets.sh')  # FIXME: after figuring out API keys
 os.system('dropdb project_test --if-exists')

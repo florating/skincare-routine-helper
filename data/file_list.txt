@@ -1,5 +1,4 @@
-Concern skin_concerns.json
-Category product_categories.csv
-SkincareStep skincare_steps.csv
-Skintype skintypes.csv
+Concern model_concerns.csv
+Category model_categories.csv
+Skintype model_skintypes.csv
 Product production_datasets/skincare_products_clean_url.csv
