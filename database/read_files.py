@@ -11,7 +11,7 @@ sys.path.append(BASE_PATH)
 import csv
 import json
 
-import crud
+from database import crud
 
 
 def load_files(table_obj_name, filename):
@@ -67,7 +67,7 @@ def load_json(table_obj_name, filename):
     """
     obj_in_db = []
 
-    with open(f'data/{filename}') as f:
+    with open(f'data/{filename}', mode='r', encoding='utf-8-sig') as f:
         data = json.loads(f.read())
 
         for el in data:
@@ -97,7 +97,7 @@ def main(filename):
     file_dict = {}
     added_objects_dict = {}
     print(f"filename = {filename}")
-    with open(filename, 'r') as f:
+    with open(filename, mode='r', encoding='utf-8-sig') as f:
         data = f.readlines()
         for line in data:
             class_name, filepath = line.split()
@@ -105,4 +105,5 @@ def main(filename):
 
     for tab_obj_name, file_path in file_dict.items():
         added_objects_dict[tab_obj_name] = load_files(tab_obj_name, file_path)
+    
     return added_objects_dict
