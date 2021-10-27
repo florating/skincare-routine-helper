@@ -1,5 +1,7 @@
 """Server routes and view functions."""
 
+import os
+
 from flask import flash, Flask, jsonify, redirect, render_template, request, session, url_for
 import flask_login
 from flask_login import current_user, LoginManager, login_required, login_user, logout_user
@@ -14,9 +16,13 @@ from database.model import db, connect_to_db
 print(f"Hello, I'm in server.py and __name__ = {__name__}!")
 
 app = Flask(__name__)
-app.secret_key = 'secret'
-# FIXME: set app configurations for SECRET_KEY later, after fixing secrets.sh
-# SECRET_KEY = os.environ['SECRET_KEY']
+# FIXME: the following bits of code are for testing purposes only!
+# set app configurations for SECRET_KEY later, after fixing secrets.sh
+_SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
+print(_SECRET_KEY)
+app.secret_key = _SECRET_KEY
+
+_DB_NAME_ = 'project_test_2'
 
 app.jinja_env.undefined = StrictUndefined
 
@@ -29,9 +35,8 @@ login_manager.login_message = 'Please log in or register for an account first.'
 
 
 @app.route('/')
-def show_index():
-    # TODO: read db_summary.csv file instead of calculating db_counts
-    # db_counts = crud.get_summary_prod_table()
+def index():
+    # NOTE: js reads db_summary.csv file instead of crud calculating it
     return render_template('index.html')
 
 
@@ -59,7 +64,7 @@ def register_account():
 
     if user:
         flash('You cannot use this email to create a new account.')
-        return redirect('/')
+        return redirect(url_for('home'))
     
     # FIXME: not yet tested. is it better to call generate_password_hash here or in model.py?
     crud.create_user(**params)
@@ -92,9 +97,8 @@ def login():
         
         flash(error)
         return redirect('/')
-    else:
-        flash("You are not using a POST request.")
-        return redirect('/')
+    # return render_template('login.html')
+    return redirect('/')
 
 
 @app.route('/logout')
@@ -116,7 +120,6 @@ def show_profile():
 def show_profile_settings():
     concerns = model.Concern.query.all()
     skintypes = model.Skintype.query.all()
-
     return render_template('profile_settings.html', concerns=concerns, skintypes=skintypes)
 
 
@@ -170,7 +173,7 @@ def livesearch():
         result = q.first_or_404()
         if result != 404:
             ser_obj = result.serialize
-        return jsonify(ser_obj)
+            return jsonify(ser_obj)
         else:
             return result
 
@@ -239,8 +242,8 @@ def add_products_to_cabinet():
         obj = model.Cabinet(user_id=current_user.get_id(), product_id=p_id)
         db.session.add(obj)
 
-    db.session.commit()
-    flash("You successfully added these products to your cabinet!")
+        db.session.commit()
+        flash("You successfully added these products to your cabinet!")
     return redirect(url_for('show_profile'))
 
 
@@ -311,5 +314,5 @@ def test_react():
 
 if __name__ == '__main__':
     print("Hello, I'm in server.py's special statement since __name__ == '__main__'!")
-    connect_to_db(app)
+    connect_to_db(app, db_uri=f"postgresql:///{_DB_NAME_}", echo=False)
     app.run(host='0.0.0.0', debug=True)

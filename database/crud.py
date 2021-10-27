@@ -54,7 +54,7 @@ def create_table_obj(table_class_name, **kwargs):
         obj = create_product_cascade(**kwargs)
     else:   
         obj = FXN_DICT[table_class_name](**kwargs)
-        add_and_commit(obj)
+    add_and_commit(obj)
     return obj
 
 
@@ -86,27 +86,43 @@ def create_product_cascade(**obj_params):
         - a Product object (if it was inserted into the table)
         - None (if this product already exists in the database)
     """
+    prod_name = obj_params.get('product_name', None)
+    if not prod_name:
+        return
+    # FIXME: can add 'price' back later
+    exp_params = {'product_name', 'product_type', 'clean_ingreds', 'product_url'}
+
+    copy_params = obj_params.copy()
+    for param, param_val in copy_params.items():
+        if param not in exp_params:
+            obj_params.pop(param)  # toss
+        else:
+            obj_params[param] = param_val.strip()
+    
     # parse product_size out of the product_name field in obj_params
     obj_params = parse_out_product_size(**obj_params)
-    # TODO: test if prod_obj.product_name already exists in products table, case in-sensitive
-    obj_params['product_name'] = obj_params['product_name'].strip()
+
+    # TODO: test if prod_obj.product_name already exists in db, case-insensitive
     if Product.query.filter(
-        Product.product_name.ilike(obj_params['product_name'])).all():
+        Product.product_name.ilike(prod_name)).all():
 
         print("This product already exists in the database!")
         return None
         # REFACTOR-NOTE: try using the try/except constructions!
     
-    obj_params.pop('ingredients', None)  # toss
+    # print('obj_params...')
+    # print(obj_params)
     ingreds_list = obj_params.pop('clean_ingreds')
     prod_type = obj_params.pop('product_type', None)
 
     prod_obj = Product(**obj_params)
 
     if prod_type:
-         cat_obj = Category.query.filter(Category.category_name.ilike(prod_type)).one()
-         if cat_obj:
+        cat_obj = Category.query.filter(Category.category_name.ilike(prod_type)).one()
+        if cat_obj:
             prod_obj.category_id = cat_obj.category_id
+        else:
+            print(f'\n\nUh oh! This product type ({prod_type}) is not in the db.\n\n')
     
     actual_ingreds_list = convert_string_to_list(ingreds_list)
     create_ingredients_cascade(prod_obj, actual_ingreds_list)
@@ -129,23 +145,29 @@ def create_ingredients_cascade(product_obj, ingredient_list):
         - product_obj (Product object):
         - ingredient_list (list): a list of strings, referring to the common_names of an Ingredient object
 
-    RETURNS:
-        ???
+    RETURNS: None
     """
-
+    # check if this product_name was already added to the product_ingredients table for this product!
+    p_query = db.session.query(Product.product_id).filter(
+        Product.product_name.ilike(product_obj.product_name)).first()
+    if p_query:
+        prod_id = p_query.product_id
+        pi_query = ProductIngredient.query.filter_by(
+            product_id=prod_id).first()
+        if pi_query:
+            return
+    
     ingreds_obj_list = []
     proding_obj_list = []
     for i, ing_name in enumerate(ingredient_list):
         # TODO: check if ingredient name is in alternative_name field...
         clean_ing_name = ing_name.strip()
+        if not clean_ing_name:
+            continue
         ing_obj = Ingredient.query.filter(Ingredient.common_name.ilike(clean_ing_name)).first()
         if not ing_obj:
             ing_obj = Ingredient(common_name=clean_ing_name)
             ingreds_obj_list.append(ing_obj)
-        # check if this product_name was already added to the product_ingredients table for this product!
-        # pi_query = ProductIngredient.query.filter_by(common_name=ing_name).first()
-        # if pi_query:
-        #     continue
         pi_obj = ProductIngredient(abundance_order=(i + 1))
         proding_obj_list.append(pi_obj)
         pi_obj.ingredient = ing_obj
@@ -264,60 +286,6 @@ def get_all_obj_by_param(class_name, **param):
 def get_category_dict():
     """Return a list of category names, ordered by category_id."""
     return {item.category_id: item.category_name for item in Category.query.order_by('category_id').all()}
-
-
-def count_products_by_category(order_by="category_name"):
-    """Count number of products by category_id, returning results as a list of tuples.
-    Can order by "category_name" or "category_id".
-    EG: [(category_id, category_name, num_products), ...]
-    SQL query:
-        SELECT c.category_id, c.category_name, COUNT(p.category_id) AS num_products
-        FROM products AS p
-        INNER JOIN categories AS c ON (p.category_id = c.category_id)
-        GROUP BY c.category_id, p.category_id, c.category_name
-        ORDER BY c.category_id;
-    """
-    q = "SELECT c.category_id, c.category_name, COUNT(p.category_id) AS num_products\
-        FROM products AS p\
-        INNER JOIN categories AS c ON (p.category_id = c.category_id)\
-        GROUP BY c.category_id, p.category_id, c.category_name\
-        ORDER BY c."
-    q += order_by
-    print(f"\n\n\n q = {q}")
-    cursor = db.session.execute(q)
-    result = cursor.fetchall()
-    return result
-
-
-def get_summary_prod_table():
-    """Returns summary data for products currently in the database.
-    
-    each element in the returned list:
-        [(category_id, category_name, num_products), avg_num_ingredients]
-        [(1, 'Moisturizer', 108), avg_num_ingredients]
-    # TODO: ONLY DO THIS WHENEVER THE TABLE CHANGES, AND THEN SAVE THE RESULT!
-    """
-    results = count_products_by_category()
-    summary = []
-    for result in results:
-        cat_id = result[0]
-        summary.append([result, get_avg_num_ingredients_by_category(cat_id)])
-    return summary
-
-
-def get_avg_num_ingredients():
-    # results = count_products_by_category
-    pass
-
-
-def get_avg_num_ingredients_by_category(cat_id=1):
-    """Returns the average number of ingredients for products with this category_id."""
-    prod_list = Product.query.filter_by(category_id=cat_id).all()
-
-    sum_ingreds = 0
-    for prod in prod_list:
-        sum_ingreds += prod.get_num_ingredients()
-    return sum_ingreds / len(prod_list)
 
 
 if __name__ == '__main__':

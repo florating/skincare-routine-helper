@@ -16,12 +16,10 @@ from database import model
 
 def write_summary_prod_table():
     """Writes summary data for products currently in the database to '/static/files/db_summary.csv'.
-    
+    NOTE: ONLY DO THIS WHENEVER THE TABLE CHANGES, AND THEN SAVE THE RESULT!
     This also returns a list for which each element looks like the following:
         [(category_id, category_name, num_products), avg_num_ingredients]
         [(1, 'Moisturizer', 108), 31.287037037037038]
-    
-    NOTE: ONLY DO THIS WHENEVER THE TABLE CHANGES, AND THEN SAVE THE RESULT!
     """
 
     results = count_products_by_category(order_by='category_id')
@@ -38,7 +36,7 @@ def write_summary_prod_table():
         for result in results:
             cat_id = result[0]
             avg_ingreds = get_avg_num_ingredients_by_category(cat_id)
-            current_dt = model.get_current_datetime()
+            current_dt = model.get_current_datetime()  # FIXME: change to isoformat?
             data_writer.writerow([cat_id, result[1], result[2], avg_ingreds, current_dt])
             summary.append([result, avg_ingreds])
             
@@ -61,8 +59,7 @@ def write_summary_ingredients_table():
 
 def count_products_by_category(order_by='category_name'):
     """Count number of products by category_id, returning results as a list of tuples.
-
-    Can order by "category_name" or "category_id".
+    Can order by "category_name" or "category_id":
         EG: [(category_id, category_name, num_products), ...]
     """
     q = 'SELECT c.category_id, c.category_name, COUNT(p.category_id) AS num_products\
@@ -92,8 +89,6 @@ def count_ingredients_by_category(category_id):
 
 def get_avg_num_ingredients_by_category(cat_id=1):
     """Returns the average number of ingredients for products with this category_id."""
-    # ERROR:
-    # TypeError: filter() got an unexpected keyword argument 'category_id'
     prod_list = model.Product.query.filter_by(category_id=cat_id).all()
 
     sum_ingreds = 0

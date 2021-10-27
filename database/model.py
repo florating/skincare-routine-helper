@@ -21,8 +21,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 if sys.version_info[0] >= 3:
     unicode = str
 db = SQLAlchemy()
-_db_name = 'project_test'  # TODO: change when done with testing
-
+# _db_name_ = 'project_test'  # NOTE: from schema prior to 10/25
+_DB_NAME_ = 'project_test_2'  # TODO: change when done with testing
+_ECHO_LOG_ERRORS_ = True  # TODO: Change when done with testing
 
 ##### TIME-RELATED FUNCTIONS BELOW #####
 
@@ -562,5 +563,5 @@ if __name__ == '__main__':
 
     from server import app
 
-    connect_to_db(app)
+    connect_to_db(flask_app=app, db_uri=f"postgresql:///{_DB_NAME_}", echo=False)
     db.create_all()

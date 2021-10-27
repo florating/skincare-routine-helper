@@ -40,14 +40,16 @@ def load_csv(table_obj_name, filename):
     RETURNS: a list of objects that were inserted into the database.
         - eg: [<Concern concern_id=1 ...>, <Concern concern_id=2 ...>]
     """
+    print('*' * 20)
     print(f'\n\nStart loading data from {filename} into the {table_obj_name} table!\n\n')
     obj_in_db = []
 
-    with open(f'data/{filename}', mode='r', encoding='utf-8-sig') as file:
+    with open(f'{filename}', mode='r', encoding='utf-8-sig') as file:
         csvreader = csv.DictReader(file)
 
         # eg: row = {'concern_id': 1, 'concern_name': 'acne', ...}
-        for row in csvreader:  
+        for row in csvreader:
+            row.pop('', None)
             obj = crud.create_table_obj(table_obj_name, **row)
             obj_in_db.append(obj)
 
@@ -101,9 +103,12 @@ def main(filename):
         data = f.readlines()
         for line in data:
             class_name, filepath = line.split()
-            file_dict[class_name] = filepath
+            file_dict[class_name] = file_dict.get(class_name, [])
+            file_dict[class_name].append(filepath)
 
-    for tab_obj_name, file_path in file_dict.items():
-        added_objects_dict[tab_obj_name] = load_files(tab_obj_name, file_path)
+    for tab_obj_name, file_path_list in file_dict.items():
+        added_objects_dict[tab_obj_name] = added_objects_dict.get(tab_obj_name, {})
+        for file in file_path_list:
+            added_objects_dict[tab_obj_name][file] = load_files(tab_obj_name, file)
     
     return added_objects_dict

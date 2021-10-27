@@ -5,18 +5,26 @@ import os
 import sys
 
 from database import model, read_files
-# from setup import read_files
+
+_DB_NAME_ = 'project_test_2'
 
 # os.system('. secrets.sh')  # FIXME: after figuring out API keys
-os.system('dropdb project_test --if-exists')
-os.system('createdb project_test')
+os.system(f'dropdb {_DB_NAME_} --if-exists')
+os.system(f'createdb {_DB_NAME_}')
 
 
 if __name__ == '__main__':
+    import logging
+
     from server import app
+    
+    # when configuring logging explicitly, ensure all echo flags are set to False at all times, to avoid getting duplicate log lines
+    # source: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
 
     # Connect database to the Flask app in server.py and create all tables.
-    model.connect_to_db(app)
+    model.connect_to_db(flask_app=app, db_uri=f"postgresql:///{_DB_NAME_}", echo=False)
     model.db.create_all()
     
     # Get filename of second argument, with instructions to seed the database.

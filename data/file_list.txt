@@ -1,4 +1,7 @@
-Concern model_concerns.csv
-Category model_categories.csv
-Skintype model_skintypes.csv
-Product production_datasets/skincare_products_clean_url.csv
+Concern data/model_concerns.csv
+Category data/model_categories.csv
+Skintype data/model_skintypes.csv
+Product database/ka-1-water0.csv
+Product database/ka-1-water1.csv
+Product database/ka-1-water2.csv
+Product database/ka-1-water3.csv
