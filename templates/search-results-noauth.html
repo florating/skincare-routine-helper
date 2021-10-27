@@ -47,25 +47,14 @@
               {% endif %}
             </div>
 
-            <!-- FORM STARTS HERE -->
-            <form id="add_to_cabinet" method="POST" action="/add_to_cabinet">
               <table class="product-list">
                 <tr>
-                  <td></td>
                   <td>Product</td>
                   <td>Product Type</td>
                   <!-- <td>Product Image</td> -->
                 </tr>
                 {% for item in product_list %}
                   <tr>
-                    <td>
-                      {% if item.product_id in current_cabinet %}
-                      <!-- FIXME: add DOM stuff later -->
-                        <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}" disabled="true">
-                      {% else %}
-                        <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}">
-                      {% endif %}
-                    </td>
                     <td>
                       <a href="/products/{{ item['product_id'] }}" target="_blank">
                         {{ item['product_name'] }}
@@ -80,8 +69,6 @@
                   </tr>
                 {% endfor %}
               </table>
-              <input type="submit" value="Add to my cabinet!">
-            </form>
           {% endif %}
         </div>
       </div>

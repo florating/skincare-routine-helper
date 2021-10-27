@@ -222,6 +222,16 @@ def convert_string_to_list(list_str):
     return processed_str
 
 
+def process_form(param_list, form_data):
+    """Given form_data (request.form or request.args), create a dict of values."""
+    data = {}
+    for param in param_list:
+        val = form_data.get(param, '')
+        if val:
+            data[param] = val
+    return data
+
+
 ##### QUERY FUNCTIONS BELOW #####
 
 def get_obj_by_id(class_name, obj_id):

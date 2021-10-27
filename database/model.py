@@ -18,7 +18,8 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, Numeric, String, Text
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # from database.crud import add_and_commit
-
+if sys.version_info[0] >= 3:
+    unicode = str
 db = SQLAlchemy()
 _db_name = 'project_test'  # TODO: change when done with testing
 
@@ -87,7 +88,7 @@ class Skintype(db.Model):
 
     skintype_id = Column(Integer, primary_key=True, autoincrement=True)
     skintype_name = Column(String(25), nullable=False)
-    description = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
     created_on = Column(DateTime, default=get_current_datetime())
     
     # users = list of User objects with this skintype
@@ -109,7 +110,7 @@ class User(UserMixin, db.Model):
     hashed_password = Column(String(200), nullable=False)
 
     # skincare-related:
-    skintype_id = Column(Integer, db.ForeignKey('skintypes.skintype_id'), default=None)
+    skintype_id = Column(Integer, db.ForeignKey('skintypes.skintype_id'), server_default=None)
     primary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
     secondary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
 
@@ -146,12 +147,15 @@ class User(UserMixin, db.Model):
     def serialize_cabinets(self):
         return [ item.serialize for item in self.cabinets ]
     @property
+    def serialize_cabinet_prod_ids(self):
+        return [ item.product_id for item in self.cabinets ]
+    @property
     def serialize_routines(self):
         return [ item.serialize for item in self.routines ]
 
     def get_id(self):
         """Returns a unicode that uniquely identifies this user, and can be used to load the user from the user_loader callback function."""
-        return str(self.user_id).encode("utf-8").decode("utf-8") 
+        return unicode(self.user_id)
 
     def check_password(self, input_password):
         """Return True if input_password is the correct password."""
@@ -285,7 +289,7 @@ class Frequency(db.Model):
 class Category(db.Model):
     """Create a Category object for the categories table.
     
-    Categories associated with the Kaggle dataaset (by difficulty level) include:
+    Categories associated with the Kaggle dataset (by difficulty level) include:
         1) Beginner level:
             Cleanser
         Moisturizer
@@ -446,12 +450,11 @@ class Ingredient(db.Model):
     is_fragrance = Column(Boolean, default=None)
     created_on = Column(DateTime, default=get_current_datetime())
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         # FIXME: add more later
         fragrances = {'parfum', 'perfume', 'fragrance', 'aroma', 'essential oil blend'}
-        occlusives = {'petroleum jelly', 'dimethicone'}
-        if common_name.lower() in fragrances:
+        if self.common_name.lower() in fragrances:
             self.is_fragrance = True 
 
     # interactions1 = list of Interaction objects (adverse reactions)
@@ -507,7 +510,7 @@ class Routine(db.Model):
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     am_or_pm = Column(String(2), nullable=False)
     name = Column(String(25))
-    step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
+    # step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
     created_on = Column(DateTime, default=get_current_datetime())
     updated_on = Column(DateTime, nullable=True, default=None, onupdate=get_current_datetime())
     retired_on = Column(DateTime, nullable=True, default=None)
@@ -538,8 +541,7 @@ class Routine(db.Model):
     #     db.session.commit()
 
     def __repr__(self):
-        # TODO: test that product={...} will show up properly
-        return f"<PMRoutine routine_id={self.routine_id} step_id={self.step_id} product_id={self.product_id} product={self.product.product_name}>"
+        return f"<Routine routine_id={self.routine_id} name={self.name} user_id={self.user_id} am_or_pm={self.am_or_pm} number of steps={len(self.steps) if self.steps else None}>"
 
 
 ##### DB-RELATED FUNCTION BELOW #####

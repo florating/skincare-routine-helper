@@ -2,7 +2,7 @@
 
 from flask import flash, Flask, jsonify, redirect, render_template, request, session, url_for
 import flask_login
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import current_user, LoginManager, login_required, login_user, logout_user
 from jinja2 import StrictUndefined
 from markupsafe import escape
 from werkzeug.security import check_password_hash
@@ -24,7 +24,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = ""   # FIXME: not setup yet, may need extra views as well
+login_manager.login_view = 'login'
+login_manager.login_message = 'Please log in or register for an account first.'
 
 
 @app.route('/')
@@ -36,9 +37,7 @@ def show_index():
 
 @login_manager.user_loader
 def load_user(user_id):
-    """This callback is used to reload the user object from the user ID stored in the session.
-    
-    It should take the unicode ID of a user, and return the corresponding user object.
+    """This callback is used to reload the user object from the user ID (in unicode) stored in the session.
     
     If the ID is not valid, it should return None (not raise an exception). In that case, the ID will manually be removed from the session and processing will continue.
     """
@@ -69,9 +68,8 @@ def register_account():
     
 
 @app.route('/login', methods=['GET', 'POST'])
-def process_login():
+def login():
     """Process user login."""
-
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -131,11 +129,11 @@ def update_skin_profile():
             val = request.form.get(param)
             if val:
                 if 'skintype_id' in param:
-                    flask_login.current_user.skintype_id = val
+                    current_user.skintype_id = val
                 elif 'primary_concern_id' in param:
-                    flask_login.current_user.primary_concern_id = val
+                    current_user.primary_concern_id = val
                 elif 'secondary_concern_id' in param:
-                    flask_login.current_user.secondary_concern_id = val
+                    current_user.secondary_concern_id = val
         db.session.commit()
         flash('You have successfully updated your skin profile!')
     except:
@@ -169,8 +167,12 @@ def livesearch():
             model.Product.product_name.ilike(f'%{search_text}%')
             ).order_by(search_order_by).limit(search_limit)
         
-        ser_obj = q.first().serialize
+        result = q.first_or_404()
+        if result != 404:
+            ser_obj = result.serialize
         return jsonify(ser_obj)
+        else:
+            return result
 
     return render_template('livesearch.html')
     # eg: result =
@@ -183,19 +185,13 @@ def show_products_from_search():
     """Search for skincare products in the database.
 
     Use form data from /products (in 'search-form.html') to populate any search parameters.
-    # TODO: consider if crud functions would be better
     """
     if request.method == 'POST':
-        form_params = {
-            'product_name': request.form.get('product_name', ''),
-            'order_by': request.form.get('order_by', ''),
-            # 'product_type': request.form.get('product_type', ''),
-            'category_id': request.form.get('category_id', ''),
-            'limit': 10
-        }
+        param_list = ['product_name', 'category_id', 'order_by']
+        form_params = crud.process_form(param_list, request.form)
+        form_params.update({'limit': 10})
 
         q = model.Product.query
-        # print("ABOUT TO START FOR LOOP!\n\n\n")
         for param, param_val in form_params.items():
             # print(f"for param = {param} and param_val = {param_val}\n\n")
             if param_val:
@@ -213,9 +209,13 @@ def show_products_from_search():
         # print(f"q = {q}\n\n\n")
         result = q.all()
 
-        cab_prod_id_list = []
-        for cab_obj in flask_login.current_user.cabinets:
-            cab_prod_id_list.append(cab_obj.product_id)
+        if current_user.is_anonymous:
+            cab_prod_id_list = ''
+            return render_template('search-results-noauth.html', product_list=result)
+        # cab_prod_id_list = []
+        # for cab_obj in current_user.cabinets:
+        #     cab_prod_id_list.append(cab_obj.product_id)
+        cab_prod_id_list = current_user.serialize_cabinet_prod_ids
 
         return render_template('search-results.html',
             product_list=result, current_cabinet=cab_prod_id_list)
@@ -224,6 +224,7 @@ def show_products_from_search():
 
 
 @app.route('/add_to_cabinet', methods=['POST'])
+@login_required
 def add_products_to_cabinet():
     data_pojo = request.form
     p_id_list = data_pojo.to_dict(flat=False)['product_id']
@@ -232,10 +233,10 @@ def add_products_to_cabinet():
     for p_id in p_id_list:
         # FIXME: check if this product_id is already in this user's cabinet (any option?)
         # model.Cabinet.query.filter_by(user_id=session['_user_id']).filter_by(product_id=p_id)
-        # user_cabinet_list = flask_login.current_user.cabinets
-        # flask_login.current_user.serialize_cabinets
+        # user_cabinet_list = current_user.cabinets
+        # current_user.serialize_cabinets
 
-        obj = model.Cabinet(user_id=session['_user_id'], product_id=p_id)
+        obj = model.Cabinet(user_id=current_user.get_id(), product_id=p_id)
         db.session.add(obj)
 
     db.session.commit()
@@ -249,7 +250,7 @@ def get_cabinet_list():
     """Return a list of products within a user's cabinet to send to routines.js."""
 
     cat_dict = [crud.get_category_dict()]
-    cabs = flask_login.current_user.serialize_cabinets
+    cabs = current_user.serialize_cabinets
     return jsonify(cat_dict = cat_dict, cabinet = cabs)
 
 

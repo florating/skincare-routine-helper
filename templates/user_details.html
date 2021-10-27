@@ -73,9 +73,10 @@
     <div class="routine col-5" id="user_am_routine">
       <h3>My AM Routine</h3>
       <!-- My AM Routine -->
-      {% if current_user.am_routines %}
+      {% if current_user.routines %}
+      {# and current_user.routines.am_or_pm == 'am' #}
         <ul>
-          {% for obj in current_user.am_routines %}
+          {% for obj in current_user.routines %}
             <li>obj.product_id = {{ obj.product_id }}</li>
             <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
           {% endfor %}
@@ -93,9 +94,9 @@
     <div class="routine col-5 offset-1" id="user_pm_routine">
       <h3>My PM Routine</h3>
       <!-- My PM Routine -->
-      {% if current_user.pm_routines %}
+      {% if current_user.routines %}
         <ul>
-          {% for obj in current_user.pm_routines %}
+          {% for obj in current_user.routines %}
             <li>obj.product_id = {{ obj.product_id }}</li>
             <li>crud.get_obj_by_id('Product', obj.product_id).product_name = {{ crud.get_obj_by_id('Product', obj.product_id).product_name }}</li>
           {% endfor %}

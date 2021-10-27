@@ -92,7 +92,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [ ] could use Faker
 - [ ] add ability to commit changes to name and email (user profile page)
 - [x] 10/19: add serialize properties in model.py for Cabinet, Category, Product, User, AM_Routine, and PM_Routine ORM classes (for AJAX calls in JS)
-- [ ] setup database migration with alembic
+- [ ] optional: setup database migration with alembic
 </details>
 
 #### **Setup database with actual data:**
@@ -148,7 +148,7 @@ This is an evidence-based app to help recommend skincare products and general sk
         - [ ] optional: for custom routines, will need to add a button to add a new step to the routine (React component?)
 - [ ] save a user's skincare routine to the db
     - [x] 10/24: update data model diagram
-    - [ ] implement data model changes to ORM classes
+    - [x] 10/25: implement data model changes to ORM classes
     - [ ] re-seed the database
 </details>
 
@@ -178,7 +178,7 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] 10/18: setup serialize property for ORM classes
     - [x] 10/18: test that results will jsonify from SQLAlchemy query
     - [x] 10/18: rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query
-    - [ ] add livesearch capability to old search forms 
+    - [x] 10/26: add livesearch capability to old search forms 
 </details>
 
 #### **Data visualization:**
@@ -300,6 +300,52 @@ This is an evidence-based app to help recommend skincare products and general sk
 
 ## Journal:
 
+#### Tue, 10/26:
+**HIGHLIGHT:** Livesearch functionality is now connected to updated product search forms.
+<details>
+
+**accomplishments:**
+- refactored code in `seed_db.py`, `read_files.py`, and `crud.py` to reflect schema changes in db
+- updated CSV files containing data to load into the concerns, categories, and skintypes tables
+- initialized new test db (`project_test_2`) using the new schemas:
+    - loaded concerns, categories, skintypes, products, ingredients, and product_ingredients tables
+- tested that `TimestampMixin` works well in the temporary Test ORM class in `model.py`
+    - added properties to serialize timestamps in aware UTC datetime, ISO 8601, and custom string formats
+
+**backlog:**
+- will update all models with TimestampMixin after finishing up how to save a skincare routine (to avoid breaking things now)
+
+**blockers:**
+- getting a weird error where the primary key for the `skintypes` table only autoincrements after starting a new interactive session in Python...
+    - despite `skintype_id` values 1-5 being already taken, using `db.session.commit()` for a new test Skintype object resulted in an attempted assignment of `skintype_id=1`
+    - after closing interactive mode, reopening it, and attempting to replicate the problem, it then attempted to assign `skintype_id=2` instead
+    - no other issues adding new entries into other tables 
+</details>
+
+#### Mon, 10/25:
+**HIGHLIGHT:** major update to db schema! see commit message for more info
+<details>
+
+**accomplishments:**
+- update Kaggle dataset to add water back to the ingredient list
+    - used original, un-processed dataset to find the cardinal position of water/aqua/eau in each product's ingredient list
+    - created individual CSV/XLSX files for the following categories:
+        - `ka-1-water0.csv`: 26 products with no water
+        - `ka-1-water1.csv`: 689 products where water is the 1st ingredient
+        - `ka-1-water2.csv`: 47 products where water is the 2nd ingredient
+        - `ka-1-water3.csv`: 14 products where water is the 3rd ingredient
+    - used `pandas` to add 'water' back to the cleaned ingredient list via `merge`, which was used to overwrite the aforementioned filenames
+- major update for schema of db to allow for more efficient data storage of skincare routines, individual steps, and frequency of use per user
+    - will test
+- refactor code, better version control
+- add script to add search filter tags to ingredients that already exist in the db (need to test, not yet committed to repo)
+
+**blockers:**
+- how should I get product images? host them myself (to avoid hotlinking?)? use a web-scraping tool to download thumbnail-sized images for a subset of products that are commonly used? get some icons?
+- considered using Amazon's product API, but it requires me to be an Amazon associate... which I am not
+- considering Google search API, but limited to 100 API calls per day or 1000 calls for $5
+</details>
+
 #### Wed, 10/20:
 **HIGHLIGHT:** 
 
@@ -309,7 +355,6 @@ This is an evidence-based app to help recommend skincare products and general sk
 - looked up D3 tutorials
 - used `npm install` command for D3, semantic-ui and their dependencies
     - blocked!!
-
 
 **to do:**
 - save draggable and snappable skincare steps for skincare routines

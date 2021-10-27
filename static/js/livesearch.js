@@ -1,14 +1,20 @@
 "use strict";
 
 $( () => {
-  $("#livebox").on("input", (evt) => {
-    $("#datalist").empty();
-
+  $("#search-keyword").on("input", (evt) => {
+    
     let form_data = {
-      text:$("#livebox").val(),
-      order_by:$("#order_by").val(),
+      text:$("#search-keyword").val(),
+      order_by:$("#search-sort-by").val(),
       limit:10,
     };
+
+    if (form_data.text.length < 3) {
+      console.log("That's too short.");
+      return;
+    }
+
+    $("#datalist").empty();
 
     $.post("/livesearch", form_data, (res) => {
       console.log(res);
@@ -37,7 +43,7 @@ $( () => {
     //   method:"post",
     //   url:"/livesearch",
     //   data:{
-    //     text:$("#livebox").val(),
+    //     text:$("#search-keyword").val(),
     //     order_by:$("#order_by").val(),
     //     limit:10,
     //   },
