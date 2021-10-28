@@ -74,7 +74,7 @@
       <h3>My AM Routine</h3>
       <!-- My AM Routine -->
       {% if current_user.routines %}
-      {# and current_user.routines.am_or_pm == 'am' #}
+      {% if am_routine %}
         <ul>
           {% for obj in current_user.routines %}
             <li>obj.product_id = {{ obj.product_id }}</li>
@@ -95,6 +95,7 @@
       <h3>My PM Routine</h3>
       <!-- My PM Routine -->
       {% if current_user.routines %}
+      {% if pm_routine %}
         <ul>
           {% for obj in current_user.routines %}
             <li>obj.product_id = {{ obj.product_id }}</li>
