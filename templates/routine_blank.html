@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ current_user.f_name }}'s Test Routine | The Skincare Routine Helper
+{% endblock title %}
+
+
+{% block head %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/static/css/draggable.css">
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+<script src="/static/js/routines.js"></script>
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+  <form class="am-routine" action="#">
+    <div class="am-routine routine col-lg-4">
+      <ul>
+        <li class="ui-state-highlight draggable">AM Routine
+          <input id="submit-am-routine" type="submit" value="Save Routine">
+        </li>
+      </ul>
+      
+      <ul class="sortable">
+        
+      </ul>
+    </div>
+  </form>
+
+  <div class="pm-routine routine col-lg-4 offset-lg-1">
+    <ul>
+      <li class="ui-state-highlight draggable">PM Routine
+        <input id="submit-pm-routine" type="submit" value="Save Routine">
+      </li>
+    </ul>
+    <ul class="sortable">
+
+    </ul>
+  </div>
+</div>
+
+<div>
+  <button id="create-new-routines">Create AM and PM Routines</button>
+</div>
+Query string: <span id="test-query"></span>
+{% endblock body %}
+
+
+{% block after_body %}
+
+{% endblock %}

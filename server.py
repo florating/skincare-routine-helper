@@ -13,13 +13,12 @@ from database import crud
 from database import model
 from database.model import db, connect_to_db
 
-print(f"Hello, I'm in server.py and __name__ = {__name__}!")
-
 app = Flask(__name__)
+
 # FIXME: the following bits of code are for testing purposes only!
 # set app configurations for SECRET_KEY later, after fixing secrets.sh
 _SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
-print(_SECRET_KEY)
+# print(_SECRET_KEY)
 app.secret_key = _SECRET_KEY
 
 _DB_NAME_ = 'project_test_2'
@@ -97,8 +96,8 @@ def login():
         
         flash(error)
         return redirect('/')
-    # return render_template('login.html')
-    return redirect('/')
+    return render_template('login.html')
+    # return redirect('/')
 
 
 @app.route('/logout')
@@ -112,7 +111,10 @@ def logout():
 @app.route('/user_profile')
 @login_required
 def show_profile():
-    return render_template('user_details.html')
+    for routine in current_user.routines:
+        am_r = routine.routine_id if routine.am_or_pm == 'am' else None
+        pm_r = routine.routine_id if routine.am_or_pm == 'pm' else None
+    return render_template('user_details.html', am_routine=am_r, pm_routine=pm_r)
 
 
 @app.route('/settings')
@@ -194,23 +196,23 @@ def show_products_from_search():
         form_params = crud.process_form(param_list, request.form)
         form_params.update({'limit': 10})
 
-        q = model.Product.query
+        QUERY = model.Product.query
         for param, param_val in form_params.items():
             # print(f"for param = {param} and param_val = {param_val}\n\n")
             if param_val:
                 if param == 'product_name':
-                    q = q.filter(model.Product.product_name.ilike(f'%{param_val}%'))
+                    QUERY = QUERY.filter(model.Product.product_name.ilike(f'%{param_val}%'))
                 elif param == 'category_id':
-                    q = q.filter(model.Product.category_id == int(param_val))
+                    QUERY = QUERY.filter(model.Product.category_id == int(param_val))
                     # TODO: add ability to check multiple product types in a single search query
                 elif param == 'order_by':
                     # print(f"param_val = {param_val}\n\n\n")
-                    q = q.order_by(param_val)
+                    QUERY = QUERY.order_by(param_val)
                 elif param == 'limit':
-                    q = q.limit(param_val)
+                    QUERY = QUERY.limit(param_val)
 
-        # print(f"q = {q}\n\n\n")
-        result = q.all()
+        # print(f"QUERY = {QUERY}\n\n\n")
+        result = QUERY.all()
 
         if current_user.is_anonymous:
             cab_prod_id_list = ''
@@ -242,8 +244,13 @@ def add_products_to_cabinet():
         obj = model.Cabinet(user_id=current_user.get_id(), product_id=p_id)
         db.session.add(obj)
 
+    try:
         db.session.commit()
         flash("You successfully added these products to your cabinet!")
+    except:
+        # FIXME: need an exception...
+        db.session.rollback()
+        flash('Something did not work...')
     return redirect(url_for('show_profile'))
 
 
@@ -296,7 +303,7 @@ def setup_routine():
         
         print("We went to /routine with a POST request successfully!")
         return "Success!"
-    return render_template('test/routine_blank.html')
+    return render_template('routine_blank.html')
 
 
 @app.route('/routine_blank')
