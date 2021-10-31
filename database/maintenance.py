@@ -10,8 +10,9 @@ sys.path.append(BASE_PATH)
 
 import csv
 
-from database import crud
-from database import model
+from database import crud, db_info, model
+
+VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
 
 
 def write_summary_prod_table():
@@ -22,7 +23,7 @@ def write_summary_prod_table():
         [(1, 'Moisturizer', 108), 31.287037037037038]
     """
 
-    results = count_products_by_category(order_by='category_id')
+    results = db_info.count_products_by_category(order_by='category_id')
     summary = []
 
     filepath = os.path.abspath('../static/files/db_summary.csv')
@@ -35,7 +36,7 @@ def write_summary_prod_table():
         # Write each row of results
         for result in results:
             cat_id = result[0]
-            avg_ingreds = get_avg_num_ingredients_by_category(cat_id)
+            avg_ingreds = db_info.get_avg_num_ingredients_by_category(cat_id)
             current_dt = model.get_current_datetime()  # FIXME: change to isoformat?
             data_writer.writerow([cat_id, result[1], result[2], avg_ingreds, current_dt])
             summary.append([result, avg_ingreds])
@@ -51,50 +52,10 @@ def write_summary_ingredients_table():
         data_writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         data_writer.writerow(header)
         for cat_id in range(1, 15):
-            results = count_ingredients_by_category(cat_id)
+            results = db_info.count_ingredients_by_category(cat_id)
             for result in results:
                 current_dt = model.get_current_datetime()
                 data_writer.writerow([cat_id, result[0], result[1], result[2], current_dt])
-
-
-def count_products_by_category(order_by='category_name'):
-    """Count number of products by category_id, returning results as a list of tuples.
-    Can order by "category_name" or "category_id":
-        EG: [(category_id, category_name, num_products), ...]
-    """
-    q = 'SELECT c.category_id, c.category_name, COUNT(p.category_id) AS num_products\
-        FROM products AS p\
-        INNER JOIN categories AS c ON (p.category_id = c.category_id)\
-        GROUP BY c.category_id, p.category_id, c.category_name\
-        ORDER BY c.'
-    q += order_by
-    # print(f'\n\n\n q = {q}')
-    cursor = model.db.session.execute(q)
-    result = cursor.fetchall()
-    return result
-
-
-def count_ingredients_by_category(category_id):
-    """Counts number of ingredients per product by category_id, returning a list of tuples."""
-    q = f"SELECT c.category_name, pi.product_id, COUNT(pi.product_id) AS num_ingredients\
-        FROM product_ingredients AS pi\
-        JOIN products AS p ON (pi.product_id = p.product_id)\
-        FULL OUTER JOIN categories AS c ON (p.category_id = c.category_id)\
-        WHERE p.category_id = {category_id}\
-            GROUP BY pi.product_id, p.category_id, c.category_name"
-    cursor = model.db.session.execute(q)
-    result = cursor.fetchall()
-    return result
-
-
-def get_avg_num_ingredients_by_category(cat_id=1):
-    """Returns the average number of ingredients for products with this category_id."""
-    prod_list = model.Product.query.filter_by(category_id=cat_id).all()
-
-    sum_ingreds = 0
-    for prod in prod_list:
-        sum_ingreds += prod.get_num_ingredients()
-    return sum_ingreds / len(prod_list)
 
 
 if __name__ == '__main__':
@@ -102,6 +63,12 @@ if __name__ == '__main__':
 
     from server import app
 
-    model.connect_to_db(app)
-    # write_summary_prod_table()
-    write_summary_ingredients_table()
+    _db_name = input('What is the name of the PostgreSQL database?  ')
+
+    if _db_name in VALID_DB_NAMES:
+        db_uri = f'postgresql:///{_db_name}'
+        model.connect_to_db(app, db_uri, echo=False)
+        # write_summary_prod_table()
+        write_summary_ingredients_table()
+    else:
+        print('That is not a valid database name. Sorry.')
