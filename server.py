@@ -111,6 +111,7 @@ def logout():
 @app.route('/user_profile')
 @login_required
 def show_profile():
+    am_r, pm_r = None, None
     for routine in current_user.routines:
         am_r = routine.routine_id if routine.am_or_pm == 'am' else None
         pm_r = routine.routine_id if routine.am_or_pm == 'pm' else None
@@ -308,7 +309,7 @@ def setup_routine():
 
 @app.route('/routine_blank')
 def setup_routine_blank():
-    return render_template('test/routine_blank.html')
+    return render_template('routine_blank.html')
 
 
 @app.route('/test')

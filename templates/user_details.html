@@ -73,7 +73,7 @@
     <div class="routine col-5" id="user_am_routine">
       <h3>My AM Routine</h3>
       <!-- My AM Routine -->
-      {% if current_user.routines %}
+      {# if current_user.routines #}
       {% if am_routine %}
         <ul>
           {% for obj in current_user.routines %}
@@ -94,7 +94,6 @@
     <div class="routine col-5 offset-1" id="user_pm_routine">
       <h3>My PM Routine</h3>
       <!-- My PM Routine -->
-      {% if current_user.routines %}
       {% if pm_routine %}
         <ul>
           {% for obj in current_user.routines %}
