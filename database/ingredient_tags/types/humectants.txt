@@ -1,0 +1,12 @@
+exact_match, name
+1, glycerin
+1, hyaluronic acid
+1, sodium hyaluronate
+, hyaluronate
+, urea
+, alpha-hydroxy acid
+, panthenol
+1, sodium lactate
+1, glycol
+, aloe vera
+, honey

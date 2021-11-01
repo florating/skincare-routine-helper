@@ -1,0 +1,17 @@
+exact_match, name, https://www.ema.europa.eu/en/documents/referral/retinoid-article-31-referral-updated-measures-pregnancy-prevention-during-retinoid-use_en-0.pdf
+acitretin
+adapalene
+alitretinoin
+bexarotene
+isotretinoin
+tazarotene
+tretinoin
+retinol
+retinoid esters
+retinyl palmitate
+retinyl acetate
+retinyl linoleate
+Differin
+retinoic acid
+retin-A
+Accutane

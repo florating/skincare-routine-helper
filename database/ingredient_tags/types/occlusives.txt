@@ -1,0 +1,8 @@
+exact_match, name
+, lanolin oil
+, lanolin
+1, mineral oil
+, wax
+, silicone
+, petrolatum
+, petroleum jelly

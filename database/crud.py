@@ -86,6 +86,10 @@ def create_product_cascade(**obj_params):
         - a Product object (if it was inserted into the table)
         - None (if this product already exists in the database)
     """
+        
+    # parse product_size out of the product_name field in obj_params
+    obj_params = parse_out_product_size(**obj_params)
+
     prod_name = obj_params.get('product_name', None)
     if not prod_name:
         return
@@ -98,11 +102,7 @@ def create_product_cascade(**obj_params):
             obj_params.pop(param)  # toss
         else:
             obj_params[param] = param_val.strip()
-    
-    # parse product_size out of the product_name field in obj_params
-    obj_params = parse_out_product_size(**obj_params)
 
-    # TODO: test if prod_obj.product_name already exists in db, case-insensitive
     if Product.query.filter(
         Product.product_name.ilike(prod_name)).all():
 
@@ -188,7 +188,7 @@ def add_and_commit(table_obj):
 
 def parse_out_product_size(**obj_params):
     """Return a dict of parameters in which (1) product_name no longer contains the product_size, and (2) a new key-value pair for product_size now exists in obj_params."""
-    first, *middle, last = obj_params['product_name'].rstrip().split()
+    first, *middle, last = obj_params['product_name'].strip().split()
     digit_in_last = re.search(r'\d', last)
     open_paren_in_last = re.search(r'\(', last)
     close_paren_in_last = re.search(r'\)', last)
