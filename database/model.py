@@ -166,152 +166,8 @@ class User(UserMixin, db.Model):
         return f"<User user_id={self.user_id} email={self.email}>"
 
 
-class Step(db.Model):
-    """Create a SkincareStep object for the skincare_steps table."""
-
-    __tablename__ = 'steps'
-
-    step_id = Column(Integer, primary_key=True, autoincrement=True)
-    routine_id = Column(Integer, db.ForeignKey('routines.routine_id'))
-    # category_id = Column(Integer, db.ForeignKey('categories.category_id'))
-    cardinal_order = Column(Integer, nullable=True, default=None)
-    product_id = Column(Integer, db.ForeignKey('products.product_id'), nullable=True)
-    interval = Column(Integer, nullable=False, default=1)  # in days
-    # FIXME: will need to change this for exfoliants and other actives
-    # or for people with sensitive skin, or for beginner routines
-    
-    notes = Column(Text, nullable=False, default=None)
-    created_on = Column(DateTime, default=get_current_datetime())
-    updated_on = Column(
-        DateTime, nullable=True, default=None, onupdate=get_current_datetime())
-    retired_on = Column(DateTime, nullable=True, default=None)
-    
-    product = db.relationship('Product', backref='steps')
-    
-    # dates = (list of) Frequency object(s), for usage timestamps
-    # routine = Routine objects, linked to individual steps in the routine
-
-    @property
-    def serialize(self, verbose=False):
-        attributes = {}
-        if verbose:
-            attributes = {
-                'routine_id': self.routine_id,
-                'routine_nickname': self.routine.name,
-                'am_or_pm': self.routine.am_or_pm,  # can see this from Routine.serialize also
-                'product_id': self.product_id,
-                'product_name': self.product_name,
-                'category_id': self.product.category_id,
-                'updated_on': self.updated_on,
-                # 'updated_on_PT': convert_to_PST(self.updated_on)  # need to test
-            }
-        attributes.update({
-            'cardinal_order': self.cardinal_order,
-            'dates': self.serialize_frequencies,
-            'is_retired': bool(self.retired_on)
-        })
-        return attributes
-    @property
-    def serialize_dates_only(self, convert_to_PT=False):
-        if convert_to_PT:
-            return [ convert_to_PST(item.created_on) for item in self.dates ]
-        return [ item.created_on for item in self.dates ]
-    @property
-    def serialize_frequencies(self):
-        return [ item.serialize for item in self.dates ]
-
-    def use_product(self, timestamp=get_current_datetime(), notes=None):
-        new_freq = Frequency(created_on=timestamp, notes=notes)
-        self.dates.append(new_freq)
-        # db.session.add(self)  # is this needed to update this row? use new_freq instead of self?
-        db.session.commit()
-
-    def change_product(self, keep_notes=False):
-        """Change product used for this step (eg: change to a different cleanser)."""
-        self.retire()
-        new_step = Step(
-            routine_id = self.routine_id,
-            cardinal_order = self.cardinal_order
-        )
-        if keep_notes:
-            new_step['notes'] = self.notes
-        new_step.product = self.product
-        db.session.add(new_step)
-        db.session.commit()
-
-    def retire(self):
-        """Do not use this step anymore."""
-        self.retired_on = get_current_datetime()
-        db.session.commit()
-
-    def un_retire(self):
-        """"""
-        new_step = Step(routine_id = self.routine_id)
-        # FIXME: need to update cardinal_order... maybe add update_cardinality() to Routine
-        db.session.add(new_step)
-        db.session.commit()
-    
-    def __repr__(self):
-        return f"<Step step_id={self.step_id} product_id={self.product_id}>"
-
-
-class Frequency(db.Model):
-    """Create a Frequency object to track frequency of use of each skincare step.
-    Each Step object is linked to multiple Frequency objects to record:
-        - timestamps for dates of use
-        - notes (user feedback for themselves)
-    """
-    freq_id = Column(Integer, primary_key=True, autoincrement=True)
-    step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
-    created_on = Column(DateTime, default=get_current_datetime())
-    notes = Column(Text, default=None)
-    # NOTE: ALTERNATIVE WAY TO DO THIS...
-        # save dates as Array of DateTimes? Or a long string that can be
-        # de-string-ified to get dates out of it? Use for data visualization...
-            # eg: dates = Column(Text, default=None)
-
-    step = db.relationship('Step', backref='dates')
-
-    @property
-    def serialize(self, verbose=False):
-        attributes = {}
-        if verbose:
-            attributes = { 'freq_id': self.freq_id }
-        attributes.update({
-            'date': self.created_on,
-            'notes': self.notes
-        })
-        return attributes
-    
-    def __repr__(self):
-        return f"<Frequency freq_id={self.freq_id} step_name={self.step_name}>"
-
-
 class Category(db.Model):
-    """Create a Category object for the categories table.
-    
-    Categories associated with the Kaggle dataset (by difficulty level) include:
-        1) Beginner level:
-            Cleanser
-        Moisturizer
-            Sunscreen (will add later)
-        2) Intermediate level:
-            Toner
-        Serum
-            Essence (may add later)
-            Exfoliator
-        Mask
-        3) Advanced level:
-        Peel
-        Eye Care
-        99) Miscellaneous:
-            Balm
-            Bath Oil
-        Bath Salts
-        Body Wash
-            Mist
-            Oil
-    """
+    """Create a Category object for the categories table."""
 
     __tablename__ = 'categories'
 
@@ -319,7 +175,7 @@ class Category(db.Model):
     category_name = Column(String(25), nullable=False)
     difficulty_lv = Column(Integer)
     description = Column(Text, nullable=False)
-    created_on = Column(DateTime, default=get_current_datetime())
+    created_on = Column(DateTime, default=get_current_datetime)
     
     # products = list of Product objects
     
@@ -438,6 +294,7 @@ class Ingredient(db.Model):
     is_emollient = Column(Boolean, default=None)
     is_humectant = Column(Boolean, default=None)
     is_occlusive = Column(Boolean, default=None)
+    is_sunscreen = Column(Boolean, default=None)
     pm_only = Column(Boolean, default=None)
     irritation_rating = Column(Integer, default=None)
     endocrine_disruption = Column(Boolean, default=None)
@@ -448,13 +305,13 @@ class Ingredient(db.Model):
 
     # pregnancy_safe = Column(Boolean, default=None)
     # reef_safe = Column(Boolean, default=None)
-    is_fragrance = Column(Boolean, default=None)
-    created_on = Column(DateTime, default=get_current_datetime())
+    is_fragrance = deferred(Column(Boolean, default=None))
+    created_on = Column(DateTime, default=get_current_datetime)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # FIXME: add more later
-        fragrances = {'parfum', 'perfume', 'fragrance', 'aroma', 'essential oil blend'}
+        fragrances = {'parfum', 'perfume', 'fragrance', 'aroma', 'essential oil blend', 'essential oil'}
         if self.common_name.lower() in fragrances:
             self.is_fragrance = True 
 
@@ -547,7 +404,7 @@ class Routine(db.Model):
 
 ##### DB-RELATED FUNCTION BELOW #####
 
-def connect_to_db(flask_app, db_uri=f"postgresql:///{_db_name}", echo=True):
+def connect_to_db(flask_app, db_uri=f"postgresql:///{_DB_NAME_}", echo={_ECHO_LOG_ERRORS_}):
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     flask_app.config["SQLALCHEMY_ECHO"] = echo
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

@@ -87,15 +87,16 @@ def create_product_cascade(**obj_params):
         - None (if this product already exists in the database)
     """
         
-    # parse product_size out of the product_name field in obj_params
+    # Parse product_size out of the product_name field in obj_params
     obj_params = parse_out_product_size(**obj_params)
 
     prod_name = obj_params.get('product_name', None)
     if not prod_name:
-        return
-    # FIXME: can add 'price' back later
-    exp_params = {'product_name', 'product_type', 'clean_ingreds', 'product_url'}
+        return  # if prod_name is blank, abort
 
+    # Clean up parameters for new Product object
+    exp_params = {'product_name', 'product_type', 'clean_ingreds', 'product_url'}
+    # NOTE: can add 'price' back later
     copy_params = obj_params.copy()
     for param, param_val in copy_params.items():
         if param not in exp_params:
@@ -161,7 +162,7 @@ def create_ingredients_cascade(product_obj, ingredient_list):
     proding_obj_list = []
     for i, ing_name in enumerate(ingredient_list):
         # TODO: check if ingredient name is in alternative_name field...
-        clean_ing_name = ing_name.strip()
+        clean_ing_name = clean_ingredient_name(ing_name)
         if not clean_ing_name:
             continue
         ing_obj = Ingredient.query.filter(Ingredient.common_name.ilike(clean_ing_name)).first()
@@ -242,6 +243,24 @@ def convert_string_to_list(list_str):
     """
     processed_str = ast.literal_eval(list_str)
     return processed_str
+
+
+def clean_ingredient_name(name):
+    """Remove invalid punctuation and leading/trailing whitespace from ingredient name (eg: '.', '*')."""
+    punctuation = {'.', '*'}
+    for item in punctuation:
+        name = ''.join(name.strip().strip(item))
+    return name
+
+
+def find_alt_name(name):
+    """Return original name, cleaned common name, and alternative name if present in given ingredient name (eg: in parentheses), else return None."""
+    if '(' in name:
+        common_name, alt_name = name.strip().split('(')
+        alt_name, last = alt_name.split(')')
+        alt_name = clean_ingredient_name(alt_name)
+        common_name = clean_ingredient_name(f'{common_name.strip()} {last.strip()}')
+        return (name, common_name, alt_name)
 
 
 def process_form(param_list, form_data):

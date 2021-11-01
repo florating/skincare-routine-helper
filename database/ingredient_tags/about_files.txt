@@ -1,8 +1,0 @@
-comedogenic, comedogenic.txt
-fragrances, fragrances.txt
-emollients, emollients.txt
-humectants, humectants.txt
-occlusives, occlusives.txt
-silicones, silicones.txt
-sulfates, sulfates.txt
-pm_only, pm_only.txt

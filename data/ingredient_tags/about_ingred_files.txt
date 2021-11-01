@@ -1,0 +1,16 @@
+AHAs, data/ingredient_tags/types/AHAs.txt
+BHAs, data/ingredient_tags/types/BHAs.txt
+comedogenic, data/ingredient_tags/filters/comedogenic.txt
+environmental_hazards, data/ingredient_tags/filters/environmental_hazards.txt
+formaldehydes, data/ingredient_tags/filters/formaldehyde_releasing.txt
+fragrances, data/ingredient_tags/filters/fragrances.txt
+emollients, data/ingredient_tags/types/emollients.txt
+humectants, data/ingredient_tags/types/humectants.txt
+occlusives, data/ingredient_tags/types/occlusives.txt
+parabens, data/ingredient_tags/filters/parabens.txt
+PHA, data/ingredient_tags/types/PHAs.txt
+pm_only, data/ingredient_tags/filters/pm_only.txt
+retinoids, data/ingredient_tags/types/retinoids.txt
+silicones, data/ingredient_tags/filters/silicones.txt
+sulfates, data/ingredient_tags/filters/sulfates.txt
+sunscreens, data/ingredient_tags/types/sunscreens.csv

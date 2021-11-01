@@ -5,6 +5,7 @@
 2. [Instructions](#instructions)
 3. [MVP](#mvp)
 4. [Next Steps](#next-steps)
+    - [Known Bugs](#known-bugs)
 5. [Task List](#task-list)
 6. [Journal](#journal)
 
@@ -22,8 +23,12 @@ This is an evidence-based app to help recommend skincare products and general sk
     * `python3 seed_db.py` to use the default setup text file
     * `python3 seed_db.py some_kind_of_setup_file.txt` to use a preset setup text file
         * Note: You can create your own text file and follow the format of the default text file in `/data/file_list.txt`. Name it whatever you want, and use that name instead of `some_kind_of_setup_file.txt`.
-3. View contents of database using PostgreSQL:
-    * `psql project_test`
+3. View contents of database:
+    * using PostgreSQL: `psql project_test`
+    * using scripts:
+        * `cd database`
+        * `python3 db_info.py DB_NAME_HERE`
+            * Note: valid database names include `project_test_2` and others listed within `db_info.py`
 
 *Further steps to be added as project development progresses!*
 
@@ -67,6 +72,38 @@ This is an evidence-based app to help recommend skincare products and general sk
     - [x] review the IARC monographs of carcinogenic agents
         - last updated on 27 September 2021 (yay!)
         - [ ] add to db
+
+
+#### Known Bugs
+*These are known bugs in the project that will be tackled soon!*
+
+
+**High priority:**
+- unauthorized users are redirected to the GET request of the `login` view function on `server.py`
+    - [ ] setup `@login_manager.unauthorized_handler` per [this resource](https://stackoverflow.com/questions/36269485/how-do-i-pass-through-the-next-url-with-flask-and-flask-login)
+    - [x] 10/27: or temporarily route to the homepage
+
+
+**General:**
+- duplicate product entries appear in the database whenever a product is in the dataset for > 1 product size (eg: a mini version and a regular size)
+    - interestingly, only 1 of these products has ingredients associated with it, likely due to the `create_ingredients_cascade` function in `crud.py`
+- `get_cabinet_list` view function may not be working properly due to an issue with `crud.get_category_dict()`
+    - used in `routines.js`
+- [ ] setup `@login_manager.unauthorized_handler` per [this resource](https://stackoverflow.com/questions/36269485/how-do-i-pass-through-the-next-url-with-flask-and-flask-login)
+- [ ] fix GET request result from `login` view function
+
+
+**Resolved:**
+<details>
+
+- unauthorized users are redirected to the GET request of the `login` view function on `server.py`
+    - [x] 10/27: temporarily redirect to the homepage
+
+</details>
+
+
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
+
 
 ## Task List
 #### **General:**

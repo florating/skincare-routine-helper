@@ -91,6 +91,12 @@ This dataset was filtered to remove:
 
 *[Click here](#about-the-data) to go back to the top.*
 
+
+## Resources/Info from Other Websites
+
+### Ingredient Safety
+
+* pregnancy-safe: [here](https://www.ema.europa.eu/en/documents/referral/retinoid-article-31-referral-updated-measures-pregnancy-prevention-during-retinoid-use_en-0.pdf)
 ## Datasets from Individuals
 
 ### Kaggle: Erin Ward (eward96)
