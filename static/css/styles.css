@@ -1,7 +1,11 @@
 body {
-    background-color: rgba(63, 127, 191, 0.2);
+    background: linear-gradient(rgba(63, 127, 191, 0.2), white);
+    /* background-color: rgba(63, 127, 191, 0.2); */
     font-family: sans-serif;
     padding-bottom: 50px;
+    /* background-image: url('/static/img/roberto-nickson-YCW4BEhKluw-unsplash.jpg'); */
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 /* Tooltip container */
