@@ -10,6 +10,7 @@ sys.path.append(BASE_PATH)
 
 import ast
 from decimal import Decimal
+from pprint import pprint
 import re
 from re import sub
 
@@ -49,9 +50,15 @@ def create_table_obj(table_class_name, **kwargs):
     #     convert_price(kwargs, kwargs['price'])
     # print('create_table_obj(...) in crud.py. kwargs =')
     # print(kwargs)
-    if 'product' == table_class_name.lower():
+    tab_name = table_class_name.lower()
+    if 'product' == tab_name:
         # REFACTOR-NOTE: can add to FXN_DICT later
         obj = create_product_cascade(**kwargs)
+    elif 'user' == tab_name:
+        if kwargs.get('hashed_password', None):
+            obj = User(**kwargs)
+        else:
+            return create_user(**kwargs)
     else:   
         obj = FXN_DICT[table_class_name](**kwargs)
     
@@ -62,9 +69,14 @@ def create_table_obj(table_class_name, **kwargs):
 
 def create_user(**params):
     """Create and return a new User object."""
+    pprint(params)
     # REFACTOR-NOTE: can re-define __init__ method in model.py
+    params.pop('id', None)
     params['hashed_password'] = generate_password_hash(params.pop('password'), method='sha256')  # FIXME: could also salt this
-    return create_table_obj('User', **params)
+    user_obj = User(**params)
+    db.session.add(user_obj)
+    db.session.commit()
+    return user_obj
 
 
 def create_cabinet(u_id, p_id):
