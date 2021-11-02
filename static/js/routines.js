@@ -27,16 +27,16 @@ function add_am_step(routine = AM_STEP) {
 }
 
 function create_routine_steps(am_or_pm, routine = BEGINNER_ROUTINE) {
-  for (const [key, value] of Object.entries(routine)) {
+  for (const [categoryId, categoryName] of Object.entries(routine)) {
     /*  EXAMPLE:
       <li class="ui-state-default" name="9">Cleanser:</li>
       <select class="category_id_9" name="product_id">
     */
 
     $(`div.${am_or_pm}-routine .sortable`).append(`
-      <li class="ui-state-default" name="${key}" id="${am_or_pm}_routine-category_id_${key}">
-        TEST ${value}:
-        <select class="category_id_${key}" name="product_id">
+      <li class="ui-state-default step" data-routine-type="${am_or_pm}" data-category-id="${categoryId}" name="${categoryId}" id="${am_or_pm}_routine-category_id_${categoryId}">
+        TEST ${categoryName}:
+        <select class="category_id_${categoryId}" data-category-id="${categoryId}" name="product_id">
           <option value="">--Select--</option>
         </select>
       </li>`
@@ -55,17 +55,19 @@ function generate_complete_routine(am_or_pm, cabinet_list, routine = BEGINNER_RO
 
 /* GENERATING CABINET OPTIONS for pre-existing steps */
 
-function add_cabinet_options(cabinet_list) {
+function add_cabinet_options(cabinetArray) {
   /*  EXAMPLE:
     <option class="dropdown-item" value="716">
       COSRX Low pH Good Morning Cleanser
     </option>
   */
-  for (const cab_obj of cabinet_list) {
-    let cat_id = cab_obj.category_id;
-    $(`select.category_id_${cat_id}`).append(`
-      <option class="dropdown-item" value="${cab_obj.product_id}">
-        ${cab_obj.product_name}
+  for (const cabObj of cabinetArray) {
+    const catId = cabObj.category_id;
+    const prodId = cabObj.product_id;
+    const prodName = cabObj.product_name;
+    $(`select.category_id_${catId}`).append(`
+      <option class="dropdown-item" data-category-id="${catId}" data-product-id="${prodId}" value="${prodId}">
+        ${prodName}
       </option>
     `);
   };
@@ -87,28 +89,35 @@ $(() => {
   });
   // $(".routine ul, .routine li").disableSelection();
 
+  /* CHECK IF CURRENT USER HAS ANY ROUTINES */
+
+  /* IF YES, LOAD STEPS PER ROUTINE */
+  // create_routine_steps('am', current_user.routine.routine_id);
+  // $("div.am-routine ul.steps").append(
+  //   '<li></li>'
+  // );
 
   /* CREATING ROUTINES FROM SCRATCH */
 
   // TODO: Test and fix, alongside this route in server.py.
   // Do this if the user needs to create new skincare routines from scratch!
-  $("#create-new-routines").on("click", () => {
-    console.log(`I just clicked the "Create AM and PM Routines" button.`)
+  $("#create-am-routine").on("click", () => {
+    console.log(`I just clicked the "Create AM Routine" button.`)
     $.post('/get_cabinet', '', (res) => {
       console.log(res);
-      const cabinet_list = res.cabinet;  // should I make this a global variable?
-      // console.log(`cabinet_list = ${cabinet_list}`);
-      // console.log(`cabinet_list[0] = ${cabinet_list[0]}`);
-      console.log(`cabinet_list[0].product_id = ${cabinet_list[0].product_id}`);
-      const categories_dict = res.cat_dict[0];
-      console.log(`categories_dict = ${categories_dict}`);
+      const cabinetArray = res.cabinet;  // should I make this a global variable?
+      // console.log(`cabinetArray = ${cabinetArray}`);
+      // console.log(`cabinetArray[0] = ${cabinetArray[0]}`);
+      console.log(`cabinetArray[0].product_id = ${cabinetArray[0].product_id}`);
+      const categoriesDict = res.cat_dict[0];
+      console.log(`categoriesDict = ${categoriesDict}`);
 
       // AM ROUTINE:
-      generate_complete_routine("am", cabinet_list, BEGINNER_ROUTINE);
+      generate_complete_routine("am", cabinetArray, BEGINNER_ROUTINE);
 
       // PM ROUTINE:
-      generate_complete_routine("pm", cabinet_list, BEGINNER_ROUTINE);
-      add_cabinet_options(cabinet_list);
+      generate_complete_routine("pm", cabinetArray, BEGINNER_ROUTINE);
+      add_cabinet_options(cabinetArray);
     });
 
   });
@@ -116,55 +125,101 @@ $(() => {
 
   // TODO: save the order of the skincare routine in the updated ORM class for routines
   $("#submit-am-routine").on("click", (evt) => {
-
-    console.log("I hit the save button, success!")
     evt.preventDefault();
+    console.log("%cI hit the save button, success!", "color:blue;");
 
+    let amForm = document.getElementById("form-am-routine");
     const routine_steps = [];
-    $("div.am-routine li").each((index, li_el) => {
-
-      console.log("li_el is below:")
-      console.log(li_el);
-
-      const stepObj = {};
-      stepObj["category_id"] = $(li_el).attr("name");
-      console.log("category_id");
-      console.log(stepObj["category_id"]);
-
-      const select_obj = $(`.am-routine select.category_id_${stepObj["category_id"]}`);
-      console.log("select_obj");
-      console.log(select_obj);
-
-      stepObj["product_id"] = $(select_obj).val();
-      console.log("product_id");
-      console.log(stepObj["product_id"]);
-
-      console.log("stepObj is below:");
-      console.log(stepObj);
-
-      if (stepObj["product_id"] !== "" && stepObj["product_id"] !== undefined) {
-        console.log("The product_id was valid.");
-        routine_steps.push(stepObj);
-      } else {
-        console.log("The product_id was invalid.")
+    // const formData = {
+    //   routine_type: "am",
+    //   steps: routine_steps,
+    // };
+    // console.log("Creating formData...");
+    // console.log(formData);
+    // for (let step of amForm.elements) {
+    //   console.log("In the for loop, step is now:")
+    //   console.log(step);
+    //   if (step.value > 0) {
+    //     routine_steps.push({
+    //       category_id: step.dataset.categoryId,
+    //       product_id: step.value,
+    //     });
+    //   }
+    //   console.log("formData is...")
+    //   console.log(formData);
+    // }
+    const formData = $(amForm).serializeArray();
+    for (let step of formData) {
+      if (step.value !== "") {
+      routine_steps.push(step.value)
       }
-    });
+    }
+    // const amSteps = document.querySelectorAll('div.am-routine li.step');
+    // for (let step of amSteps) {
+    //   let catId = step.dataset.categoryId;
+    //   console.log("catId: ", catId);
+    //   console.log($(step).attr("name"));
+    //   $(`.am-routine select.`)
+    // }
+    // console.table(amSteps);
 
-    let form_data = {
-      routine_type: "am",
-      steps: routine_steps,
-    };
+    // const routine_steps = [];
+    // $("div.am-routine li").each((index, li_el) => {
 
-    console.log("Here is the form_data variable!")
-    console.log(form_data);
+    //   console.log("li_el is below:");
+    //   console.log(li_el);
 
-    console.log(`form_data["steps"]`);
-    console.log(form_data["steps"]);
+    //   const stepObj = {};
+    //   stepObj["category_id"] = $(li_el).attr("name");
+    //   console.log("category_id");
+    //   console.log(stepObj["category_id"]);
 
-    if (form_data["steps"].length === 0) {
+    //   const select_obj = $(`.am-routine select.category_id_${stepObj["category_id"]}`);
+    //   //   console.log("select_obj");
+    //   //   console.log(select_obj);
+
+    //   stepObj["product_id"] = $(select_obj).val();
+    //   console.log("product_id");
+    //   console.log(stepObj["product_id"]);
+
+    //   console.log("stepObj is below:");
+    //   console.log(stepObj);
+
+    //   if (stepObj["product_id"] !== "" && stepObj["product_id"] !== undefined) {
+    //     console.log("The product_id was valid.");
+    //     routine_steps.push(stepObj);
+    //   } else {
+    //     console.log("The product_id was invalid.")
+    //   }
+    // });
+
+    console.log("Now routine_steps looks like this:")
+    console.log(routine_steps);
+
+    // let form_data = {
+    //   routine_type: "am",
+    //   steps: routine_steps,
+    // };
+
+    // console.log("Here is the form_data variable!")
+    // console.log(form_data);
+
+    // console.log(`form_data["steps"]`);
+    // console.log(form_data["steps"]);
+    console.log(formData);
+    
+  
+    if (routine_steps.length === 0) {
+
+    // if (formData["steps"].length === 0) {
       alert("Uh oh! You didn't select any products for this skincare routine.");
     }
     else {
+      const form_data = {routine_type: 'am', steps: routine_steps};
+      console.log("form_data is...")
+      console.log(form_data);
+      // form_data_1 = {routine_type: 'am', steps: routine_steps}
+      // don't send arrays
       $.post("/routine", form_data, (res) => {
         console.log(res);
         // console.log(`res.json = ${res.json}`);
@@ -176,13 +231,13 @@ $(() => {
         //     ${res.product_name}
         //   </a></li>`
         // );
-  
+
         // $.each(res, (index, value) => {
         //   $("#datalist ul").append(`
         //     <li>${value.product_id} - ${value.product_name}</li>`
         //   );
         // });
-  
+
       });
     }
 
