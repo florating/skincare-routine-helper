@@ -24,6 +24,10 @@ These files are listed by file name, and are in the `/data` directory unless oth
     - used `pandas` to add 'water' back to the cleaned ingredient list via `merge`, which was used to overwrite the aforementioned filenames
     - seeded 776 products in `project_test_2` (test db)
 
+3. `/data/sample_dasets/users.csv`
+    - auto-generated 100 users
+    - source: [mockaroo](https://www.mockaroo.com/)
+
 *[Click here](#about-the-data) to go back to the top.*
 
 

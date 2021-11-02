@@ -9,11 +9,6 @@ from database import model, read_files
 VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
 
 
-# os.system('. secrets.sh')  # FIXME: after figuring out API keys
-os.system(f'dropdb {_DB_NAME_} --if-exists')
-os.system(f'createdb {_DB_NAME_}')
-
-
 if __name__ == '__main__':
     import logging
 
@@ -22,6 +17,10 @@ if __name__ == '__main__':
     _db_name = input('What is the name of the PostgreSQL database?  ')
 
     if _db_name in VALID_DB_NAMES:
+        # os.system('. secrets.sh')  # FIXME: after figuring out API keys
+        os.system(f'dropdb {_db_name} --if-exists')
+        os.system(f'createdb {_db_name}')
+
         # When configuring logging explicitly, ensure all echo flags are set to False at all
         # times, to avoid getting duplicate log lines
         # source: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
