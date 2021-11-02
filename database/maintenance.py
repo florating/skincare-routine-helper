@@ -68,7 +68,8 @@ if __name__ == '__main__':
     if _db_name in VALID_DB_NAMES:
         db_uri = f'postgresql:///{_db_name}'
         model.connect_to_db(app, db_uri, echo=False)
-        # write_summary_prod_table()
+        write_summary_prod_table()
         write_summary_ingredients_table()
+        print('Success!')
     else:
         print('That is not a valid database name. Sorry.')

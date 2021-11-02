@@ -115,7 +115,7 @@ class TimestampMixin(object):
 
 ##### TABLES BELOW #####
 
-class Concern(db.Model):
+class Concern(TimestampMixin, db.Model):
     """Create a Concern object for the concerns table."""
 
     __tablename__ = 'concerns'
@@ -123,7 +123,7 @@ class Concern(db.Model):
     concern_id = Column(Integer, primary_key=True, autoincrement=True)
     concern_name = Column(String(100), nullable=False)
     description = deferred(Column(Text, nullable=True))
-    created_on = Column(DateTime, default=get_current_datetime)
+    # created_on = Column(DateTime, default=get_current_datetime)
     
     # user_concern_1 = list of User objects with this concern listed as their primary concern
     # user_concern_2 = list of User objects with this concern listed as their secondary concern
@@ -141,7 +141,7 @@ class Concern(db.Model):
         return f"<Concern concern_id={self.concern_id} concern_name={self.concern_name}>"
 
 
-class Skintype(db.Model):
+class Skintype(TimestampMixin, db.Model):
     """Create a Skintype object for the skintypes table."""
 
     __tablename__ = 'skintypes'
@@ -149,7 +149,7 @@ class Skintype(db.Model):
     skintype_id = Column(Integer, primary_key=True, autoincrement=True)
     skintype_name = Column(String(25), nullable=False)
     description = Column(Text, nullable=True)
-    created_on = Column(DateTime, default=get_current_datetime)
+    # created_on = Column(DateTime, default=get_current_datetime)
     
     # users = list of User objects with this skintype
 
@@ -164,7 +164,7 @@ class Skintype(db.Model):
         return f"<Skintype skintype_id={self.skintype_id} skintype_name={self.skintype_name}>"
 
 
-class User(UserMixin, db.Model):
+class User(TimestampMixin, UserMixin, db.Model):
     """Create a User object for each app user."""
     __tablename__ = 'users'
 
@@ -184,14 +184,16 @@ class User(UserMixin, db.Model):
     # If using Twilio API for text notifications:
     # US phone numbers only, in format: '(555) 555-5555'
     # phone_number = db.Column(db.String(14))
-    created_on = Column(DateTime, default=get_current_datetime)
-    updated_on = Column(
-        DateTime, nullable=True, default=None, onupdate=get_current_datetime)
+    # created_on = Column(DateTime, default=get_current_datetime)
+    # updated_on = Column(
+    #     DateTime, nullable=True, default=None, onupdate=get_current_datetime)
 
     primary_concern = db.relationship('Concern', foreign_keys=[primary_concern_id], backref='user_concern_1')
     secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
     skintype = db.relationship('Skintype', backref='users')
-    
+
+    # am_routine = db.relationship('Routine', foreign_keys=[am_routine_id], back_populates='user')
+
     # routines = list of Routine objects
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
 
@@ -242,7 +244,7 @@ class Category(db.Model):
     category_id = Column(Integer, primary_key=True, autoincrement=True)
     category_name = Column(String(25), nullable=False)
     difficulty_lv = Column(Integer)
-    description = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
     created_on = Column(DateTime, default=get_current_datetime)
     
     # products = list of Product objects
@@ -259,7 +261,7 @@ class Category(db.Model):
         return f"<Category category_id={self.category_id} category_name={self.category_name}>"
 
 
-class Product(db.Model):
+class Product(TimestampMixin, db.Model):
     """Create a skincare Product object for the products table."""
 
     __tablename__ = 'products'
@@ -285,10 +287,10 @@ class Product(db.Model):
     
     # other fields that could be added:
     # fragrance_free = Column(Boolean, default=None)
-    created_on = Column(DateTime, default=get_current_datetime)
-    updated_on = Column(
-        DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    retired_on = Column(DateTime, nullable=True, default=None)
+    # created_on = Column(DateTime, default=get_current_datetime)
+    # updated_on = Column(
+    #     DateTime, nullable=True, default=None, onupdate=get_current_datetime)
+    # retired_on = Column(DateTime, nullable=True, default=None)
     
     category = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with this product)
@@ -311,7 +313,7 @@ class Product(db.Model):
         return f"<Product product_id={self.product_id} product_name={self.product_name} category_id={self.category_id}>"
 
 
-class Cabinet(db.Model):
+class Cabinet(TimestampMixin, db.Model):
     """Create a Cabinet object for the cabinets table."""
 
     __tablename__ = 'cabinets'
@@ -319,8 +321,8 @@ class Cabinet(db.Model):
     cabinet_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     product_id = Column(Integer, db.ForeignKey('products.product_id'))
-    created_on = Column(DateTime, default=get_current_datetime)
-    retired_on = Column(DateTime, nullable=True, default=None)
+    # created_on = Column(DateTime, default=get_current_datetime)
+    # retired_on = Column(DateTime, nullable=True, default=None)
     notes = Column(Text, nullable=True, default=None)
     
     user = db.relationship('User', backref='cabinets')
@@ -333,7 +335,8 @@ class Cabinet(db.Model):
             'user_id': self.user_id,
             'product_id': self.product_id,
             'product_name': self.product.product_name,
-            'category_id': self.product.category_id
+            'category_id': self.product.category_id,
+            'has_notes?': bool(self.notes)
         }
     
     def __repr__(self):
@@ -374,7 +377,7 @@ class Ingredient(TimestampMixin, db.Model):
     # pregnancy_safe = Column(Boolean, default=None)
     # reef_safe = Column(Boolean, default=None)
     is_fragrance = deferred(Column(Boolean, default=None))
-    created_on = Column(DateTime, default=get_current_datetime)
+    # created_on = Column(DateTime, default=get_current_datetime)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -431,7 +434,7 @@ class ProductIngredient(TimestampMixin, db.Model):
         return f"<ProductIngredient prod_ing_id={self.prod_ing_id} product_id={self.product_id} ingredient_id={self.ingredient_id} abundance_order={self.abundance_order}>"
     
 
-class Routine(db.Model):
+class Routine(TimestampMixin, db.Model):
     """Create a Routine object for the routines table."""
 
     __tablename__ = 'routines'
@@ -441,9 +444,9 @@ class Routine(db.Model):
     am_or_pm = Column(String(2), nullable=False)
     name = Column(String(25))
     # step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
-    created_on = Column(DateTime, default=get_current_datetime)
-    updated_on = Column(DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    retired_on = Column(DateTime, nullable=True, default=None)
+    # created_on = Column(DateTime, default=get_current_datetime)
+    # updated_on = Column(DateTime, nullable=True, default=None, onupdate=get_current_datetime)
+    # retired_on = Column(DateTime, nullable=True, default=None)
 
     user = db.relationship('User', backref='routines')
     steps = db.relationship('Step', backref='routine')
@@ -459,11 +462,12 @@ class Routine(db.Model):
             # 'category_id': self.product.category_id
         }
     @property
-    def serialize_current_steps(self, verbose=False):
-        if verbose:
-            return [ item.serialize for item in self.steps if not bool(item.retired_on) ]
+    def serialize_current_steps(self):
         return [ [ item.step_id, item.product_id ] for item in self.steps if not bool(item.retired_on) ]
-    
+    @property
+    def serialize_current_steps_verbose(self):
+        return [ item.serialize for item in self.steps if not bool(item.retired_on) ]
+
     # def update_cardinality(self):
     #     """Save the order in which skincare steps are performed."""
     #     for step in self.steps:
@@ -474,7 +478,7 @@ class Routine(db.Model):
         return f"<Routine routine_id={self.routine_id} name={self.name} user_id={self.user_id} am_or_pm={self.am_or_pm} number of steps={len(self.steps) if self.steps else None}>"
 
 
-class Step(db.Model):
+class Step(TimestampMixin, db.Model):
     """Create a SkincareStep object for the skincare_steps table."""
 
     __tablename__ = 'steps'
@@ -489,10 +493,10 @@ class Step(db.Model):
     # or for people with sensitive skin, or for beginner routines
     
     notes = Column(Text, nullable=True, default=None)
-    created_on = Column(DateTime, default=get_current_datetime)
-    updated_on = Column(
-        DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    retired_on = Column(DateTime, nullable=True, default=None)
+    # created_on = Column(DateTime, default=get_current_datetime)
+    # updated_on = Column(
+    #     DateTime, nullable=True, default=None, onupdate=get_current_datetime)
+    # retired_on = Column(DateTime, nullable=True, default=None)
     
     product = db.relationship('Product', backref='steps')
     
@@ -500,25 +504,24 @@ class Step(db.Model):
     # routine = Routine objects, linked to individual steps in the routine
 
     @property
-    def serialize(self, verbose=False):
-        attributes = {}
-        if verbose:
-            attributes = {
-                'routine_id': self.routine_id,
-                'routine_nickname': self.routine.name,
-                'am_or_pm': self.routine.am_or_pm,  # can see this from Routine.serialize also
-                'product_id': self.product_id,
-                'product_name': self.product_name,
-                'category_id': self.product.category_id,
-                'updated_on': self.updated_on,
-                # 'updated_on_PT': convert_to_PST(self.updated_on)  # need to test
-            }
-        attributes.update({
+    def serialize(self):
+        return {
             'cardinal_order': self.cardinal_order,
             'dates': self.serialize_frequencies,
             'is_retired': bool(self.retired_on)
-        })
-        return attributes
+        }
+    @property
+    def serialize_verbose(self):
+        return {
+            'routine_id': self.routine_id,
+            'routine_nickname': self.routine.name,
+            'am_or_pm': self.routine.am_or_pm,  # can see this from Routine.serialize also
+            'product_id': self.product_id,
+            'product_name': self.product_name,
+            'category_id': self.product.category_id,
+            'updated_on': self.updated_on,
+            # 'updated_on_PT': convert_to_PST(self.updated_on)  # need to test
+        }
     @property
     def serialize_dates_only(self, convert_to_PT=False):
         if convert_to_PT:
@@ -547,11 +550,6 @@ class Step(db.Model):
         db.session.add(new_step)
         db.session.commit()
 
-    def retire(self):
-        """Do not use this step anymore."""
-        self.retired_on = get_current_datetime()
-        db.session.commit()
-
     def un_retire(self):
         """"""
         new_step = Step(routine_id = self.routine_id)
@@ -563,7 +561,7 @@ class Step(db.Model):
         return f"<Step step_id={self.step_id} product_id={self.product_id}>"
 
 
-class Frequency(db.Model):
+class Frequency(TimestampMixin, db.Model):
     """Create a Frequency object to track frequency of use of each skincare step.
     Each Step object is linked to multiple Frequency objects to record:
         - timestamps for dates of use
@@ -574,7 +572,8 @@ class Frequency(db.Model):
 
     freq_id = Column(Integer, primary_key=True, autoincrement=True)
     step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
-    created_on = Column(DateTime, default=get_current_datetime)
+    # created_on = Column(DateTime, default=get_current_datetime)
+    interval = Column(Integer, default=1)
     notes = Column(Text, default=None)
     # NOTE: ALTERNATIVE WAY TO DO THIS...
         # save dates as Array of DateTimes? Or a long string that can be
@@ -584,44 +583,21 @@ class Frequency(db.Model):
     step = db.relationship('Step', backref='dates')
 
     @property
-    def serialize(self, verbose=False):
-        attributes = {}
-        if verbose:
-            attributes = { 'freq_id': self.freq_id }
-        attributes.update({
-            'date': self.created_on,
-            'notes': self.notes
-        })
-        return attributes
-    
-    def __repr__(self):
-        return f"<Frequency freq_id={self.freq_id} step_name={self.step_name}>"
-
-
-class Test(TimestampMixin, db.Model):
-    """To test mixins only."""
-    __tablename__ = 'tests'
-
-    # NOTE: add these import statments to the file...
-    # from sqlalchemy import JSON
-    # from sqlalchemy.ext.indexable import index_property
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    # data = Column(JSON)
-    created_on_func = Column(DateTime, nullable=False, server_default=func.now())
-
-    # name = index_property('data', 'name')
-
-    @property
     def serialize(self):
         return {
-            'id': self.id,
-            # 'name': self.name,
-            'created_on_func': self.created_on_func,
+            'date': self.created_on,
+            'notes': self.notes
+        }
+    @property
+    def serialize_verbose(self):
+        return {
+            'freq_id': self.freq_id,
+            'date': self.created_on,
+            'notes': self.notes
         }
     
     def __repr__(self):
-        return f"<Test id={self.id}, created_on_func={self.created_on_func}, created_on={self.created_on}>"
+        return f"<Frequency freq_id={self.freq_id} step_name={self.step_name}>"
 
 
 ##### DB-RELATED FUNCTION BELOW #####

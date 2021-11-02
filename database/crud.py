@@ -28,11 +28,10 @@ FXN_DICT = {
     'Interaction': Interaction,
     'Product': Product,
     'ProductIngredient': ProductIngredient,
+    'Routine': Routine,
     'Step': Step,
     'Skintype': Skintype,
     'User': User,
-
-    'Routine': Routine
 }
 
 
@@ -48,13 +47,16 @@ def create_table_obj(table_class_name, **kwargs):
     """
     # if 'price' in kwargs:
     #     convert_price(kwargs, kwargs['price'])
-
+    # print('create_table_obj(...) in crud.py. kwargs =')
+    # print(kwargs)
     if 'product' == table_class_name.lower():
         # REFACTOR-NOTE: can add to FXN_DICT later
         obj = create_product_cascade(**kwargs)
     else:   
         obj = FXN_DICT[table_class_name](**kwargs)
-    add_and_commit(obj)
+    
+    if obj:
+        add_and_commit(obj)
     return obj
 
 
