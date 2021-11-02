@@ -68,9 +68,7 @@ class TimestampMixin(object):
         DateTime, nullable=False, default=get_current_datetime)
     updated_on = Column(
         DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    @declared_attr
-    def retired_on(cls):
-        return deferred(Column(DateTime, nullable=True, default=None))
+    retired_on = (Column(DateTime, nullable=True, default=None))
 
     @property
     def serialize_timestamps(self):
@@ -123,7 +121,6 @@ class Concern(TimestampMixin, db.Model):
     concern_id = Column(Integer, primary_key=True, autoincrement=True)
     concern_name = Column(String(100), nullable=False)
     description = deferred(Column(Text, nullable=True))
-    # created_on = Column(DateTime, default=get_current_datetime)
     
     # user_concern_1 = list of User objects with this concern listed as their primary concern
     # user_concern_2 = list of User objects with this concern listed as their secondary concern
@@ -149,7 +146,6 @@ class Skintype(TimestampMixin, db.Model):
     skintype_id = Column(Integer, primary_key=True, autoincrement=True)
     skintype_name = Column(String(25), nullable=False)
     description = Column(Text, nullable=True)
-    # created_on = Column(DateTime, default=get_current_datetime)
     
     # users = list of User objects with this skintype
 
@@ -223,6 +219,19 @@ class User(TimestampMixin, UserMixin, db.Model):
     @property
     def serialize_routines(self):
         return [ item.serialize for item in self.routines ]
+    @property
+    def serialize_active_routines(self):
+        active_routines = [ item for item in self.routines if item.is_active ]
+        am, pm = None, None
+        for routine in active_routines:
+            if routine.am_or_pm == 'am':
+                am = routine
+            elif routine.am_or_pm == 'pm':
+                pm = routine
+        return {
+            'am': am,
+            'pm': pm,
+        }
 
     def get_id(self):
         """Returns unicode user_id; used for user_loader callback function."""
@@ -274,8 +283,6 @@ class Product(TimestampMixin, db.Model):
 
     # FIXME: convert to Numeric later, and test price conversion fxn in crud.py
     # price = Column(String(10), nullable=True)
-    # price_GBP = Column(String(10), nullable=True)
-    # price_USD = Column(Numeric, nullable=True)
     category_id = Column(Integer, db.ForeignKey('categories.category_id'))
 
     # specific recommendations per Sephora dataset from jjone36:
@@ -287,10 +294,6 @@ class Product(TimestampMixin, db.Model):
     
     # other fields that could be added:
     # fragrance_free = Column(Boolean, default=None)
-    # created_on = Column(DateTime, default=get_current_datetime)
-    # updated_on = Column(
-    #     DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    # retired_on = Column(DateTime, nullable=True, default=None)
     
     category = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with this product)
@@ -321,8 +324,6 @@ class Cabinet(TimestampMixin, db.Model):
     cabinet_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     product_id = Column(Integer, db.ForeignKey('products.product_id'))
-    # created_on = Column(DateTime, default=get_current_datetime)
-    # retired_on = Column(DateTime, nullable=True, default=None)
     notes = Column(Text, nullable=True, default=None)
     
     user = db.relationship('User', backref='cabinets')
@@ -377,7 +378,6 @@ class Ingredient(TimestampMixin, db.Model):
     # pregnancy_safe = Column(Boolean, default=None)
     # reef_safe = Column(Boolean, default=None)
     is_fragrance = deferred(Column(Boolean, default=None))
-    # created_on = Column(DateTime, default=get_current_datetime)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -443,10 +443,7 @@ class Routine(TimestampMixin, db.Model):
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     am_or_pm = Column(String(2), nullable=False)
     name = Column(String(25))
-    # step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
-    # created_on = Column(DateTime, default=get_current_datetime)
-    # updated_on = Column(DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    # retired_on = Column(DateTime, nullable=True, default=None)
+    is_active = Column(Boolean)
 
     user = db.relationship('User', backref='routines')
     steps = db.relationship('Step', backref='routine')
@@ -493,11 +490,7 @@ class Step(TimestampMixin, db.Model):
     # or for people with sensitive skin, or for beginner routines
     
     notes = Column(Text, nullable=True, default=None)
-    # created_on = Column(DateTime, default=get_current_datetime)
-    # updated_on = Column(
-    #     DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    # retired_on = Column(DateTime, nullable=True, default=None)
-    
+
     product = db.relationship('Product', backref='steps')
     
     # dates = (list of) Frequency object(s), for usage timestamps
@@ -572,7 +565,6 @@ class Frequency(TimestampMixin, db.Model):
 
     freq_id = Column(Integer, primary_key=True, autoincrement=True)
     step_id = Column(Integer, db.ForeignKey('steps.step_id'), nullable=False)
-    # created_on = Column(DateTime, default=get_current_datetime)
     interval = Column(Integer, default=1)
     notes = Column(Text, default=None)
     # NOTE: ALTERNATIVE WAY TO DO THIS...

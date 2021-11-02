@@ -4,19 +4,19 @@
 /* SKINCARE ROUTINES */
 
 const BEGINNER_ROUTINE = {
-  9: "Cleanser",
-  1: "Moisturizer",
+  1: "Cleanser",
+  9: "Moisturizer",
 };
 
 const INTERMEDIATE_ROUTINE = {
-  9: "Cleanser",
+  1: "Cleanser",
   // ?: "Toner",
   // ?: "Exfoliator",
-  1: "Moisturizer",
+  9: "Moisturizer",
 }
 
 const AM_STEP = {
-  16: "Sun Protection",
+  12: "Sun Protection",
 }
 
 

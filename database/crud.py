@@ -321,6 +321,14 @@ def get_category_dict():
     return {item.category_id: item.category_name for item in Category.query.order_by('category_id').all()}
 
 
+def get_routine(user_obj, am_or_pm):
+    """Return a single AM or PM routine for a given user, if it exists."""
+    routines_list = user_obj.routines
+    for routine in routines_list:
+        if routine.am_or_pm == am_or_pm:
+            return routine
+     
+
 if __name__ == '__main__':
     import doctest
 

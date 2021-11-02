@@ -5,7 +5,6 @@ import os
 from pprint import pprint
 
 from flask import flash, Flask, jsonify, redirect, render_template, request, session, url_for
-import flask_login
 from flask_login import current_user, LoginManager, login_required, login_user, logout_user
 from jinja2 import StrictUndefined
 from markupsafe import escape
@@ -114,9 +113,17 @@ def logout():
 @login_required
 def show_profile():
     am_r, pm_r = None, None
+    routine_ids = [am_r, pm_r]
+    routines_to_show = {}
+    # TODO: add am_r_obj and pm_r_obj to routines_to_show
+    print('Show current_user.routines...')
+    print(current_user.routines)
     for routine in current_user.routines:
         am_r = routine.routine_id if routine.am_or_pm == 'am' else None
         pm_r = routine.routine_id if routine.am_or_pm == 'pm' else None
+    for r_id in routine_ids:
+        if r_id:
+            routines_to_show['am_r'] = crud.get_obj_by_id('Routine', r_id)
     return render_template('user_details.html', am_routine=am_r, pm_routine=pm_r)
 
 
@@ -286,38 +293,26 @@ def setup_routine():
         pprint(data)
         pprint('jsonify(request.form) is...')
         pprint(jsonify(data))
-        # desired_result = {
-        #     'routine_type': 'am',
-        #     'steps': [
-        #         {
-        #             'category_id': 1,
-        #             'product_id': 500
-        #         },
-        #         {
-        #             'category_id': 2,
-        #             'product_id': 400
-        #         }
-        #     ]
-        # }
-        # {
-        #     'routine_type': 'am',
-        #     'steps[0][category_id]': '1',
-        #     'steps[0][product_id]': '56',
-        #     'steps[1][category_id]': '9',
-        #     'steps[1][product_id]': '558'
-        # }
-        # pprint("Trying json.load now...")
-        # pprint(json.loads(data))
-        # JSON.stringify(form_data) (from routines.js)
-        # {'{"routine_type":"am","steps":[{"category_id":"1","product_id":"56"}]}': ''}
+        # TESTING:
+            # {
+            #     'routine_type': 'am',
+            #     'steps[0][category_id]': '1',
+            #     'steps[0][product_id]': '56',
+            #     'steps[1][category_id]': '9',
+            #     'steps[1][product_id]': '558'
+            # }
+            # pprint("Trying json.load now...")
+            # pprint(json.loads(data))
+            # JSON.stringify(form_data) (from routines.js)
+            # {'{"routine_type":"am","steps":[{"category_id":"1","product_id":"56"}]}': ''}
         
-
-
         # ImmutableMultiDict([('{"routine_type":"am","steps":["88","559"]}', '')])
-        # request.form.to_dict(flat=True) is...
-        # {'{"routine_type":"am","steps":["88","559"]}': ''}
+            # request.form.to_dict(flat=True) is...
+            # {'{"routine_type":"am","steps":["88","559"]}': ''}
 
         am_or_pm = request.form.get("routine_type")
+        pprint(am_or_pm)
+        # routine_id = request.form.get("routine_id")  # TODO: add to routines.js
         form_dict = request.form.to_dict(flat=False)
         print("request.form.to_dict(flat=False) is...")
         pprint(form_dict)
@@ -326,36 +321,38 @@ def setup_routine():
         pprint('Printing routine_type and steps from form_dict now...')
         pprint(routine_type)
         pprint(steps)
-
-        # steps_dict = form_dict['steps'][0]
-        # print("steps_dict is...")
-        # pprint(steps_dict)
-
-        # print(f'\n\n\nCreating a new {am_or_pm.upper()} routine:')
-        # for cat_id, p_id in steps_dict.items():
-        #     category_name = model.Category.query.filter_by(
-        #         category_id=cat_id).first().category_name
-        #     print(f'\n\n{category_name} step with cat_id = {cat_id}')
-        #     print(f'p_id = {p_id}')
-        #     p_obj = crud.get_obj_by_id('Product', p_id)  # change p_id to int?
-        #     print('\n\n\np_obj is:')
-        #     pprint(p_obj)
-        
-
+        # if not routine_id:
+        routineObj = model.Routine(user=current_user, am_or_pm=am_or_pm)
+        print(routineObj)
+        # else:
+        #     routineObj = crud.get_obj_by_id('Routine', routine_id)
+        step_list = []
+        for prod_id in steps:
+            stepObj = model.Step(product_id=prod_id)
+            step_list.append(stepObj)
+            print(stepObj)
+        routineObj.steps = step_list
+        print(routineObj)
         # NOTE: final version!
-        # form_data from routines.js = {
-        #   'routine_type': 'am',
-        #   'steps[]': '559'
-        # }
-        # 'jsonify(request.form) is...'
-        #   <Response 48 bytes [200 OK]>
-        # request.form.to_dict(flat=False) is...
-        #   {'routine_type': ['am'], 'steps[]': ['559', '88']}
-        # 'Printing routine_type and steps from form_dict now...'
-            # routine_type = form_dict['routine_type'] --> ['am']
-            # steps = form_dict['steps[]'] --> ['559', '88']
-        print("We went to /routine with a POST request successfully!")
-        return "Success!"
+            # form_data from routines.js = {
+            #   'routine_type': 'am',
+            #   'steps[]': '559'
+            # }
+            # 'jsonify(request.form) is...'
+            #   <Response 48 bytes [200 OK]>
+            # request.form.to_dict(flat=False) is...
+            #   {'routine_type': ['am'], 'steps[]': ['559', '88']}
+            # 'Printing routine_type and steps from form_dict now...'
+                # routine_type = form_dict['routine_type'] --> ['am']
+                # steps = form_dict['steps[]'] --> ['559', '88']
+        print('We went to /routine with a POST request successfully!')
+        db.session.add(routineObj)
+        db.session.commit()
+        print(f'This routine ({routineObj.routine_id}) has been added to the database.')
+        pprint(routineObj.serialize)
+        pprint(routineObj.serialize_current_steps)
+        pprint(routineObj.serialize_current_steps_verbose)
+        return 'Success!'
     return render_template('routine_blank.html')
 
 
@@ -378,10 +375,16 @@ def setup_routine_blank():
 
 @app.route('/test')
 def test_react():
-    test_obj = crud.get_obj_by_id('Product', 1)
+    test_obj = current_user.serialize_for_profile
+    test_2 = current_user.serialize_routines
+    test_3 = current_user.serialize_active_routines
     print('\n\n\n test_obj')
     print(test_obj)
-    return render_template('test/test_transition.html')
+    print('\n\n\n test_2')
+    print(test_2)
+    print('\n\n\n test_3')
+    print(test_3)
+    return render_template('modal_routine.html')
 
 
 if __name__ == '__main__':
