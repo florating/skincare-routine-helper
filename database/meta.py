@@ -21,6 +21,9 @@ VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
 
 ONE_MINUTE = 60
 
+_FILEPATH = os.path.abspath('../static/files/prod_metadata.csv')
+
+
 test_url = 'https://www.lookfantastic.com/cerave-facial-moisturising-lotion-no-spf-52ml/11798688.html'
 
 # get_data(test_url)
@@ -63,16 +66,33 @@ def get_product_ids(cat_name, set_limit=False):
     return [(prod.category_id, cat_name, prod.product_id, prod.product_url) for prod in prod_list.all()]
 
 
+def get_product_ids_already_checked(filepath=_FILEPATH):
+    """Return a list of tuples for product ids and image URLs that have already been checked."""
+    prod_ids = []
+    with open(filepath, mode='r', encoding='utf-8') as written_metadata:
+        csvreader = csv.DictReader(written_metadata)
+        
+        # NOTE: row = {'category_id': 9, 'category_name': 'Moisturizer', ...}
+        # for the following headers: date_updated, category_id, category_name, product_id, product_url, meta_title, title_content, meta_img, img_content
+        for row in csvreader:
+            pprint(row)
+            if row['img_content']:
+                prod_ids.append((row['product_id'], row['img_content']))
+
+    print(f'\n\nSuccessfully found {len(prod_ids)} rows that already have data in the img_content field.\n\n')
+    return prod_ids
+
+
+
 def write_metadata_to_csv(tup_list):
     """Tuple format: (category_id, category_name, product_id, product_url)"""
     summary = []
 
-    filepath = os.path.abspath('../static/files/prod_metadata.csv')
-    with open(filepath, mode='w', encoding='utf-8') as metadata:
+    with open(_FILEPATH, mode='a', encoding='utf-8') as metadata:
         data_writer = csv.writer(metadata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        # Write the row of headers first
-        data_writer.writerow(['category_id', 'category_name', 'product_id', 'product_url', 'meta_title', 'meta_img', 'date_updated'])
+        # Write the row of headers first (if not yet done)
+        data_writer.writerow(['category_id', 'category_name', 'product_id', 'product_url', 'meta_title', 'title_content', 'meta_img', 'img_content', 'date_updated'])
 
         # Write each row of results
         for result in tup_list:
@@ -102,15 +122,16 @@ if __name__ == '__main__':
         clean_prods = get_product_ids('Cleanser', set_limit=True)
         # pprint(moist_prods)
         # pprint(clean_prods)
-
+        already_checked = get_product_ids_already_checked()
+        pprint(already_checked)
         # iterate through the list of prod_ids to get_data
         # write the returned (title, image) values into a csv
-        results = []
-        print('Starting with moist_prods...')
-        results.extend(write_metadata_to_csv(moist_prods))
-        print('Starting with clean_prods...')
-        results.extend(write_metadata_to_csv(clean_prods))
+        # results = []
+        # print('Starting with moist_prods...')
+        # results.extend(write_metadata_to_csv(moist_prods))
+        # print('Starting with clean_prods...')
+        # results.extend(write_metadata_to_csv(clean_prods))
         print('Success!')
-        print(results)
+        # print(results)
     else:
         print('That is not a valid database name. Sorry.')
