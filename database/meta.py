@@ -10,6 +10,7 @@ sys.path.append(BASE_PATH)
 
 import csv
 from pprint import pprint
+import time
 from urllib.request import urlopen
 
 from bs4 import BeautifulSoup
@@ -55,36 +56,43 @@ def get_data(url):
         return (title, title_content, image, image_content)
 
 
-def get_product_ids(cat_name, set_limit=False):
+def get_product_ids(cat_name, set_limit=10):
     """Return a list of tuples for products from a specific product category (eg: Moisturizer).
     Tuple format: (category_id, category_name, product_id, product_url)
     """
     cat_id = crud.get_obj_by_param('Category', **{'category_name': cat_name}).category_id
     prod_list = model.Product.query.filter_by(category_id=cat_id)
     if set_limit:
-        prod_list = prod_list.limit(5)
+        prod_list = prod_list.limit(set_limit)
     return [(prod.category_id, cat_name, prod.product_id, prod.product_url) for prod in prod_list.all()]
 
 
-def get_product_ids_already_checked(filepath=_FILEPATH):
+def get_product_ids_and_checked_metadata(filepath=_FILEPATH):
     """Return a list of tuples for product ids and image URLs that have already been checked."""
-    prod_ids = []
+    results = []
     with open(filepath, mode='r', encoding='utf-8') as written_metadata:
         csvreader = csv.DictReader(written_metadata)
         
         # NOTE: row = {'category_id': 9, 'category_name': 'Moisturizer', ...}
-        # for the following headers: date_updated, category_id, category_name, product_id, product_url, meta_title, title_content, meta_img, img_content
+        # HEADERS: date_updated, category_id, category_name, product_id, product_url, meta_title, title_content, meta_img, img_content
+
         for row in csvreader:
-            pprint(row)
+            # pprint(row)
             if row['img_content']:
-                prod_ids.append((row['product_id'], row['img_content']))
+                results.append((row['product_id'], row['img_content']))
 
-    print(f'\n\nSuccessfully found {len(prod_ids)} rows that already have data in the img_content field.\n\n')
-    return prod_ids
+    print(f'\n\nSuccessfully found {len(results)} rows that already have data in the img_content field.\n\n')
+    return results
 
 
+def get_checked_prod_ids(tuple_list):
+    """Returns a set of product ids for which a check on metadata has already been made."""
+    if not tuple_list:
+        tuple_list = get_product_ids_and_checked_metadata()
+    return {int(tup[0]) for tup in tuple_list if tup[1]}
 
-def write_metadata_to_csv(tup_list):
+
+def write_metadata_to_csv(tup_list, prods_to_skip=None):
     """Tuple format: (category_id, category_name, product_id, product_url)"""
     summary = []
 
@@ -92,45 +100,72 @@ def write_metadata_to_csv(tup_list):
         data_writer = csv.writer(metadata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         # Write the row of headers first (if not yet done)
-        data_writer.writerow(['category_id', 'category_name', 'product_id', 'product_url', 'meta_title', 'title_content', 'meta_img', 'img_content', 'date_updated'])
+        # data_writer.writerow(['category_id', 'category_name', 'product_id', 'product_url', 'meta_title', 'title_content', 'meta_img', 'img_content', 'date_updated'])
 
         # Write each row of results
         for result in tup_list:
+            if not result:
+                continue
             (cat_id, cat_name, prod_id, prod_url) = result
             current_dt = model.get_current_datetime()
-
-            (title, title_content, image, image_content) = get_data(prod_url)
-
-            data_writer.writerow([
-                cat_id, cat_name, prod_id, prod_url,
-                title, title_content, image, image_content, current_dt])
-            summary.append([result, title, title_content, image, image_content])
             
+            if not prod_id or prod_id in prods_to_skip:
+                # print(f'{prod_id} is in prods_to_skip! continue...')
+                continue
+
+            # print(f'{prod_id} is not in prods_to_skip! append to summary...')
+            (title, title_content, image, image_content) = get_data(prod_url)
+            data_writer.writerow([
+                current_dt, cat_id, cat_name, prod_id, prod_url,
+                title, title_content, image, image_content])
+            summary.append([result, title, title_content, image, image_content])
+    print('Done with write_metadata_to_csv!')
     return summary
+
+
+def upload_to_cloudinary(file_list):
+    # TODO: setup a test upload
+    os.system(f'source secrets.sh')
+    for file in file_list:
+        current_dt = model.get_current_datetime()
+        os.system(f"curl https://api.cloudinary.com/v1_1/{CLOUD_NAME}/image/upload -X POST --data 'file={file}&timestamp={current_dt}&api_key={CLOUD_API_KEY}&signature={SIGNATURE}'")
 
 
 if __name__ == '__main__':
     from server import app
+
+    start_time = time.time()
 
     _db_name = input('What is the name of the PostgreSQL database?  ')
 
     if _db_name in VALID_DB_NAMES:
         db_uri = f'postgresql:///{_db_name}'
         model.connect_to_db(app, db_uri, echo=False)
-
-        moist_prods = get_product_ids('Moisturizer', set_limit=True)
-        clean_prods = get_product_ids('Cleanser', set_limit=True)
+        print('--- %s seconds ---' % (time.time() - start_time))
+        print('\n')
+        moist_prods = get_product_ids('Moisturizer', set_limit=45)
+        clean_prods = get_product_ids('Cleanser', set_limit=45)
         # pprint(moist_prods)
         # pprint(clean_prods)
-        already_checked = get_product_ids_already_checked()
-        pprint(already_checked)
+        already_checked = get_product_ids_and_checked_metadata()
+        # pprint(already_checked)
+        prods_to_skip_set = get_checked_prod_ids(already_checked)
+        pprint('prods_to_skip_set:')
+        print(prods_to_skip_set)
+        print('--- %s seconds ---' % (time.time() - start_time))
+        print('\n')
         # iterate through the list of prod_ids to get_data
         # write the returned (title, image) values into a csv
-        # results = []
+        results = []
         # print('Starting with moist_prods...')
-        # results.extend(write_metadata_to_csv(moist_prods))
+        results.extend(write_metadata_to_csv(moist_prods, prods_to_skip_set))
+        print('--- %s seconds ---' % (time.time() - start_time))
+        print('\n')
+
         # print('Starting with clean_prods...')
-        # results.extend(write_metadata_to_csv(clean_prods))
+        results.extend(write_metadata_to_csv(clean_prods, prods_to_skip_set))
+        print('--- %s seconds ---' % (time.time() - start_time))
+        print('\n')
         print('Success!')
         # print(results)
     else:
