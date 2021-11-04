@@ -188,8 +188,6 @@ class User(TimestampMixin, UserMixin, db.Model):
     secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
     skintype = db.relationship('Skintype', backref='users')
 
-    # am_routine = db.relationship('Routine', foreign_keys=[am_routine_id], back_populates='user')
-
     # routines = list of Routine objects
     # cabinets = list of Cabinet objects (associated with skincare Product objects)
 
@@ -232,6 +230,11 @@ class User(TimestampMixin, UserMixin, db.Model):
             'am': am,
             'pm': pm,
         }
+
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        self.am_routine_id = None
+        self.pm_routine_id = None
 
     def get_id(self):
         """Returns unicode user_id; used for user_loader callback function."""
@@ -279,21 +282,22 @@ class Product(TimestampMixin, db.Model):
     product_name = Column(String(200), nullable=False)
     brand_name = Column(String(25), nullable=True)
     product_url = Column(String(200), nullable=True)
-    product_size = Column(String(20), nullable=True)
+    img_url = deferred(Column(String(200), nullable=True))
+    cloud_img_url = deferred(Column(String(200), nullable=True))
 
     # FIXME: convert to Numeric later, and test price conversion fxn in crud.py
     # price = Column(String(10), nullable=True)
     category_id = Column(Integer, db.ForeignKey('categories.category_id'))
 
     # specific recommendations per Sephora dataset from jjone36:
-    # rec_combination = Column(Boolean, nullable=True, default=None)
-    # rec_dry = Column(Boolean, nullable=True, default=None)
-    # rec_normal = Column(Boolean, nullable=True, default=None)
-    # rec_oily = Column(Boolean, nullable=True, default=None)
-    # rec_sensitive = Column(Boolean, nullable=True, default=None)
+    rec_combination = Column(Boolean, nullable=True, default=None)
+    rec_dry = Column(Boolean, nullable=True, default=None)
+    rec_normal = Column(Boolean, nullable=True, default=None)
+    rec_oily = Column(Boolean, nullable=True, default=None)
+    rec_sensitive = Column(Boolean, nullable=True, default=None)
     
     # other fields that could be added:
-    # fragrance_free = Column(Boolean, default=None)
+    fragrance_free = Column(Boolean, default=None)
     
     category = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with this product)
@@ -307,11 +311,19 @@ class Product(TimestampMixin, db.Model):
             'product_name': self.product_name,
             'category': self.category.serialize
         }
+    @property
+    def serialize_top_five(self):
+        return { i: item.ingredient for i, item in enumerate(self.product_ingredients[:5]) }
+    @property
+    def serialize_top_five_names(self):
+        return { item.ingredient.common_name for item in self.product_ingredients[:5] }
 
     def get_num_ingredients(self):
-        """Return number of ingredients (besides water) associated with this product."""
         return len(self.product_ingredients)
 
+    def get_top_five(self):
+        return self.product_ingredients[:5]
+    
     def __repr__(self):
         return f"<Product product_id={self.product_id} product_name={self.product_name} category_id={self.category_id}>"
 
@@ -350,34 +362,41 @@ class Ingredient(TimestampMixin, db.Model):
     __tablename__ = 'ingredients'
 
     ingredient_id = Column(Integer, primary_key=True, autoincrement=True)
+    INCI_code = Column(String(50), nullable=True, default=None)
     CAS_id = Column(String(12), nullable=True, default=None, unique=True)
     # EXAMPLE: titanium dioxide has a CAS_id of 13463-67-7
     # FORMAT: up to 10 digits, separated by up to 2 hyphens
     # NOTE: how to handle multiple CAS_id values for the same common_name?
 
-    INCI_code = Column(String(50), nullable=True, default=None)
-    # NOTE: unique?
-
     common_name = Column(String(100), nullable=False)
-    alternative_names = Column(Text, nullable=True)
+    alternative_names = Column(Text, default=None)
     # NOTE: may use to store a list in string form --> "['name_a', 'name_b']"
 
-    active_type = Column(String(50), default=None)
-    is_emollient = Column(Boolean, default=None)
-    is_humectant = Column(Boolean, default=None)
-    is_occlusive = Column(Boolean, default=None)
+    active_type = Column(String(20), default=None)
+    hydration_type = Column(String(10), default=None)
+    special_type = Column(String(30), default=None)
+
+    is_fragrance = deferred(Column(Boolean, default=None))
+    is_formaldehyde = deferred(Column(Boolean, default=None))
     is_sunscreen = Column(Boolean, default=None)
+    is_silicone = deferred(Column(Boolean, default=None))
+    is_sulfate = deferred(Column(Boolean, default=None))
+    is_phthalate = deferred(Column(Boolean, default=None))
+    is_paraben = deferred(Column(Boolean, default=None))
+
     pm_only = Column(Boolean, default=None)
-    irritation_rating = Column(Integer, default=None)
-    endocrine_disruption = Column(Boolean, default=None)
+    is_pregnancy_safe = Column(Boolean, default=None)
+    irritation_rating = deferred(Column(Boolean, default=None))
+    is_endocrine_disruptor = Column(Boolean, default=None)
 
     # CARCINOGENIC INFO
-    carcinogenic = Column(Boolean, default=None)
-    IARC_group_id = Column(String(2), default=None)  # TODO: create IARC table (3 rows)
+    is_carcinogenic = Column(Boolean, default=None)
+    IARC_group_id = deferred(Column(String(2), default=None))  # TODO: create IARC table (3 rows)
 
-    # pregnancy_safe = Column(Boolean, default=None)
+    environmental_hazard = Column(Boolean, default=None)
+    other_tox = deferred(Column(Boolean, default=None))
+
     # reef_safe = Column(Boolean, default=None)
-    is_fragrance = deferred(Column(Boolean, default=None))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -455,8 +474,7 @@ class Routine(TimestampMixin, db.Model):
             'user_id': self.user_id,
             'name': self.name,
             'am_or_pm': self.am_or_pm,
-            # 'product_name': self.product_name,
-            # 'category_id': self.product.category_id
+            'is_active': self.is_active
         }
     @property
     def serialize_current_steps(self):
@@ -464,6 +482,21 @@ class Routine(TimestampMixin, db.Model):
     @property
     def serialize_current_steps_verbose(self):
         return [ item.serialize for item in self.steps if not bool(item.retired_on) ]
+    
+    def make_active(self):
+        if self.am_or_pm == 'am':
+            old_routine = Routine.query.get(self.user.am_routine_id)
+            if old_routine:
+                old_routine.is_active = False
+            self.user.am_routine_id = self.routine_id
+        else:
+            old_routine = Routine.query.get(self.user.pm_routine_id)
+            if old_routine:
+                old_routine.is_active = False
+            self.user.pm_routine_id = self.routine_id
+        self.is_active = True
+        db.commit()
+        print(f'Saved routine with id {self.routine_id} as active {self.am_or_pm} routine.')
 
     # def update_cardinality(self):
     #     """Save the order in which skincare steps are performed."""

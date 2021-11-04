@@ -1,3 +1,5 @@
 sulfate
 SLS
 SLES
+sodium lauryl sulfate
+sodium laureth sulfate

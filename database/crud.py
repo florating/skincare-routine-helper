@@ -19,6 +19,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from database import model
 from database.model import db, User, Concern, Cabinet, Category, Frequency, Skintype, Step, Product, Ingredient, ProductIngredient, Interaction, Routine, connect_to_db
 
+VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
+
 # REFACTOR-NOTE: consider using __name__ 
 FXN_DICT = {
     'Cabinet': Cabinet,
@@ -310,7 +312,7 @@ def get_all_obj(class_name):
     return db.session.query(class_name).all()
 
 
-def get_all_obj_by_param(class_name, **param):
+def get_obj_by_param(class_name, **param):
     """Return a class_name object (eg: User) by its expected key-value pair."""
     class_fxn = FXN_DICT[class_name]
     return class_fxn.query.filter_by(**param).first()
@@ -327,12 +329,51 @@ def get_routine(user_obj, am_or_pm):
     for routine in routines_list:
         if routine.am_or_pm == am_or_pm:
             return routine
-     
+
+
+def summarize_prod_top5(set_limit=5):
+    prod_objs = Product.query.filter_by(category_id=1)
+    if set_limit:
+        prod_objs = prod_objs.limit(5)
+    prod_dict = {}
+    for prod in prod_objs.all():
+        print(prod)
+        num_ingreds = prod.get_num_ingredients()
+        t5 = prod.serialize_top_five
+        t5n = prod.serialize_top_five_names
+        print('The top 5 ingredients are: ')
+        print(t5n)
+        print(f'...and they make up {5/num_ingreds:.2%} of its ingredient list, where total={num_ingreds}.')
+        pprint(t5)
+        prod_dict[prod.product_id] = t5
+    return prod_dict
+
+
+
+
 
 if __name__ == '__main__':
     import doctest
+    import logging
 
     from server import app
-    
+
     doctest.testmod()
-    connect_to_db(app)
+        
+    _db_name = input('What is the name of the PostgreSQL database?  ')
+    
+    if _db_name in VALID_DB_NAMES:
+        # When configuring logging explicitly, ensure all echo flags are set to False at all
+        # times, to avoid getting duplicate log lines
+        # source: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
+        logging.basicConfig()
+        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
+
+        # Connect database to the Flask app in server.py and create all tables.
+        connect_to_db(flask_app=app, db_uri=f"postgresql:///{_db_name}", echo=False)
+        db.create_all()
+
+        summarize_prod_top5()
+        print('Successfully finished running crud.py!')
+    else:
+        print('That is not a valid database name. Sorry.')
