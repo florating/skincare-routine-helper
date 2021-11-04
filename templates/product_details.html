@@ -17,8 +17,9 @@
   <div class="col-3" id="product_info">
     <h3>Product Info</h3>
     <ul>
-      {# <li>Product Type: product.product_type = {{ product.product_type }}</li> #}
       <li>Product Type{# using category_id, so product.category.category_name --> #}: {{ product.category.category_name }}</li>
+      <li>Buy this product <a href="{{ product.product_url }}">here</a>!</li>
+      <li>{{ product.product_url }}</li>
     </ul>
     <!-- General info goes here! -->
   </div>

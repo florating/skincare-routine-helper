@@ -49,26 +49,34 @@
           <form>
             <div class="mb-3">
               <label for="routine-type" class="col-form-label">Routine Type:</label>
-              <select>
+              <select class="form-control" id="routine-type">
                 <option val="">-- Select a Type --</option>
                 <option val="am">AM</option>
                 <option val="pm">PM</option>
               </select>
-              <input type="text" class="form-control" id="routine-type">
             </div>
             <div class="mb-3">
-              <label for="recipient-name" class="col-form-label">Recipient:</label>
-              <input type="text" class="form-control" id="recipient-name">
+              <label for="routine-name" class="col-form-label">Routine Name:</label>
+              <input type="text" class="form-control" placeholder="My AM Routine" id="routine-name">
             </div>
             <div class="mb-3">
-              <label for="message-text" class="col-form-label">Message:</label>
-              <textarea class="form-control" id="message-text"></textarea>
+              <label for="routine-difficulty-lv" class="col-form-label">Difficulty Level:</label>
+              <select class="form-control" id="routine-difficulty-lv">
+                <option val="">-- Select an Option --</option>
+                <option val="1">Beginner</option>
+                <option val="2">Intermediate</option>
+                <option val="3">Advanced</option>
+              </select>
             </div>
+            <div class="mb-3">
+                <label for="routine-notes" class="col-form-label">Notes:</label>
+                <textarea class="form-control" id="routine-notes"></textarea>
+              </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Send message</button>
+          <button type="button" class="btn btn-primary">Create Routine</button>
         </div>
       </div>
     </div>

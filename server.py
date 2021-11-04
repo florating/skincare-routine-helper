@@ -288,51 +288,34 @@ def setup_routine():
     NOTE: request.form.to_dict(flat=True) looks like this:
         {'routine_type': 'am', 'steps[0][category_id]': '1', 'steps[0][product_id]': '64'}
     """
-    if request.method == 'POST':
-        data = request.form
-        pprint(data)
-        pprint('jsonify(request.form) is...')
-        pprint(jsonify(data))
-        # TESTING:
-            # {
-            #     'routine_type': 'am',
-            #     'steps[0][category_id]': '1',
-            #     'steps[0][product_id]': '56',
-            #     'steps[1][category_id]': '9',
-            #     'steps[1][product_id]': '558'
-            # }
-            # pprint("Trying json.load now...")
-            # pprint(json.loads(data))
-            # JSON.stringify(form_data) (from routines.js)
-            # {'{"routine_type":"am","steps":[{"category_id":"1","product_id":"56"}]}': ''}
-        
+    if request.method == 'POST':        
         # ImmutableMultiDict([('{"routine_type":"am","steps":["88","559"]}', '')])
             # request.form.to_dict(flat=True) is...
             # {'{"routine_type":"am","steps":["88","559"]}': ''}
 
-        am_or_pm = request.form.get("routine_type")
-        pprint(am_or_pm)
+        am_or_pm = request.form.get("routine_type")  # 'am' or 'pm'
+        # pprint(am_or_pm)
         # routine_id = request.form.get("routine_id")  # TODO: add to routines.js
         form_dict = request.form.to_dict(flat=False)
-        print("request.form.to_dict(flat=False) is...")
-        pprint(form_dict)
-        routine_type = form_dict['routine_type']
+        # print("request.form.to_dict(flat=False) is...")
+        # pprint(form_dict)
+        routine_type = form_dict['routine_type']  # am or pm
         steps = form_dict['steps[]']
-        pprint('Printing routine_type and steps from form_dict now...')
-        pprint(routine_type)
-        pprint(steps)
+        # pprint('Printing routine_type and steps from form_dict now...')
+        # pprint(routine_type)
+        # pprint(steps)
         # if not routine_id:
-        routineObj = model.Routine(user=current_user, am_or_pm=am_or_pm)
-        print(routineObj)
+        routine_obj = model.Routine(user=current_user, am_or_pm=am_or_pm)
+        print(routine_obj)
         # else:
-        #     routineObj = crud.get_obj_by_id('Routine', routine_id)
+        #     routine_obj = crud.get_obj_by_id('Routine', routine_id)
         step_list = []
         for prod_id in steps:
-            stepObj = model.Step(product_id=prod_id)
-            step_list.append(stepObj)
-            print(stepObj)
-        routineObj.steps = step_list
-        print(routineObj)
+            step_obj = model.Step(product_id=prod_id)
+            step_list.append(step_obj)
+            print(step_obj)
+        routine_obj.steps = step_list
+        print(routine_obj)
         # NOTE: final version!
             # form_data from routines.js = {
             #   'routine_type': 'am',
@@ -346,14 +329,17 @@ def setup_routine():
                 # routine_type = form_dict['routine_type'] --> ['am']
                 # steps = form_dict['steps[]'] --> ['559', '88']
         print('We went to /routine with a POST request successfully!')
-        db.session.add(routineObj)
+        db.session.add(routine_obj)
         db.session.commit()
-        print(f'This routine ({routineObj.routine_id}) has been added to the database.')
-        pprint(routineObj.serialize)
-        pprint(routineObj.serialize_current_steps)
-        pprint(routineObj.serialize_current_steps_verbose)
+        print(f'This routine ({routine_obj.routine_id}) has been added to the database.')
+        pprint(routine_obj.serialize)
+        pprint(routine_obj.serialize_current_steps)
+        pprint(routine_obj.serialize_current_steps_verbose)
         return 'Success!'
-    return render_template('routine_blank.html')
+    # TODO: retrieve and send the user's active AM and PM routines
+    am_routine = crud.get_obj_by_id('Routine', current_user.am_routine_id)
+    pm_routine = crud.get_obj_by_id('Routine', current_user.pm_routine_id)
+    return render_template('routine_blank.html', am_routine=am_routine, pm_routine=pm_routine)
 
 
 @app.route('/add/routine', methods=['POST'])
@@ -368,9 +354,9 @@ def add_routine():
     return routine_obj.routine_id
 
 
-@app.route('/routine_blank')
-def setup_routine_blank():
-    return render_template('routine_blank.html')
+@app.route('/test/semantic')
+def test_semantic():
+    return render_template('base_semantic.html')
 
 
 @app.route('/test')
@@ -380,10 +366,13 @@ def test_react():
     test_3 = current_user.serialize_active_routines
     print('\n\n\n test_obj')
     print(test_obj)
-    print('\n\n\n test_2')
+    print('\n\n\n current_user.serialize_routines')
     print(test_2)
-    print('\n\n\n test_3')
+    print('\n\n\n current_user.serialize_active_routines')
     print(test_3)
+    print('\n\n\n')
+
+    print(current_user.primary_concern)
     return render_template('modal_routine.html')
 
 

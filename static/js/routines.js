@@ -16,7 +16,7 @@ const INTERMEDIATE_ROUTINE = {
 }
 
 const AM_STEP = {
-  12: "Sun Protection",
+  12: "Sunscreen",
 }
 
 

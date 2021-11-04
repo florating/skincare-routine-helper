@@ -5,8 +5,12 @@ ul {
     margin-bottom: 10px;
 }
 
-li {
+div#root li {
     margin: 5px;
     padding: 5px;
     width: 300px;
+}
+
+.ui-state-highlight {
+    border-radius: 8px;
 }
