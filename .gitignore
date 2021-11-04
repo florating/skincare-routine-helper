@@ -9,3 +9,4 @@ templates/test
 testing
 trial*
 venv*
+secrets.sh
