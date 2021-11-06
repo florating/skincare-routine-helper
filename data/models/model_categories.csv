@@ -1,17 +1,17 @@
-﻿category_name,difficulty_lv
-Cleanser,1
-Exfoliator,2
-Peel,3
-Toner,2
-Essence,2
-Serum,2
-Mist,99
-Mask,2
-Moisturizer,1
-Eye Care,3
-Oil,99
-Sunscreen,1
-Balm,99
-Bath Salts,99
-Body Wash,99
-Bath Oil,99
+﻿category_id,category_name,difficulty_lv
+1,Cleanser,1
+2,Exfoliator,2
+3,Peel,3
+4,Toner,2
+5,Essence,2
+6,Serum,2
+7,Mist,99
+8,Mask,2
+9,Moisturizer,1
+10,Eye Care,3
+11,Oil,99
+12,Sunscreen,1
+13,Balm,99
+14,Bath Salts,99
+15,Body Wash,99
+16,Bath Oil,99

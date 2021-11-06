@@ -5,6 +5,7 @@ environmental_hazard, data/ingredient_tags/filters/environmental_hazards.txt
 formaldehyde, data/ingredient_tags/filters/formaldehyde_releasing.txt
 fragrance, data/ingredient_tags/filters/fragrances.txt
 emollient, data/ingredient_tags/types/emollients.txt
+endocrine_disruptor, data/ingredient_tags/filters/endocrine_disruptors.txt
 humectant, data/ingredient_tags/types/humectants.txt
 occlusive, data/ingredient_tags/types/occlusives.txt
 paraben, data/ingredient_tags/filters/parabens.txt
@@ -13,7 +14,7 @@ pm_only, data/ingredient_tags/filters/pm_only.txt
 retinoid, data/ingredient_tags/types/retinoids.txt
 silicone, data/ingredient_tags/filters/silicones.txt
 sulfate, data/ingredient_tags/filters/sulfates.txt
-sunscreen, data/ingredient_tags/types/sunscreens.csv
+sunscreen, data/ingredient_tags/types/sunscreens.txt
 vitamin C, data/ingredient_tags/types/vitC.txt
 dry, data/ingredient_tags/recs/dry.txt
 oily, data/ingredient_tags/recs/oily.txt

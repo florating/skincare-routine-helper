@@ -26,28 +26,22 @@ def update_sets_to_check(file_list=LIST_OF_FILES):
         print("success!")
         data = f.readlines()
         for line in data:
-            tag, filepath = line.split()
-            # TODO: setup generic function to read files
-            file_dict[tag.strip(',').upper()] = filepath
+            print(line)
+            tag, filepath = line.split(',')
+            tag = tag.upper()
+            file_dict[tag.strip()] = filepath.strip()
     return file_dict
 
 
-def tag_hydration(ingred_obj, ingred_type_set):
-    """If the ingredient is a member of the set of this ingred_type (eg: emollients), change its respecive is_INGRED_TYPE attribute to True."""
-    for tag, filepath in file_dict.items():
-        # read_files
-        pass
-    if ingred_obj.common_name in ingred_type_set:
-        pass
-
-
 def tag_fragrances(ingred_obj, dict_of_types):
-    for tag, tag_set in dict_of_types:
-        if ingred_obj.common_name.upper() in tag_set:
+    for tag_set in dict_of_types.values():
+        name = ingred_obj.common_name.upper()
+        if name in tag_set:
             ingred_obj.is_fragrance = True
+            break
         else:
             for item in tag_set:
-                if item.lower() in ingred_obj.common_name.lower():
+                if item in name:
                     ingred_obj.is_fragrance = True
                     break
 
@@ -72,10 +66,95 @@ def tag_hydration_type(ingred_obj, dict_of_types):
 
 
 def tag_special_type(ingred_obj, dict_of_types):
-    """Special types include: comedogenic (more may be added)"""
+    """Special types include: comedogenic, PFAS (more may be added)"""
     for tag, tag_set in dict_of_types:
-        if ingred_obj.common_name.upper() in tag_set:
+        name = ingred_obj.common_name.upper()
+        if name in tag_set:
             ingred_obj.special_type = tag
+        elif 'PERFLUOR' in name or 'POLYFLUOR' in name:
+            ingred_obj.special_type = 'PFAS'
+            ingred_obj.is_pregnancy_safe = False
+            ingred_obj.is_endocrine_disruptor = True
+            break
+
+
+def tag_endocrine_disruptor(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        name = ingred_obj.common_name.upper()
+        if name in tag_set:
+            ingred_obj.is_endocrine_disruptor = True
+            break
+        for tag in tag_set:
+            if tag in name:
+                ingred_obj.is_endocrine_disruptor = True
+                break
+
+
+def tag_haz_formaldehyde(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        if ingred_obj.common_name.upper() in tag_set:
+            ingred_obj.is_formaldehyde = True
+            ingred_obj.is_pregnancy_safe = False
+            ingred_obj.is_carcinogenic = True
+            break
+
+
+def tag_haz_env(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        if ingred_obj.common_name.upper() in tag_set:
+            ingred_obj.environmental_hazard = True
+            break
+
+
+def tag_silicone(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        if ingred_obj.common_name.upper() in tag_set:
+            ingred_obj.is_silicone = True
+            ingred_obj.environmental_hazard = True
+            break
+
+
+def tag_sulfate(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        name = ingred_obj.common_name.upper()
+        if name in tag_set or 'SULFATE' in name:
+            ingred_obj.is_sulfate = True
+            break
+
+
+def tag_sunscreen(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        if ingred_obj.common_name.upper() in tag_set:
+            ingred_obj.is_sunscreen = True
+            break
+
+
+def tag_phthalate(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        name = ingred_obj.common_name.upper()
+        if name in tag_set or 'PHTHALATE' in name:
+            ingred_obj.is_phthalate = True
+            ingred_obj.is_pregnancy_safe = False
+            ingred_obj.is_endocrine_disruptor = True
+            ingred_obj.is_carcinogenic = True
+            break
+
+
+def tag_paraben(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        name = ingred_obj.common_name.upper()
+        if name in tag_set or 'PARABEN' in name:
+            ingred_obj.is_endocrine_disruptor = True
+            ingred_obj.is_paraben = True
+            ingred_obj.is_pregnancy_safe = False
+            break
+
+
+def tag_carcinogen(ingred_obj, dict_of_types):
+    for tag_set in dict_of_types.values():
+        if ingred_obj.common_name.upper() in tag_set:
+            ingred_obj.is_carcinogenic = True
+            ingred_obj.is_pregnancy_safe = False
             break
 
 
@@ -84,9 +163,10 @@ def make_dict(file_dict, tag_list):
     tag_dict = {}
     for tag in tag_list:
         if tag.upper() in file_dict:
-            filepath = file_dict['tag.upper()']
-            with open(filepath, mode='r') as file:
-                ingred_names = { line.upper() for line in file.readlines() }
+            prefix = '../'
+            filepath = prefix + file_dict[tag.upper()]
+            with open(os.path.abspath(filepath), mode='r') as file:
+                ingred_names = { line.upper().strip() for line in file.readlines() }
                 tag_dict[tag.upper()] = ingred_names
     return tag_dict
 
@@ -111,23 +191,41 @@ def tag_all_ingredients(file_dict):
     # Query for all ingredients in the db
     ingred_objs = model.Ingredient.query.limit(5).all()
     for ingred in ingred_objs:
+        print(ingred)
+        print(ingred.__dict__)
+        print('-'*20)
+
         # This also checks for pm_only and is_pregnancy_safe fields
         tag_active_type(ingred, all_actives_dict)
 
         tag_hydration_type(ingred, hydration_dict)
         tag_special_type(ingred, special_types_dict)
         tag_fragrances(ingred, make_dict(file_dict, ['fragrance']))
+        tag_silicone(ingred, silicone_dict)
+        tag_sulfate(ingred, sulfate_dict)
+        tag_sunscreen(ingred, sunscreen_dict)
+        tag_phthalate(ingred, phthalate_dict)
+        tag_paraben(ingred, paraben_dict)
+
+        # tag_carcinogen(ingred, carcinogen_dict)
+        tag_haz_formaldehyde(ingred, formaldehyde_dict)
+        tag_haz_env(ingred, make_dict(file_dict, ['environmental_hazard']))
+        pprint(ingred.__dict__)
+        print('-'*20)
 
 
 def main():
-    file_dict = update_sets_to_check(LIST_OF_FILES)
-    pprint(file_dict)
+    the_file_dict = update_sets_to_check(LIST_OF_FILES)
+    pprint(the_file_dict)
+    tag_all_ingredients(the_file_dict)
+    # model.db.session.commit()
+
 
 if __name__ == '__main__':
     from server import app
-
+        
     model.connect_to_db(app, echo=False)
-
+    
     print('the_file_dict:')
     the_file_dict = update_sets_to_check(LIST_OF_FILES)
     pprint(the_file_dict)
