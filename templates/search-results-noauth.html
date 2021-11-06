@@ -1,80 +1,71 @@
-{% extends "base.html" %}
-
-{% block title %}Skincare Products{% endblock %}
-
-{% block head %}{% endblock %}
-
-{% block body %}
-  <div class="container">
-    <div class="row">
-      <div class="col d-flex justify-content-center">
-        <a href="/products" class="lead backlink">
-          Go back to the search form
-        </a>
-      </div>
+{% extends "base.html" %} {% block title %}Skincare Products{% endblock %} {%
+block head %}{% endblock %} {% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col d-flex justify-content-center">
+      <a href="/products" class="lead backlink"> Go back to the search form </a>
     </div>
+  </div>
 
-    <div class="row">
-      <div class="col">
-        <div id="results-as-repr">
-          <h2>Results:</h2>
-          {% if product_list %}
-            {% for item in product_list %}
-            <pre>{{ item }}</pre>
-            {% endfor %}
-          {% else %}
-            <p>There are no products to display.</p>
-          {% endif %}
+  <div class="row">
+    <div class="col">
+      <div id="results-as-repr">
+        <h2>Results:</h2>
+        {% if product_list %} {% for item in product_list %}
+        <pre>{{ item }}</pre>
+        {% endfor %} {% else %}
+        <p>There are no products to display.</p>
+        {% endif %}
+      </div>
+
+      <div id="product-search-results">
+        <h2>Product Search Results</h2>
+
+        {% if not product_list %}
+        <p>There are no products to display.</p>
+        {% else %}
+        <p>
+          <span id="result-count"> {{ product_list|length }} </span>
+          products matched your search.
+        </p>
+        <div class="row">
+          {# FIXME: change the wording for results shown #} {% if
+          product_list|length > 10 %} Showing 10 of {{ product_list|length }}
+          products. {% endif %}
         </div>
 
-        
-        <div id="product-search-results">
-          <h2>Product Search Results</h2>
-
-          {% if not product_list %}
-            <p>There are no products to display.</p>
-          {% else %}
-            <p>
-              <span id="result-count">
-                {{ product_list|length }}
-              </span>
-              products matched your search.
-            </p>
-            <div class="row">
-              {# FIXME: change the wording for results shown #}
-              {% if product_list|length > 10 %}
-                Showing 10 of {{ product_list|length }} products.
-              {% endif %}
-            </div>
-
-              <table class="product-list">
-                <tr>
-                  <td>Product</td>
-                  <td>Product Type</td>
-                  <!-- <td>Product Image</td> -->
-                </tr>
-                {% for item in product_list %}
-                  <tr>
-                    <td>
-                      <a href="/products/{{ item['product_id'] }}" target="_blank">
-                        {{ item['product_name'] }}
-                      </a>
-                    </td>
-                    <td>
-                      {{ item['category']['category_name'] }}
-                    </td>
-                    <!-- <td>
+        <table class="product-list">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Product Type</th>
+              <!-- <th>Product Image</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in product_list %}
+            <tr>
+              <td>
+                <a href="/products/{{ item['product_id'] }}" target="_blank">
+                  {{ item['product_name'] }}
+                </a>
+              </td>
+              <td>{{ item['category']['category_name'] }}</td>
+              <!-- <td>
                       <img id="product_id_{{ item['product_id'] }}" src="">
                     </td> -->
-                  </tr>
-                {% endfor %}
-              </table>
-          {% endif %}
-        </div>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
       </div>
     </div>
-    <p>Don't see the product you're looking for? Please add it to the database by filling out <a href="https://forms.gle/HY4xgVRk7s7eW1kS6" target="_blank">this form</a>!</p>
   </div>
-{% endblock %}
-
-{% block after_body %}{% endblock %}
+  <p>
+    Don't see the product you're looking for? Please add it to the database by
+    filling out
+    <a href="https://forms.gle/HY4xgVRk7s7eW1kS6" target="_blank">this form</a>!
+  </p>
+</div>
+{% endblock %} {% block after_body %}{% endblock %}

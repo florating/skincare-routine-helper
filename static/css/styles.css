@@ -1,45 +1,121 @@
+/* 	#32a1ce = hsl(197, 61%, 50%) */
+
+body,
+html {
+	height: 100%;
+}
+
+div.row {
+	/* border: dotted var(--clr-border); */
+}
+
+:root {
+	--clr-neutral-900: hsl(207, 19%, 9%);
+	--clr-neutral-100: hsl(0, 0%, 100%);
+	--clr-accent-400: hsl(288, 42%, 75%);
+	--clr-border: hsl(197, 61%, 50%);
+	--clr-border-dark: hsl(197, 40%, 55%);
+}
+
+.alert.success {
+	background-color: hsl(123, 50%, 71%);
+}
+
+.alert.error {
+	background-color: hsl(19, 59%, 59%);
+	color: var(--clr-neutral-900);
+}
+
+a:link {
+	color: hsl(197, 60%, 45%);
+	transition: color 500ms ease-in-out;
+}
+
+a:visited {
+	color: hsl(hsl(197, 20%, 40%));
+}
+
+a:hover {
+	color: var(--clr-accent-400);
+	transition: color 500ms ease-in-out;
+}
+
 body {
-    background: linear-gradient(rgba(63, 127, 191, 0.2), white);
-    /* background-color: rgba(63, 127, 191, 0.2); */
-    font-family: sans-serif;
-    padding-bottom: 50px;
-    /* background-image: url('/static/img/roberto-nickson-YCW4BEhKluw-unsplash.jpg'); */
-    background-size: cover;
-    background-repeat: no-repeat;
+	background: linear-gradient(white, rgba(63, 127, 191, 0.6));
+	/* background-color: rgba(63, 127, 191, 0.2); */
+	font-family: sans-serif;
+	padding-bottom: 50px;
+	/* background-image: url('/static/img/roberto-nickson-YCW4BEhKluw-unsplash.jpg'); */
+	background-size: cover;
+	background-repeat: no-repeat;
 }
 
 /* Tooltip container */
 .tooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
 }
 
 /* Tooltip text */
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 400px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    padding: 5px 0;
-    border-radius: 6px;
-   
-    /* Position the tooltip text */
-    position: absolute;
-    z-index: 1;
+	visibility: hidden;
+	width: 400px;
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	padding: 5px 0;
+	border-radius: 6px;
+
+	/* Position the tooltip text */
+	position: absolute;
+	z-index: 1;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
-    visibility: visible;
+	visibility: visible;
 }
 
-div.row {
-    /* border: thick double #32a1ce; */
-    border: dotted #32a1ce;
+div.container {
+	padding: 1em;
 }
 
-/* div.col {
-    border: solid orange;
-} */
+.content-table {
+	border-collapse: collapse;
+	margin: 25px 0;
+	font-size: 0.9em;
+	min-width: 400px;
+	border-radius: 5px 5px 0 0;
+	overflow: hidden;
+	box-shadow: 0 0 20px rgba(0, 0, 0, .2);
+}
+
+.content-table thead tr {
+	background-color: var(--clr-border-dark);
+	color: white;
+	text-align: left;
+	font-weight: bold;
+}
+
+.content-table th,
+.content-table td {
+	padding: 12px 15px;
+}
+
+.content-table tbody tr {
+	border-bottom: 1px solid #dddddd;
+}
+
+.content-table tbody tr:nth-of-type(even) {
+	background-color: #f3f3f3;
+}
+
+.content-table tbody tr:last-of-type {
+	border-bottom: 2px solid var(--clr-border-dark);
+}
+
+.content-table tbody tr.active-row {
+	font-weight: bold;
+	color: cadetblue;
+}

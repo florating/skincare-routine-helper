@@ -6,7 +6,7 @@
 
 {% block body %}
 <div class="row">
-  <div class="product-info col-8">
+  <div class="product-info offset-2 col-8">
     <h1>{{ product.product_name }}</h1>
   </div>
   <!-- <div class="cabinet col-4" id="add-to-cabinet">
@@ -14,7 +14,9 @@
   </div> -->
 </div>
 <div class="row">
-  <div class="col-3" id="product_info">
+  <div class="col-3 offset-1" id="product_info">
+    <h3>Image Goes Here...</h3>
+    
     <h3>Product Info</h3>
     <ul>
       <li>Product Type{# using category_id, so product.category.category_name --> #}: {{ product.category.category_name }}</li>
@@ -23,7 +25,7 @@
     </ul>
     <!-- General info goes here! -->
   </div>
-  <div class="col-9" id="product_ingredients">
+  <div class="col-7" id="product_ingredients">
       <h3>Ingredients</h3>
       {#
       product.product_ingredients =<br><br> {{ product.product_ingredients }}

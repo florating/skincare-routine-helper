@@ -52,8 +52,8 @@
           <a class="nav-link" href="/user_profile">User Profile</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/routine">Routines</a>
-          </li>
+          <a class="nav-link" href="/routine">Routines</a>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="/logout">Log Out</a>
         </li>
@@ -78,20 +78,24 @@
     </div>
   </nav>
   <div id="root">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div class="row flex-container justify-content-center">
-      <div class="notification is-danger">
-        {{ messages[0] }}
-      </div>
-    </div>
-    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">
+            {{ message|capitalize }}
+          </div>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
     {% block body %}
     {% endblock %}
   </div>
 
-  {% block after_body %}{% endblock %}
+  {% block after_body %}
+  <script>
+    $(".flash").hide().delay(800).fadeIn(800).delay(4000).fadeOut(800);
+  </script>
+  {% endblock %}
 
   <!-- JavaScript, JSX, AJAX, etc. -->
   <!-- <script src="http://code.jquery.com/jquery.js"></script> -->

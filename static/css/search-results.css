@@ -1,0 +1,19 @@
+div#prod-ingredient-info {
+	margin: 20px 0;
+	/* 	display: none; */
+}
+
+tr.product {
+	color: inherit;
+	transition: all 500ms ease;
+}
+
+tr.product:hover * {
+	color: hsl(288, 42%, 75%);
+	transform: scale(1.04);
+	transition: transform 500ms ease, color 500ms ease;
+}
+
+div#prod-ingredient-info::after {
+	display: block;
+}

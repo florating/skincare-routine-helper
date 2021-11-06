@@ -1,21 +1,22 @@
-{% extends "base.html" %}
-
-{% block title %}Skincare Products{% endblock %}
-
-{% block head %}{% endblock %}
-
-{% block body %}
-  <div class="container">
-    <div class="row">
-      <div class="col d-flex justify-content-center">
-        <a href="/products" class="lead backlink">
-          Go back to the search form
-        </a>
+{% extends "base.html" %} {% block title %}Skincare Products{% endblock %} {%
+block head %}
+<link rel="stylesheet" href="/static/css/search-results.css" />
+<link rel="stylesheet" href="/static/css/search-bar.css" />
+{% endblock %} {% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col d-flex justify-content-center">
+      <div class="search-box" id="animated-search-box">
+        <button class="btn-search"><i class="bi bi-search"></i></button>
+        <input type="text" class="input-search" placeholder="Type to Search...">
       </div>
-    </div>
 
-    <div class="row">
-      <div class="col">
+      <p><a href="/products" class="lead backlink"> Go back to the search form </a></p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- <div class="col">
         <div id="results-as-repr">
           <h2>Results:</h2>
           {% if product_list %}
@@ -26,68 +27,102 @@
             <p>There are no products to display.</p>
           {% endif %}
         </div>
+      </div> -->
 
-        
-        <div id="product-search-results">
-          <h2>Product Search Results</h2>
+    <div class="col justify-content-center">
+      <div class="results" id="product-search-results">
+        <h2>Product Search Results</h2>
 
-          {% if not product_list %}
-            <p>There are no products to display.</p>
-          {% else %}
-            <p>
-              <span id="result-count">
-                {{ product_list|length }}
-              </span>
-              products matched your search.
-            </p>
-            <div class="row">
-              {# FIXME: change the wording for results shown #}
-              {% if product_list|length > 10 %}
-                Showing 10 of {{ product_list|length }} products.
-              {% endif %}
-            </div>
+        {% if not product_list %}
+        <p>There are no products to display.</p>
+        {% else %}
+        <p>
+          <span id="result-count"> {{ product_list|length }} </span>
+          products matched your search.
+        </p>
+        <div class="row">
+          <div class="col-7">
+            {# FIXME: change the wording for results shown #} {% if
+            product_list|length > 10 %} Showing 10 of {{ product_list|length }}
+            products. {% endif %}
 
             <!-- FORM STARTS HERE -->
             <form id="add_to_cabinet" method="POST" action="/add_to_cabinet">
-              <table class="product-list">
-                <tr>
-                  <td></td>
-                  <td>Product</td>
-                  <td>Product Type</td>
-                  <!-- <td>Product Image</td> -->
-                </tr>
-                {% for item in product_list %}
+              <table class="product-list content-table">
+                <thead>
                   <tr>
+                    <th></th>
+                    <th>Product</th>
+                    <th>Product Type</th>
+                    <!-- <th>Product Image</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in product_list %}
+
+                  <tr class="product">
                     <td>
                       {% if item.product_id in current_cabinet %}
                       <!-- FIXME: add DOM stuff later -->
-                        <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}" disabled="true">
+                      <input
+                        type="checkbox"
+                        class="product_id for_cabinet"
+                        name="product_id"
+                        value="{{ item['product_id'] }}"
+                        disabled="true"
+                      />
                       {% else %}
-                        <input type="checkbox" class="product_id for_cabinet" name="product_id" value="{{ item['product_id'] }}">
+                      <input
+                        type="checkbox"
+                        class="product_id for_cabinet"
+                        name="product_id"
+                        value="{{ item['product_id'] }}"
+                      />
                       {% endif %}
                     </td>
                     <td>
-                      <a href="/products/{{ item['product_id'] }}" target="_blank">
+                      <a
+                        href="/products/{{ item['product_id'] }}"
+                        target="_blank"
+                      >
                         {{ item['product_name'] }}
                       </a>
                     </td>
-                    <td>
-                      {{ item['category']['category_name'] }}
-                    </td>
+                    <td>{{ item['category']['category_name'] }}</td>
                     <!-- <td>
-                      <img id="product_id_{{ item['product_id'] }}" src="">
-                    </td> -->
+                        <img id="product_id_{{ item['product_id'] }}" src="">
+                      </td> -->
                   </tr>
-                {% endfor %}
+                  {% endfor %}
+                </tbody>
               </table>
-              <input type="submit" value="Add to my cabinet!">
+              <input type="submit" value="Add to my cabinet!" />
             </form>
-          {% endif %}
+          </div>
+          <div class="col-5" id="prod-ingredient-info">
+            <h3>Ingredients</h3>
+            <p id="prod-top-5">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore,
+              soluta!
+            </p>
+          </div>
         </div>
+        {% endif %}
       </div>
     </div>
-    <p>Don't see the product you're looking for? Please add it to the database by filling out <a href="https://forms.gle/HY4xgVRk7s7eW1kS6" target="_blank">this form</a>!</p>
   </div>
+  <p>
+    Don't see the product you're looking for? Please add it to the database by
+    filling out
+    <a href="https://forms.gle/HY4xgVRk7s7eW1kS6" target="_blank">this form</a>!
+  </p>
+</div>
+<button id="test-alert">Click to get an alert!</button>
+{% endblock %} {% block after_body %}
+<script>
+  $("#test-alert").on("click", (evt) => {
+    evt.preventDefault();
+    alert("This is an alert!");
+  });
+</script>
 {% endblock %}
-
-{% block after_body %}{% endblock %}

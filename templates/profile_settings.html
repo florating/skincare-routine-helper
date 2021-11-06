@@ -5,6 +5,8 @@
   Profile Settings | The Skincare Routine Helper
 {% endblock title %}
 
+{% block head %}
+{% endblock %}
 
 {% block body %}
 <div class="container">
@@ -32,12 +34,15 @@
           <h5>General Info - TODO</h5>
         </div>
         <div class="col col-6">
-          <table>
+          <table class="content-table">
+              <thead>
             <tr>
-              <td><h5>Field</h5></td>
-              <td><h5>Value</h5></td>
-              <td><h5>Edit - TODO</h5></td>
+              <th>Field</th>
+              <th>Value</th>
+              <th>Edit - TODO</th>
             </tr>
+        </thead>
+        <tbody>
             {% if current_user.is_authenticated %}
               <form action="#" id="user-settings">
               {% for param_key in current_user.__table__.columns.keys() %}
@@ -66,6 +71,7 @@
               <tr><input type="submit" value="Save Changes"></tr>
             </form>
             {% endif %}
+        </tbody>
           </table>  
         </div>
       </div>
