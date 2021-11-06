@@ -11,6 +11,7 @@ sys.path.append(BASE_PATH)
 import csv
 from pprint import pprint
 import time
+from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 from bs4 import BeautifulSoup
@@ -20,40 +21,41 @@ from database import crud, db_info, model
 
 VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
 
-ONE_MINUTE = 60
+SECONDS = 30
 
 _FILEPATH = os.path.abspath('../static/files/prod_metadata.csv')
 
-
-test_url = 'https://www.lookfantastic.com/cerave-facial-moisturising-lotion-no-spf-52ml/11798688.html'
-
-# get_data(test_url)
-
 """
-The result from the above test_url was:
-    CeraVe Facial Moisturising Lotion No SPF 52ml
-    https://static.thcdn.com/images/small/original/productimg/960/960/11798688-1194696099173549.jpg
-SOURCES:
-    https://stackoverflow.com/questions/36768068/get-meta-tag-content-property-with-beautifulsoup-and-python
-    https://stackoverflow.com/questions/66533085/get-meta-tag-content-by-name-beautiful-soup-and-python
+NOTE: check current categories and # of products using this query:
+    SELECT c.category_id, c.category_name, COUNT(p.product_name) AS num_products FROM categories AS c FULL OUTER JOIN products AS p ON (c.category_id= p.category_id) GROUP BY c.category_id ORDER BY c.category_id;
 """
 
 @sleep_and_retry
-@limits(calls=3, period=ONE_MINUTE)
+@limits(calls=1, period=SECONDS)
 def get_data(url):
+    """Scrape image url from metadata using Beautiful Soup with rate limits."""
     print("Let's get some data!")
-    with urlopen(url) as webpage:
-        soup = BeautifulSoup(webpage, features='html.parser')
+    try:
+        with urlopen(url) as webpage:
+            soup = BeautifulSoup(webpage, features='html.parser')
 
-        title = soup.find('meta', attrs={'property': 'og:title'})
-        title_content = title['content'] if title else 'No meta title given'
-        print(title_content)
+            title = soup.find('meta', attrs={'property': 'og:title'})
+            title_content = title['content'] if title else 'No meta title given'
+            print(title_content)
 
-        image = soup.find('meta', {'property': 'og:image'})
-        image_content = image['content'] if image else 'No meta url given'
-        print(image_content)
+            image = soup.find('meta', {'property': 'og:image'})
+            image_content = image['content'] if image else 'No meta url given'
+            print(image_content)
 
-        return (title, title_content, image, image_content)
+            return (title, title_content, image, image_content)
+    except HTTPError as e:
+        print(f'HTTPError code: {e.code}')
+        print(f'For url: {url}')
+        return (None, None, 'HTTPError', e.code)
+    except URLError as e:
+        print(f'URLError code: {e.reason}')
+        print(f'For url: {url}')
+        return (None, None, 'URLError', e.reason)
 
 
 def get_product_ids(cat_name, set_limit=10):
@@ -69,7 +71,7 @@ def get_product_ids(cat_name, set_limit=10):
 
 def get_product_ids_and_checked_metadata(filepath=_FILEPATH):
     """Return a list of tuples for product ids and image URLs that have already been checked."""
-    results = []
+    checked_rows = []
     with open(filepath, mode='r', encoding='utf-8') as written_metadata:
         csvreader = csv.DictReader(written_metadata)
         
@@ -79,10 +81,10 @@ def get_product_ids_and_checked_metadata(filepath=_FILEPATH):
         for row in csvreader:
             # pprint(row)
             if row['img_content']:
-                results.append((row['product_id'], row['img_content']))
+                checked_rows.append((row['product_id'], row['img_content']))
 
-    print(f'\n\nSuccessfully found {len(results)} rows that already have data in the img_content field.\n\n')
-    return results
+    print(f'\n\nSuccessfully found {len(checked_rows)} rows that already have data in the img_content field.\n\n')
+    return checked_rows
 
 
 def get_checked_prod_ids(tuple_list):
@@ -119,6 +121,7 @@ def write_metadata_to_csv(tup_list, prods_to_skip=None):
                 current_dt, cat_id, cat_name, prod_id, prod_url,
                 title, title_content, image, image_content])
             summary.append([result, title, title_content, image, image_content])
+
     print('Done with write_metadata_to_csv!')
     return summary
 
@@ -129,24 +132,24 @@ if __name__ == '__main__':
     start_time = time.time()
     model.connect_to_db(app, echo=False)
 
-        print('--- %s seconds ---' % (time.time() - start_time))
-        print('\n')
+    print('--- %s seconds ---' % (time.time() - start_time))
+    print('\n')
 
     _category = input('Which product category do you want to query? (eg: Cleanser)  ')
     _limit = input('Do you want to limit this query? (Enter a number <100 else leave blank)  ')
     
     prods = get_product_ids(_category, set_limit=_limit)
-        already_checked = get_product_ids_and_checked_metadata()
-        prods_to_skip_set = get_checked_prod_ids(already_checked)
-        pprint('prods_to_skip_set:')
-        print(prods_to_skip_set)
-        print('--- %s seconds ---' % (time.time() - start_time))
-        print('\n')
-        # iterate through the list of prod_ids to get_data
-        # write the returned (title, image) values into a csv
-        results = []
+    already_checked = get_product_ids_and_checked_metadata()
+    prods_to_skip_set = get_checked_prod_ids(already_checked)
+    pprint('prods_to_skip_set:')
+    print(prods_to_skip_set)
+    print('--- %s seconds ---' % (time.time() - start_time))
+    print('\n')
+    # iterate through the list of prod_ids to get_data
+    # write the returned (title, image) values into a csv
+    results = []
     results.extend(write_metadata_to_csv(prods, prods_to_skip_set))
-        print('--- %s seconds ---' % (time.time() - start_time))
-        print('\n')
-        print('Success!')
-        # print(results)
+    print('--- %s seconds ---' % (time.time() - start_time))
+    print('\n')
+    print('Success!')
+    # print(results)
