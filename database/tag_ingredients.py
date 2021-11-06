@@ -13,9 +13,10 @@ from pprint import pprint
 
 from database import crud, db_info, model, read_files
 
+
 LIST_OF_FILES = os.path.abspath('../data/ingredient_tags/about_ingred_files.txt')
 
-TAG_DICT = {}
+VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
 
 
 def update_sets_to_check(file_list=LIST_OF_FILES):
@@ -122,25 +123,19 @@ def main():
     file_dict = update_sets_to_check(LIST_OF_FILES)
     pprint(file_dict)
 
-    # Make ingredient tags (dicts of nested sets)
-    exfoliant_dict = make_dict(file_dict, ['AHA', 'BHA', 'PHA'])
-    other_actives_dict = make_dict(file_dict, ['retinoid', 'sunscreen', 'vitamin C'])
-    all_actives_dict = {**exfoliant_dict, **other_actives_dict}
-    hydration_dict = make_dict(file_dict, ['emollient', 'humectant', 'occlusive'])
-
-    rec_sensitive = make_dict(file_dict, ['AHA'])
-
-    path_prefix = '../'
-    filepath = f'{path_prefix}{file_dict["emollients"]}'
-    with open(os.path.abspath(filepath)) as file:
-        print("I'm in the emollients.txt file.")
-        # FIXME: tag rows in the ingerdients table
-    # all_ingreds = model.Ingredient.query.all()
-    # for ingred in all_ingreds:
-    #     tag_emollients(ingred, file_dict['emollients'])
-    # db.session.commit()
-
-
 if __name__ == '__main__':
+    from server import app
+
+    model.connect_to_db(app, echo=False)
+
+    print('the_file_dict:')
+    the_file_dict = update_sets_to_check(LIST_OF_FILES)
+    pprint(the_file_dict)
+
+    print('exfoliant_dict:')
+    exfoliant_dict = make_dict(the_file_dict, ['AHA', 'BHA', 'PHA'])
+    pprint(exfoliant_dict)
+
     # main()
-    print('TODO: Work in progress!')
+    print('Work in progress!')
+    print('Successfully finished running tag_ingredients.py!')

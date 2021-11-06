@@ -60,16 +60,9 @@ def write_summary_ingredients_table():
 
 if __name__ == '__main__':
     """Write a CSV file with summary info about the database."""
-
     from server import app
 
-    _db_name = input('What is the name of the PostgreSQL database?  ')
-
-    if _db_name in VALID_DB_NAMES:
-        db_uri = f'postgresql:///{_db_name}'
-        model.connect_to_db(app, db_uri, echo=False)
-        write_summary_prod_table()
-        write_summary_ingredients_table()
-        print('Success!')
-    else:
-        print('That is not a valid database name. Sorry.')
+    model.connect_to_db(app, echo=False)
+    write_summary_prod_table()
+    write_summary_ingredients_table()
+    print('Success!')

@@ -123,32 +123,20 @@ def write_metadata_to_csv(tup_list, prods_to_skip=None):
     return summary
 
 
-def upload_to_cloudinary(file_list):
-    # TODO: setup a test upload
-    os.system(f'source secrets.sh')
-    for file in file_list:
-        current_dt = model.get_current_datetime()
-        os.system(f"curl https://api.cloudinary.com/v1_1/{CLOUD_NAME}/image/upload -X POST --data 'file={file}&timestamp={current_dt}&api_key={CLOUD_API_KEY}&signature={SIGNATURE}'")
-
-
 if __name__ == '__main__':
     from server import app
 
     start_time = time.time()
+    model.connect_to_db(app, echo=False)
 
-    _db_name = input('What is the name of the PostgreSQL database?  ')
-
-    if _db_name in VALID_DB_NAMES:
-        db_uri = f'postgresql:///{_db_name}'
-        model.connect_to_db(app, db_uri, echo=False)
         print('--- %s seconds ---' % (time.time() - start_time))
         print('\n')
-        moist_prods = get_product_ids('Moisturizer', set_limit=45)
-        clean_prods = get_product_ids('Cleanser', set_limit=45)
-        # pprint(moist_prods)
-        # pprint(clean_prods)
+
+    _category = input('Which product category do you want to query? (eg: Cleanser)  ')
+    _limit = input('Do you want to limit this query? (Enter a number <100 else leave blank)  ')
+    
+    prods = get_product_ids(_category, set_limit=_limit)
         already_checked = get_product_ids_and_checked_metadata()
-        # pprint(already_checked)
         prods_to_skip_set = get_checked_prod_ids(already_checked)
         pprint('prods_to_skip_set:')
         print(prods_to_skip_set)
@@ -157,16 +145,8 @@ if __name__ == '__main__':
         # iterate through the list of prod_ids to get_data
         # write the returned (title, image) values into a csv
         results = []
-        # print('Starting with moist_prods...')
-        results.extend(write_metadata_to_csv(moist_prods, prods_to_skip_set))
-        print('--- %s seconds ---' % (time.time() - start_time))
-        print('\n')
-
-        # print('Starting with clean_prods...')
-        results.extend(write_metadata_to_csv(clean_prods, prods_to_skip_set))
+    results.extend(write_metadata_to_csv(prods, prods_to_skip_set))
         print('--- %s seconds ---' % (time.time() - start_time))
         print('\n')
         print('Success!')
         # print(results)
-    else:
-        print('That is not a valid database name. Sorry.')

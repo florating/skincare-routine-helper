@@ -98,14 +98,9 @@ def count_rows_all_tables_orm():
 
 
 if __name__ == '__main__':
-    _db_name = input('What is the name of the PostgreSQL database?  ')
+    from server import app
 
-    if _db_name not in VALID_DB_NAMES:
-        _db_name = 'project_test_2'
-    else:
-        from server import app
-
-        model.connect_to_db(app, db_uri=f"postgresql:///{_db_name}", echo=False)
-        # model.db.create_all()
-        results = count_rows_all_tables_orm()
-        pprint.pprint(results)
+    model.connect_to_db(app, echo=False)
+    # model.db.create_all()
+    results = count_rows_all_tables_orm()
+    pprint.pprint(results)

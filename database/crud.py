@@ -141,7 +141,7 @@ def create_product_cascade(**obj_params):
         else:
             print(f'\n\nUh oh! This product type ({prod_type}) is not in the db.\n\n')
     
-    actual_ingreds_list = convert_string_to_list(ingreds_list)
+    actual_ingreds_list = convert_string_to_datastructure(ingreds_list)
     create_ingredients_cascade(prod_obj, actual_ingreds_list)
 
     db.session.add(prod_obj)
@@ -251,10 +251,10 @@ def convert_price(arg_dict, price_key):
     return arg_dict
 
 
-def convert_string_to_list(list_str):
+def convert_string_to_datastructure(list_str):
     """Convert a list of ingredient names (in string form from a CSV file) into an actual list.
     
-    >>> convert_string_to_list("['ingred_1', 'ingred_2', 'ingred_3']")
+    >>> convert_string_to_datastructure("['ingred_1', 'ingred_2', 'ingred_3']")
     ['ingred_1', 'ingred_2', 'ingred_3']
     """
     processed_str = ast.literal_eval(list_str)
@@ -331,49 +331,32 @@ def get_routine(user_obj, am_or_pm):
             return routine
 
 
-def summarize_prod_top5(set_limit=5):
-    prod_objs = Product.query.filter_by(category_id=1)
+def summarize_prod_top5(cat_id=1, set_limit=5):
+    """Return a dict of product_id keys paired to prod.serialize_top_five (dict)."""
+    prod_dict = {}
+    prod_objs = Product.query.filter_by(category_id=cat_id)
     if set_limit:
         prod_objs = prod_objs.limit(5)
-    prod_dict = {}
     for prod in prod_objs.all():
         print(prod)
         num_ingreds = prod.get_num_ingredients()
         t5 = prod.serialize_top_five
         t5n = prod.serialize_top_five_names
+        top_len = len(t5n)
         print('The top 5 ingredients are: ')
         print(t5n)
-        print(f'...and they make up {5/num_ingreds:.2%} of its ingredient list, where total={num_ingreds}.')
+        print(f'...making up {top_len/num_ingreds:.2%} of its ingredient list, where total={num_ingreds}.')
         pprint(t5)
         prod_dict[prod.product_id] = t5
     return prod_dict
 
 
-
-
-
 if __name__ == '__main__':
     import doctest
-    import logging
 
     from server import app
 
     doctest.testmod()
-        
-    _db_name = input('What is the name of the PostgreSQL database?  ')
-    
-    if _db_name in VALID_DB_NAMES:
-        # When configuring logging explicitly, ensure all echo flags are set to False at all
-        # times, to avoid getting duplicate log lines
-        # source: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
-        logging.basicConfig()
-        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
-
-        # Connect database to the Flask app in server.py and create all tables.
-        connect_to_db(flask_app=app, db_uri=f"postgresql:///{_db_name}", echo=False)
-        db.create_all()
-
-        summarize_prod_top5()
-        print('Successfully finished running crud.py!')
-    else:
-        print('That is not a valid database name. Sorry.')
+    connect_to_db(app)
+    summarize_prod_top5()
+    print('Successfully finished running crud.py!')

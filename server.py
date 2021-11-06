@@ -21,12 +21,10 @@ app = Flask(__name__)
 _SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 # print(_SECRET_KEY)
 app.secret_key = _SECRET_KEY
-
-_DB_NAME_ = 'project_test_2'
-
+app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV')
 app.jinja_env.undefined = StrictUndefined
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -375,9 +373,18 @@ def test_react():
     print(current_user.primary_concern)
     return render_template('modal_routine.html')
 
+@app.route('/test/alert')
+def show_alert():
+    flash('Message sent successfully. woohoo!', 'success')
+
+    return render_template('base.html')
+
 
 if __name__ == '__main__':
     print("Hello, I'm in server.py's special statement since __name__ == '__main__'!")
-    connect_to_db(app, db_uri=f"postgresql:///{_DB_NAME_}", echo=False)
+    print('I am in server.py')
+    print(__file__)
+    print(__name__)
+    connect_to_db(app, echo=False, to_confirm=False)
     db.create_all()
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True)  # FIXME: change this when deployed!

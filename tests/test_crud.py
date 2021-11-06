@@ -121,7 +121,7 @@ class TestCrudDatabase(TestCase):
             "product_type": "Moisturizer",
             "clean_ingreds": "['ingred1', 'ingred2', 'ingred3', 'ingred4']"
         }
-        clean_ingreds_list = crud.convert_string_to_list(params.pop("clean_ingreds"))
+        clean_ingreds_list = crud.convert_string_to_datastructure(params.pop("clean_ingreds"))
         ingreds_obj_list = []
         proding_obj_list = []
         for i, item in enumerate(clean_ingreds_list):

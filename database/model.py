@@ -24,24 +24,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # from database.crud import add_and_commit
 if sys.version_info[0] >= 3:
     unicode = str
+
 db = SQLAlchemy()
-# _db_name_ = 'project_test'  # NOTE: from schema prior to 10/25
-_DB_NAME_ = 'project_test_2'  # TODO: change when done with testing
+
 _ECHO_LOG_ERRORS_ = True  # TODO: Change when done with testing
 
 ##### TIME-RELATED FUNCTIONS BELOW #####
-
-# class utcnow(expression.FunctionElement):
-#     """Allows UTC timestamps using func.utcnow(), which requires specific functions like this one.
-#     StackOverflow discussion: https://stackoverflow.com/questions/13370317/sqlalchemy-default-datetime
-#     SQLAlchemy 1.4 documentation: https://docs.sqlalchemy.org/en/14/core/compiler.html#utc-timestamp-function
-#     """
-#     type = DateTime()
-
-# @compiles(utcnow, 'postgresql')
-# def pg_utcnow(element, compiler, **kw):
-#     """Allows UTC timestamps using func.utcnow()."""
-#     return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
 
 def get_current_datetime():
     """Return current datetime as an aware datetime object with a UTC timezone."""
@@ -166,23 +154,14 @@ class User(TimestampMixin, UserMixin, db.Model):
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     f_name = Column(String(25))
-    l_name = Column(String(25), nullable=True)
+    l_name = Column(String(25))
     email = Column(String(50), nullable=False, unique=True)
-    
-    # FIXME: change data type?
     hashed_password = deferred(Column(String(200), nullable=False))
 
     # skincare-related:
     skintype_id = Column(Integer, db.ForeignKey('skintypes.skintype_id'), server_default=None)
     primary_concern_id = Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None)
     secondary_concern_id = deferred(Column(Integer, db.ForeignKey('concerns.concern_id'), server_default=None))
-
-    # If using Twilio API for text notifications:
-    # US phone numbers only, in format: '(555) 555-5555'
-    # phone_number = db.Column(db.String(14))
-    # created_on = Column(DateTime, default=get_current_datetime)
-    # updated_on = Column(
-    #     DateTime, nullable=True, default=None, onupdate=get_current_datetime)
 
     primary_concern = db.relationship('Concern', foreign_keys=[primary_concern_id], backref='user_concern_1')
     secondary_concern = db.relationship('Concern', foreign_keys=[secondary_concern_id], backref='user_concern_2')
@@ -298,6 +277,11 @@ class Product(TimestampMixin, db.Model):
     
     # other fields that could be added:
     fragrance_free = Column(Boolean, default=None)
+
+    # TODO: add these fields to model!
+    # is_carcinogenic = Column(Boolean, default=None)
+    # is_pregnancy_safe = Column(Boolean, default=None)
+    # is_environmental_hazard = Column(Boolean, default=None)
     
     category = db.relationship('Category', backref='products')
     # cabinets = list of Cabinet objects (associated with this product)
@@ -313,10 +297,14 @@ class Product(TimestampMixin, db.Model):
         }
     @property
     def serialize_top_five(self):
+        """Return a dict of 0-indexed keys and paired ingredient objects for the top 5 ingredients."""
         return { i: item.ingredient for i, item in enumerate(self.product_ingredients[:5]) }
     @property
     def serialize_top_five_names(self):
-        return { item.ingredient.common_name for item in self.product_ingredients[:5] }
+        return { item.ingredient.common_name.upper() for item in self.product_ingredients[:5] }
+    @property
+    def serialize_all_ingreds(self):
+        return { item.ingredient.common_name.upper() for item in self.product_ingredients }
 
     def get_num_ingredients(self):
         return len(self.product_ingredients)
@@ -443,12 +431,6 @@ class ProductIngredient(TimestampMixin, db.Model):
     ingredient = db.relationship('Ingredient', back_populates='product_ingredients')
     product = db.relationship('Product', back_populates='product_ingredients')
 
-    def is_sunscreen(self):
-        sunscreens = {'avobenzone', 'homosalate', 'octisalate', 'octocrylene', }
-        if ingredient.common_name in sunscreens:
-            self.is_sunscreen = True
-            # self.pct_sunscreen = '%'
-
     def __repr__(self):
         return f"<ProductIngredient prod_ing_id={self.prod_ing_id} product_id={self.product_id} ingredient_id={self.ingredient_id} abundance_order={self.abundance_order}>"
     
@@ -557,6 +539,19 @@ class Step(TimestampMixin, db.Model):
     def serialize_frequencies(self):
         return [ item.serialize for item in self.dates ]
 
+    def __init__(self, **kwargs):
+        super(Step, self).__init__(**kwargs)
+        if self.product.category.category_name.lower() in {'exfoliator', 'peel'}:
+            concerns = set()
+            if self.primary_concern_id:
+                concerns.add(self.primary_concern_id)
+            if self.secondary_concern_id:
+                concerns.add(self.secondary_concern_id)
+            if self.routine.user.skintype.skintype_name.lower() == 'sensitive' or (concerns and concerns.intersection(set(1, 3, 7, 8))):
+                self.interval = 7
+            else:
+                self.interval = 3
+
     def use_product(self, timestamp=get_current_datetime(), notes=None):
         new_freq = Frequency(created_on=timestamp, notes=notes)
         self.dates.append(new_freq)
@@ -625,9 +620,12 @@ class Frequency(TimestampMixin, db.Model):
         return f"<Frequency freq_id={self.freq_id} step_name={self.step_name}>"
 
 
-##### DB-RELATED FUNCTION BELOW #####
+##### DB-RELATED FUNCTIONS BELOW #####
 
-def connect_to_db(flask_app, db_uri=f"postgresql:///{_DB_NAME_}", echo={_ECHO_LOG_ERRORS_}):
+def connect_to_db(flask_app, db_uri="postgresql:///testdb", echo={_ECHO_LOG_ERRORS_}, to_confirm=True):
+    db_name = confirm_db_name(ask_to_confirm=to_confirm)
+    db_uri=f"postgresql:///{db_name}"
+
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     flask_app.config["SQLALCHEMY_ECHO"] = echo
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -640,6 +638,39 @@ def connect_to_db(flask_app, db_uri=f"postgresql:///{_DB_NAME_}", echo={_ECHO_LO
     db.init_app(flask_app)
 
     print("Connected to the db!")
+    print(db_uri)
+
+
+def confirm_db_name(ask_to_confirm=True):
+    """Returns a valid db name based on the environment variables."""
+    import os
+    import sys
+
+    from database.crud import convert_string_to_datastructure as convert
+
+    valid_names = convert(os.environ['VALID_DB_NAMES'])
+    _db_name = os.environ['CURRENT_DB_NAME']
+    print(f'You are about to access the PostgreSQL database named: {_db_name}')
+
+    # Skip this block if we are running from server.py
+    if ask_to_confirm:
+        change_db = input('Do you want to change to a different database? If so, type the name here. (hit enter if not)  ')
+
+        if change_db:
+            if change_db in valid_names:
+                print(f'Yes! {change_db} is a valid database.')
+                os.environ['CURRENT_DB_NAME'] = change_db
+                _db_name = os.environ['CURRENT_DB_NAME']
+            else:
+                print('Sorry, this name is invalid.')
+                sys.exit()
+
+    if _db_name not in valid_names:
+        print(f'Weird, it looks like {_db_name} is not a valid database. Someone should update secrets.sh!')
+        print('Closing out.')
+        sys.exit()
+    print(f"Okay, let's proceed with {_db_name}, which is a valid database.")
+    return _db_name
 
 
 if __name__ == '__main__':
@@ -647,5 +678,6 @@ if __name__ == '__main__':
 
     from server import app
 
-    connect_to_db(flask_app=app, db_uri=f"postgresql:///{_DB_NAME_}", echo=False)
-    db.create_all()
+    connect_to_db(flask_app=app, echo=False)
+    # db.create_all()
+    print('Done running model.py!')

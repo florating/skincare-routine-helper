@@ -4,12 +4,10 @@ import os
 from random import choice, randint
 import sys
 
-import faker
-from faker import Faker
-
 from database import crud, model, read_files
 
 VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
+
 
 def create_users():
     """Return a list of created (and committed) users."""
@@ -22,37 +20,32 @@ if __name__ == '__main__':
 
     from server import app
     
-    _db_name = input('What is the name of the PostgreSQL database?  ')
+    # When configuring logging explicitly, ensure all echo flags are set to False at all
+    # times, to avoid getting duplicate log lines
+    # source: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
+
+    # Connect database to the Flask app in server.py and create all tables.
+    model.connect_to_db(app, echo=False)
+    model.db.create_all()
     
-    if _db_name in VALID_DB_NAMES:
-        # When configuring logging explicitly, ensure all echo flags are set to False at all
-        # times, to avoid getting duplicate log lines
-        # source: https://docs.sqlalchemy.org/en/14/core/engines.html#configuring-logging
-        logging.basicConfig()
-        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
+    _create_test = input('Do you want to add a test user? (Press Enter if not.) ')
+    
+    my_users = []
 
-        # Connect database to the Flask app in server.py and create all tables.
-        model.connect_to_db(flask_app=app, db_uri=f"postgresql:///{_db_name}", echo=False)
-        model.db.create_all()
+    if _create_test:
+        test_user_params = {
+            'f_name': 'Test',
+            'l_name': 'Test',
+            'email': 'test@test.com',
+            'password': 'test',
+            'skintype_id': 3,
+            'primary_concern_id': 5
+        }
+        test_user = crud.create_user(**test_user_params)
+        my_users.append(test_user)
+
+    my_users.extend(create_users())
         
-        _create_test = input('Do you want to add a test user? (Press Enter if not.) ')
-        
-        my_users = []
-
-        if _create_test:
-            test_user_params = {
-                'f_name': 'Test',
-                'l_name': 'Test',
-                'email': 'test@test.com',
-                'password': 'test',
-                'skintype_id': 3,
-                'primary_concern_id': 5
-            }
-            test_user = crud.create_user(**test_user_params)
-            my_users.append(test_user)
-
-        my_users.extend(create_users())
-            
-        print(f'Successfully added {len(my_users)} users to {_db_name}!')
-    else:
-        print('That is not a valid database name. Sorry.')
+    print(f'Successfully added {len(my_users)} users to {_db_name}!')

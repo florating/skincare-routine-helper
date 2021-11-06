@@ -16,8 +16,8 @@ if __name__ == '__main__':
     
     _db_name = input('What is the name of the PostgreSQL database?  ')
 
+    # TODO: check if this is still fine
     if _db_name in VALID_DB_NAMES:
-        # os.system('. secrets.sh')  # FIXME: after figuring out API keys
         os.system(f'dropdb {_db_name} --if-exists')
         os.system(f'createdb {_db_name}')
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
 
         # Connect database to the Flask app in server.py and create all tables.
-        model.connect_to_db(flask_app=app, db_uri=f"postgresql:///{_db_name}", echo=False)
+        model.connect_to_db(app, echo=False)
         model.db.create_all()
     
         # Get filename of second argument, with instructions to seed the database.

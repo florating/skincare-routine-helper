@@ -79,7 +79,7 @@ def add_water(dfs_to_modify):
 
         for j, row in df.iterrows():
             ingred_str = row['clean_ingreds']
-            ingred_list = crud.convert_string_to_list(ingred_str)
+            ingred_list = crud.convert_string_to_datastructure(ingred_str)
             ingred_list[i:i] = ['water']
             ingred_col.append(str(ingred_list))
 
