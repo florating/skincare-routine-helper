@@ -1,61 +1,77 @@
-{% extends "base.html" %}
-
-{% block title %}
-{{ current_user.f_name }}'s Test Routine | The Skincare Routine Helper
-{% endblock title %}
-
-
-{% block head %}
-<link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="/static/css/draggable.css">
+{% extends "base.html" %} {% block title %} {{ current_user.f_name }}'s Test
+Routine | The Skincare Routine Helper {% endblock title %} {% block head %}
+<link
+  rel="stylesheet"
+  href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css"
+/>
+<link rel="stylesheet" href="/static/css/draggable.css" />
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
-{% endblock %}
+<style>
+  select {
+    width: 280px;
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
+    /*   -webkit-appearance: none; */
+  }
+  option {
+    max-width: 200px;
+  }
 
-
-{% block body %}
-{% if am_routine %}
-{% endif %}
+  #root {
+    padding-left: 100px;
+  }
+</style>
+{% endblock %} {% block body %} {% if am_routine %} {% endif %}
 <div class="row">
   <div class="am-routine routine col-lg-4">
     <form id="form-am-routine" action="#" method="POST">
       <ul>
-        <li class="ui-state-highlight draggable">AM Routine
-          <input id="submit-am-routine" type="submit" value="Save Routine">
+        <li class="draggable">
+          AM Routine
+          <input id="submit-am-routine" type="submit" value="Save Routine" />
         </li>
       </ul>
 
-      <ul class="sortable steps">
-
-      </ul>
+      <ul class="sortable steps"></ul>
     </form>
-
   </div>
-  {% if pm_routine %}
-  {% endif %}
+  {% if pm_routine %} {% endif %}
   <div class="pm-routine routine col-lg-4 offset-lg-1">
     <form id="form-pm-routine" action="#" method="POST">
-
       <ul>
-        <li class="ui-state-highlight draggable">PM Routine
-          <input id="submit-pm-routine" type="submit" value="Save Routine">
+        <li class="draggable">
+          PM Routine
+          <input id="submit-pm-routine" type="submit" value="Save Routine" />
         </li>
       </ul>
-      <ul class="sortable steps">
-
-      </ul>
+      <ul class="sortable steps"></ul>
     </form>
-
   </div>
 </div>
 
 <div>
-  <button id="create-am-routine">Create AM Routine</button>
-  <button id="create-pm-routine">Create PM Routine</button>
+  <button class="btn btn-secondary" id="create-am-routine">
+    Create AM Routine
+  </button>
+  <button class="btn btn-secondary" id="create-pm-routine">
+    Create PM Routine
+  </button>
 </div>
-Query string: <span id="test-query"></span>
-{% endblock body %}
-
-
-{% block after_body %}
+<fieldset id="routine-level">
+  <input
+    type="radio"
+    name="routine-level"
+    class="form-check-input"
+    value="BEGINNER_ROUTINE"
+  />Beginner Routine
+  <input
+    type="radio"
+    name="routine-level"
+    class="form-check-input"
+    value="INTERMEDIATE_ROUTINE"
+  />Intermediate Routine
+</fieldset>
+{% endblock body %} {% block after_body %}
 <script src="/static/js/routines.js"></script>
 {% endblock %}

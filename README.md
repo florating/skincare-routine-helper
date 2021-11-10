@@ -7,40 +7,61 @@
 3. [Knowledge Gained](#knowledge-gained)
 4. [Future Improvements](#future-improvements)
 5. [Installation Instructions](#installation-instructions)
-
-   - [Known Bugs](#known-bugs)
-5. [Task List](#task-list)
-6. [Journal](#journal)
+6. [Task List](#task-list)
+7. [Journal Snippets](#journal)
 
 ## Overview
 
+Did you know that the EU restricts 1,328 chemicals from cosmetics while the US restricts only 11? Or that in 2019, the FDA removed 14 of 16 sunscreen ingredients from its 'generally safe and effective' category? How are we as consumers supposed to know which ingredients are helpful vs harmful? And how can we stay up to date on the latest scientific findings?
+
+No worries, the Skincare Routine Helper is here!
+
 The Skincare Routine Helper is an evidence-based app to help recommend skincare products and general skincare routines based on area of concern and ingredient safety. Users can search the product database and filter for products that are environmentally friendly, pregnancy-safe, fragrance-free, and more. Users can start with a beginner-friendly skincare routine, and they can eventually level up to more advanced routines consisting of multiple steps with a variety of different active ingredients (eg: niacinamides, vitamin C, and retinols).
 
+Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 
 ## Features
+
+![User Profile](static/img/user_profile.png)
 - **Live querying** of the database upon typing into the search bar using JavaScript and AJAX
+
+- Populate dropdown menus for routine creation and editing via AJAX and DOM manipulation using JavaScript and jQuery
+
+
+![Kaggle Dataset Snippet](about/img/Kaggle-eward96-snippet-Excel.png)
 - Database seeded using products and ingredients from a **Kaggle dataset** and users generated from [mockaroo](https://www.mockaroo.com/)
     - original Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-and-their-ingredients)
     - cleaned Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-clean-dataset)
+
+
 - Images served from [Cloudinary](https://cloudinary.com), gathered via **webscraping metadata using Beautiful Soup**
-- Visualized ingredient safety using D3.js, synthesizing data from IARC, CSCP, CIR, Health Canada, and other government agencies
+
+
+- Visualized ingredient safety using D3.js, synthesizing data from the IARC, CSCP, CIR, Health Canada, and other government agencies
     - see About Data for more information
+
+
 - A PostgreSQL database with deferred columns, `@property` decorators to serialize the ORM classes, and custom mixins to handle timestamps and timezones
+
 - Password security handled via [Werkzeug](https://werkzeug.palletsprojects.com/en/2.0.x/) using **salted SHA256 hashes**
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 
 ## Knowledge Gained
-- TBD
+- work closely with UX and UI design, as this can change the architecture of the backend code significantly
+- be mindful of the objectives of each project when brainstorming to better select helpful datasets with the goals in mind
+- write effective and concise commit messages
+- be mindful of ergonomics!
 
 ## Future Improvements
 - Look into improved encryption methods to hash and salt passwords
     - eg: `bcrypt` with a work factor of 10 or more and with a password limit of 72 bytes (source: [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html))
-- Setup one hot encoding using `pandas` to convert categorical data variables for future machine learning purposes
+- Setup one hot encoding using `pandas` to convert categorical data variables for future machine learning purposes to identify possible allergens
 - Implement product recommendations via collaborative filtering
 - Add form validation and further sanitize user input
-- Explore using React
+- Explore using React and Django for future web development
+- Look into more interactive data visualization opportunities (potentially to analyze ingredients live as users add them to their cabinets and skincare routines)
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
