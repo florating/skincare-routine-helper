@@ -3,9 +3,11 @@
 ## Table Of Contents
 
 1. [Overview](#overview)
-2. [Instructions](#instructions)
-3. [MVP](#mvp)
-4. [Next Steps](#next-steps)
+2. [Features](#features)
+3. [Knowledge Gained](#knowledge-gained)
+4. [Future Improvements](#future-improvements)
+5. [Installation Instructions](#installation-instructions)
+
    - [Known Bugs](#known-bugs)
 5. [Task List](#task-list)
 6. [Journal](#journal)
@@ -13,6 +15,34 @@
 ## Overview
 
 The Skincare Routine Helper is an evidence-based app to help recommend skincare products and general skincare routines based on area of concern and ingredient safety. Users can search the product database and filter for products that are environmentally friendly, pregnancy-safe, fragrance-free, and more. Users can start with a beginner-friendly skincare routine, and they can eventually level up to more advanced routines consisting of multiple steps with a variety of different active ingredients (eg: niacinamides, vitamin C, and retinols).
+
+
+## Features
+- **Live querying** of the database upon typing into the search bar using JavaScript and AJAX
+- Database seeded using products and ingredients from a **Kaggle dataset** and users generated from [mockaroo](https://www.mockaroo.com/)
+    - original Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-and-their-ingredients)
+    - cleaned Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-clean-dataset)
+- Images served from [Cloudinary](https://cloudinary.com), gathered via **webscraping metadata using Beautiful Soup**
+- Visualized ingredient safety using D3.js, synthesizing data from IARC, CSCP, CIR, Health Canada, and other government agencies
+    - see About Data for more information
+- A PostgreSQL database with deferred columns, `@property` decorators to serialize the ORM classes, and custom mixins to handle timestamps and timezones
+- Password security handled via [Werkzeug](https://werkzeug.palletsprojects.com/en/2.0.x/) using **salted SHA256 hashes**
+
+_[Click here](#the-skincare-routine-helper) to go back to the top._
+
+
+## Knowledge Gained
+- TBD
+
+## Future Improvements
+- Look into improved encryption methods to hash and salt passwords
+    - eg: `bcrypt` with a work factor of 10 or more and with a password limit of 72 bytes (source: [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html))
+- Setup one hot encoding using `pandas` to convert categorical data variables for future machine learning purposes
+- Implement product recommendations via collaborative filtering
+- Add form validation and further sanitize user input
+- Explore using React
+
+_[Click here](#the-skincare-routine-helper) to go back to the top._
 
 
 ## Installation Instructions
@@ -74,28 +104,8 @@ $ source secrets.sh
 
 6. Save the database: `pg_dump your_db_name > your_db_file.sql`
 
-_Further steps to be added as project development progresses!_
-
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
-## MVP:
-
-- [x] (1) setup user login
-  - 10/11: partially completed, but need to test implementation of flask-login extension to restrict views to logged-in (or logged-out) users
-- [x] (2) complete questionnaire for user profile
-  - 10/13: completed! will add images later
-- [x] (3) setup database with ingredients using Kaggle dataset
-  - 10/12: completed! may need to migrate data from database to add TimestampMixin to the appropriate classes in model.py
-- [x] (4) search & display info for a product
-  - 10/12: routes for full product query and individual product details are now functioning and display information!
-
-
-## Future Improvements
-- Look into improved encryption methods to hash and salt passwords
-    - eg: bcrypt with a work factor of 10 or more and with a password limit of 72 bytes (source: [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html))
-- Setup one hot encoding using pandas to convert categorical data variables for future machine learning purposes
-- Implement product recommendations via collaborative filtering
-- Add form validation and further sanitize user input
 
 ## Next Steps
 
