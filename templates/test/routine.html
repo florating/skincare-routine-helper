@@ -10,6 +10,11 @@
 <link rel="stylesheet" href="/static/css/draggable.css">
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
 <script src="/static/js/routines.js"></script>
+<style>
+  option {
+    max-width:fit-content;
+  }
+</style>
 {% endblock %}
 
 
@@ -18,7 +23,7 @@
   <form class="am-routine" action="#">
     <div class="am-routine routine col-lg-4">
       <ul>
-        <li class="ui-state-highlight draggable">AM Routine
+        <li class="draggable">AM Routine
           <input id="submit-am-routine" type="submit" value="Save Routine">
         </li>
       </ul>
@@ -65,8 +70,8 @@
 
   <div class="pm-routine routine col-lg-4 offset-lg-1">
     <ul>
-      <li class="ui-state-highlight draggable">PM Routine
-        <input id="submit-pm-routine" type="submit" value="Save Routine">
+      <li class="draggable">PM Routine
+        <input class="btn btn-outline-secondary" id="submit-pm-routine" type="submit" value="Save Routine">
       </li>
     </ul>
     <ul class="sortable">
@@ -74,7 +79,6 @@
     </ul>
   </div>
 </div>
-Query string: <span id="test-query"></span>
 {% endblock body %}
 
 

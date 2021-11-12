@@ -5,7 +5,6 @@ node_modules
 proposal*
 secrets
 settings.json
-templates/test
 testing
 trial*
 venv*

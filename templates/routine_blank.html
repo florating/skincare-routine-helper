@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %} {{ current_user.f_name }}'s Test
-Routine | The Skincare Routine Helper {% endblock title %} {% block head %}
+{% extends "base.html" %} {% block title %} {{ current_user.f_name }}'s Skincare
+Routines | The Skincare Routine Helper {% endblock title %} {% block head %}
 <link
   rel="stylesheet"
   href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css"
@@ -21,57 +21,154 @@ Routine | The Skincare Routine Helper {% endblock title %} {% block head %}
   #root {
     padding-left: 100px;
   }
+
+  #modify-routines,
+  #routine-summary {
+    margin: 50px 0 0 0;
+  }
+  fieldset {
+    padding: 10px;
+  }
 </style>
 {% endblock %} {% block body %} {% if am_routine %} {% endif %}
-<div class="row">
-  <div class="am-routine routine col-lg-4">
-    <form id="form-am-routine" action="#" method="POST">
-      <ul>
-        <li class="draggable">
-          AM Routine
-          <input id="submit-am-routine" type="submit" value="Save Routine" />
-        </li>
-      </ul>
-
-      <ul class="sortable steps"></ul>
-    </form>
+<div class="row justify-content-center" id="routine-summary">
+  <div class="row">
+    <div class="routine col-5" id="user_am_routine">
+      <h3>My AM Routine</h3>
+      {% if am_routine %}
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Product</th>
+            <th>Thumbnail</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for step_obj in am_routine.steps %}
+          <tr class="{{ step_obj.product_id }}">
+            <td>{{ step_obj.product.category.category_name }}</td>
+            <td>
+              <a href="/products/{{ step_obj.product_id }}" target="_blank"
+                >{{ step_obj.product.product_name }}</a
+              >
+              <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>
+        You don't have anything in your routine yet! {% if not
+        current_user.cabinets %} Add something to your cabinet first, and then
+        add products from your cabinet into your skincare routine! {% else %}
+        Add something from your cabinet to your skincare routine in the section
+        below! {% endif %}
+      </p>
+      {% endif %}
+    </div>
+    <div class="routine col-5 offset-1" id="user_pm_routine">
+      <h3>My PM Routine</h3>
+      <!-- My PM Routine -->
+      {% if pm_routine %}
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Product</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for step_obj in pm_routine.steps %}
+          <tr class="{{ step_obj.product_id }}">
+            <td>{{ step_obj.product.category.category_name }}</td>
+            <td>
+              <a href="/products/{{ step_obj.product_id }}" target="_blank"
+                >{{ step_obj.product.product_name }}</a
+              >
+            </td>
+            <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>
+        You don't have anything in your routine yet! {% if not
+        current_user.cabinets %} Add something to your cabinet first, and then
+        add products from your cabinet into your skincare routine! {% else %}
+        Add something from your cabinet to your skincare routine in the section
+        below! {% endif %}
+      </p>
+      {% endif %}
+    </div>
   </div>
-  {% if pm_routine %} {% endif %}
-  <div class="pm-routine routine col-lg-4 offset-lg-1">
-    <form id="form-pm-routine" action="#" method="POST">
-      <ul>
-        <li class="draggable">
-          PM Routine
-          <input id="submit-pm-routine" type="submit" value="Save Routine" />
-        </li>
-      </ul>
-      <ul class="sortable steps"></ul>
-    </form>
-  </div>
-</div>
+  <div class="row justify-content-center d-flex" id="modify-routines">
+    <div class="row">
+      <h3>Modify Your Skincare Routines</h3>
+      <div class="am-routine routine col-lg-3">
+        <form id="form-am-routine" action="#" method="POST">
+          <ul>
+            <li class="draggable">
+              AM Routine
+              <input
+                id="submit-am-routine"
+                type="submit"
+                value="Save Routine"
+              />
+            </li>
+          </ul>
 
-<div>
-  <button class="btn btn-secondary" id="create-am-routine">
-    Create AM Routine
-  </button>
-  <button class="btn btn-secondary" id="create-pm-routine">
-    Create PM Routine
-  </button>
+          <ul class="sortable steps"></ul>
+        </form>
+      </div>
+      {% if pm_routine %} {% endif %}
+      <div class="pm-routine routine col-lg-3 offset-lg-1">
+        <form id="form-pm-routine" action="#" method="POST">
+          <ul>
+            <li class="draggable">
+              PM Routine
+              <input
+                id="submit-pm-routine"
+                type="submit"
+                value="Save Routine"
+              />
+            </li>
+          </ul>
+          <ul class="sortable steps"></ul>
+        </form>
+      </div>
+      <div class="am-routine routine col-lg-3">
+        <img src="/static/img/undraw_to_do_list_re_9nt7.svg" width="400px" />
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <button class="btn btn-secondary" id="create-am-routine">
+      Create AM Routine
+    </button>
+    <button class="btn btn-secondary" id="create-pm-routine">
+      Create PM Routine
+    </button>
+  </div>
+  <fieldset id="routine-level">
+    <input
+      type="radio"
+      name="routine-level"
+      class="form-check-input"
+      value="BEGINNER_ROUTINE"
+    />Beginner Routine
+    <input
+      type="radio"
+      name="routine-level"
+      class="form-check-input"
+      value="INTERMEDIATE_ROUTINE"
+    />Intermediate Routine
+  </fieldset>
 </div>
-<fieldset id="routine-level">
-  <input
-    type="radio"
-    name="routine-level"
-    class="form-check-input"
-    value="BEGINNER_ROUTINE"
-  />Beginner Routine
-  <input
-    type="radio"
-    name="routine-level"
-    class="form-check-input"
-    value="INTERMEDIATE_ROUTINE"
-  />Intermediate Routine
-</fieldset>
 {% endblock body %} {% block after_body %}
 <script src="/static/js/routines.js"></script>
 {% endblock %}

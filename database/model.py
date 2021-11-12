@@ -210,14 +210,12 @@ class User(TimestampMixin, UserMixin, db.Model):
             'pm': pm,
         }
 
-    def __init__(self, **kwargs):
-        super(User, self).__init__(**kwargs)
-        self.am_routine_id = None
-        self.pm_routine_id = None
-
     def get_id(self):
         """Returns unicode user_id; used for user_loader callback function."""
         return unicode(self.user_id)
+
+    def get_current_routine_id(self, am_or_pm):
+        return self.serialize_active_routines.get(am_or_pm)
 
     def check_password(self, input_password):
         """Return True if input_password is the correct password."""
@@ -444,7 +442,7 @@ class Routine(TimestampMixin, db.Model):
     user_id = Column(Integer, db.ForeignKey('users.user_id'), nullable=False)
     am_or_pm = Column(String(2), nullable=False)
     name = Column(String(25))
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, default=True)
 
     user = db.relationship('User', backref='routines')
     steps = db.relationship('Step', backref='routine')
@@ -466,20 +464,20 @@ class Routine(TimestampMixin, db.Model):
         return [ item.serialize for item in self.steps if not bool(item.retired_on) ]
     
     def make_active(self):
-        if self.am_or_pm == 'am':
-            old_routine = Routine.query.get(self.user.am_routine_id)
+        r_id = self.user.get_current_routines_id(self.am_or_pm) if self.am_or_pm else None
+        old_routine = Routine.query.get(r_id) if r_id else None
             if old_routine:
                 old_routine.is_active = False
-            self.user.am_routine_id = self.routine_id
-        else:
-            old_routine = Routine.query.get(self.user.pm_routine_id)
-            if old_routine:
-                old_routine.is_active = False
-            self.user.pm_routine_id = self.routine_id
         self.is_active = True
         db.commit()
         print(f'Saved routine with id {self.routine_id} as active {self.am_or_pm} routine.')
 
+    def add_step(self, product_id):
+        step_obj = Step(product_id=product_id)
+        if not self.steps:
+            self.steps = []
+        self.steps.append(step_obj)
+        return step_obj
     # def update_cardinality(self):
     #     """Save the order in which skincare steps are performed."""
     #     for step in self.steps:

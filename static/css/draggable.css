@@ -1,16 +1,26 @@
 ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    margin-bottom: 10px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 10px;
 }
 
 div#root li {
-    margin: 5px;
-    padding: 5px;
-    width: 300px;
+  margin: 5px;
+  padding: 5px;
+  width: 300px;
 }
 
 .ui-state-highlight {
-    border-radius: 8px;
+  border-radius: 8px;
+}
+
+li.step {
+  border-radius: 10px;
+  transition: scale 500ms ease;
+}
+
+li.step:hover {
+  scale: 1.05;
+  transition: scale 500ms ease;
 }

@@ -20,30 +20,21 @@ const AM_STEP = {
 };
 
 /* GENERATING SKINCARE ROUTINE STEPS */
-
+/*  EXAMPLE:
+      <li class="ui-state-default" name="9">Cleanser:</li>
+      <select class="category_id_9" name="product_id">
+    */
 function add_am_step(routine = AM_STEP) {
   create_routine_steps("am", routine);
 }
 
 function create_routine_steps(am_or_pm, routine) {
-  // if (routine === "BEGINNER_ROUTINE") {
-  //   routine = BEGINNER_ROUTINE;
-  // } else if (routine === "INTERMEDIATE_ROUTINE") {
-  //   routine = INTERMEDIATE_ROUTINE;
-  // } else {
-  //   routine = AM_STEP;
-  // }
   console.log("Now routine looks like...");
   console.log(routine);
   for (const [categoryId, categoryName] of Object.entries(routine)) {
-    /*  EXAMPLE:
-      <li class="ui-state-default" name="9">Cleanser:</li>
-      <select class="category_id_9" name="product_id">
-    */
-
     $(`div.${am_or_pm}-routine .sortable`).append(`
       <li class="ui-state-default step" data-routine-type="${am_or_pm}" data-category-id="${categoryId}" name="${categoryId}" id="${am_or_pm}_routine-category_id_${categoryId}">
-        TEST ${categoryName}:
+        ${categoryName}:
         <select class="category_id_${categoryId}" data-category-id="${categoryId}" name="product_id">
           <option value="">--Select--</option>
         </select>
@@ -53,12 +44,7 @@ function create_routine_steps(am_or_pm, routine) {
 
 /* GENERATING SKINCARE ROUTINE STEPS + CABINET OPTIONS */
 
-function generate_complete_routine(
-  am_or_pm,
-  routine,
-  cabinet_list
-  //   routine = BEGINNER_ROUTINE
-) {
+function generate_complete_routine(am_or_pm, routine, cabinet_list) {
   if (routine === "BEGINNER_ROUTINE") {
     create_routine_steps(am_or_pm, BEGINNER_ROUTINE);
   } else if (routine === "INTERMEDIATE_ROUTINE") {
@@ -70,13 +56,13 @@ function generate_complete_routine(
 }
 
 /* GENERATING CABINET OPTIONS for pre-existing steps */
-
-function add_cabinet_options(cabinetArray, amOrPm) {
-  /*  EXAMPLE:
+/*  EXAMPLE:
     <option class="dropdown-item" value="716">
       COSRX Low pH Good Morning Cleanser
     </option>
   */
+
+function add_cabinet_options(cabinetArray, amOrPm) {
   for (const cabObj of cabinetArray) {
     const catId = cabObj.category_id;
     const prodId = cabObj.product_id;
@@ -114,8 +100,6 @@ $(() => {
 
   /* CREATING ROUTINES FROM SCRATCH */
 
-  // TODO: Test and fix, alongside this route in server.py.
-  // Do this if the user needs to create new skincare routines from scratch!
   $("#create-am-routine").on("click", () => {
     console.log(`I just clicked the "Create AM Routine" button.`);
     $("#create-am-routine").addClass("disabled");
@@ -130,13 +114,7 @@ $(() => {
       let routineLv = document.querySelector(
         'input[name="routine-level"]:checked'
       ).value;
-      console.log(routineLv);
-
-      // AM ROUTINE:
       generate_complete_routine("am", routineLv, cabinetArray);
-
-      // PM ROUTINE:
-      //   generate_complete_routine("pm", routineLv, cabinetArray);
       add_cabinet_options(cabinetArray, "am");
     });
   });
@@ -192,6 +170,7 @@ $(() => {
       $.post("/routine", form_data, (res) => {
         console.log(res);
         // console.log(`res.json = ${res.json}`);
+        // TODO: change this to a flashed message? redirect to refresh the page on success
         alert("You have successfully saved your skincare routine!");
       });
     }
@@ -216,7 +195,6 @@ $(() => {
     console.log(formData);
 
     if (routine_steps.length === 0) {
-      // if (formData["steps"].length === 0) {
       alert("Uh oh! You didn't select any products for this skincare routine.");
     } else {
       const form_data = { routine_type: "pm", steps: routine_steps };
@@ -231,20 +209,5 @@ $(() => {
     }
   });
 
-  // TODO: look at serialize, serializeArray for jQuery
-
-  // $(document).ready(function () {
-  //   $('ul').sortable({
-  //     axis: 'y',
-  //     stop: function (event, ui) {
-  //       var data = $(this).sortable('serialize');
-  //       $('span').text(data);
-  //       /*$.ajax({
-  //               data: oData,
-  //           type: 'POST',
-  //           url: '/your/url/here'
-  //       });*/
-  //     }
-  //   });
-  // });
+  // NOTE: look at serialize, serializeArray for jQuery?
 });
