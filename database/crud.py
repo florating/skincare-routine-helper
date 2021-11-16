@@ -74,7 +74,7 @@ def create_user(**params):
     pprint(params)
     # REFACTOR-NOTE: can re-define __init__ method in model.py
     params.pop('id', None)
-    params['hashed_password'] = generate_password_hash(params.pop('password'), method='sha256')  # FIXME: could also salt this
+    params['hashed_password'] = generate_password_hash(params.pop('password'), method='sha256')
     user_obj = User(**params)
     db.session.add(user_obj)
     db.session.commit()

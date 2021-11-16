@@ -58,13 +58,10 @@ def register_account():
         'password': request.form.get('password')  # will be hashed in crud
     }
     
-    user = crud.get_user_by_email(params['email'])
-
-    if user:
-        flash('You cannot use this email to create a new account.')
+    if crud.get_user_by_email(params['email']):
+        flash('You cannot use this email to create a new account.', 'error')
         return redirect(url_for('home'))
     
-    # FIXME: not yet tested. is it better to call generate_password_hash here or in model.py?
     crud.create_user(**params)
     flash('Thank you for creating a new account! Please log in.')
     return redirect('/')
@@ -95,8 +92,8 @@ def login():
         
         flash(error)
         return redirect('/')
-    return render_template('login.html')
-    # return redirect('/')
+    # return render_template('login.html')
+    return redirect('/')
 
 
 @app.route('/logout')
@@ -110,19 +107,10 @@ def logout():
 @app.route('/user_profile')
 @login_required
 def show_profile():
-    am_r, pm_r = None, None
-    routine_ids = [am_r, pm_r]
-    routines_to_show = {}
-    # TODO: add am_r_obj and pm_r_obj to routines_to_show
-    print('Show current_user.routines...')
-    print(current_user.routines)
-    for routine in current_user.routines:
-        am_r = routine.routine_id if routine.am_or_pm == 'am' else None
-        pm_r = routine.routine_id if routine.am_or_pm == 'pm' else None
-    for r_id in routine_ids:
-        if r_id:
-            routines_to_show['am_r'] = crud.get_obj_by_id('Routine', r_id)
-    return render_template('user_details.html', am_routine=am_r, pm_routine=pm_r)
+    am_routine = current_user.get_current_routine_id('am')
+    pm_routine = current_user.get_current_routine_id('pm')
+    return render_template('user_details.html', profile=current_user.serialize_for_profile,
+        am_routine=am_routine, pm_routine=pm_routine)
 
 
 @app.route('/settings')
@@ -130,7 +118,8 @@ def show_profile():
 def show_profile_settings():
     concerns = model.Concern.query.all()
     skintypes = model.Skintype.query.all()
-    return render_template('profile_settings.html', concerns=concerns, skintypes=skintypes)
+    timestamps = current_user.serialize_timestamps
+    return render_template('profile_settings.html', concerns=concerns, skintypes=skintypes, profile=current_user.serialize_for_profile, timestamps=timestamps)
 
 
 @app.route('/quiz', methods=['POST'])

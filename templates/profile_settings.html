@@ -1,187 +1,164 @@
-{% extends "base.html" %}
-
-
-{% block title %}
-  Profile Settings | The Skincare Routine Helper
-{% endblock title %}
-
-{% block head %}
-{% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block title %} Profile Settings | The Skincare
+Routine Helper {% endblock title %} {% block head %}
+<style>
+  .body-content {
+    margin: 30px 0 0 0;
+  }
+</style>
+{% endblock %} {% block body %}
 <div class="container">
   <div class="row">
-    <h1>Profile Settings</h1>
-    <div class="col d-flex flex-column" id="user_info">
-      {% if current_user.is_authenticated %}
-        <div class="col">Hi {{ current_user.email }}!</div>
-        <div class="col logout">
-          <i></i><a href="/logout">Click here</a> to logout.</a>
-        </div>
-      {% endif %}
-    </div>
-    <div class="row">
-      <div class="col d-flex justify-content-center">
-        <h3>
-          Update Your User Profile
-        </h3>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="offset-1 col d-flex flex-column justify-content-center">
-        <div class="col">
-          <h5>General Info - TODO</h5>
-        </div>
-        <div class="col col-6">
-          <table class="content-table">
-              <thead>
-            <tr>
-              <th>Field</th>
-              <th>Value</th>
-              <th>Edit - TODO</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if current_user.is_authenticated %}
-              <form action="#" id="user-settings">
-              {% for param_key in current_user.__table__.columns.keys() %}
-                {% if param_key not in ['skintype_id', 'primary_concern_id', 'secondary_concern_id'] %}
-                  <tr>
-                    <td>{{ 'password' if param_key in ['hashed_password'] else param_key }}</td>
-                    <td>
-                      {% if param_key in ['hashed_password'] %}
-                        <i><a href="#" title="FIXME">Click here</a> to change your password.</i>
-                      {% else %}
-                        {{ current_user[param_key] }}
-                      {% endif %}
-                    </td>
-                    <td>
-                      <!-- FIXME: after migrating db! -->
-                      <!-- if param_key in [current_user.modifiable_user_settings] -->
-                      {% if param_key in ['f_name', 'l_name'] %}
-                      <input type="text" name={{ param_key }} placeholder="type the desired value here">
-                      {% else %}
-                        ---
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endif %}
-              {% endfor %}
-              <tr><input type="submit" value="Save Changes"></tr>
-            </form>
-            {% endif %}
-        </tbody>
-          </table>  
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div id="skin-concern-quiz">
-  <div class="row">
     <div class="col d-flex justify-content-center">
-      <h3>
-        {% if not current_user.skintype %}Setup
-        {% else %}Update
-        {% endif %}Your Skin Profile
-      </h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="offset-1 col-3 d-flex flex-column justify-content-center">
-      <div>
-        <h5>Your skin type is:</h5>
-      </div>
-      <div class="bg-info">
-        {% if current_user.skintype %}
-          {{ current_user.skintype.skintype_name }}
-        {% else %}
-          not yet selected
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="col-4 d-flex flex-column justify-content-center">
-      <div><h5>Your primary skin concern is: </h5></div>
-      <div class="bg-info">
-        {% if current_user.primary_concern %}
-          {{ current_user.primary_concern.concern_name }}
-        {% else %}
-          not yet selected
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="col-3 d-flex flex-column justify-content-center">
-      <div>
-        <h5>Your secondary skin concern is: </h5>
-      </div>
-      <div class="bg-info">
-        {% if current_user.secondary_concern %}
-          {{ current_user.secondary_concern.concern_name }}
-        {% else %}
-          not yet selected
-        {% endif %}
-      </div>
+      <h1>Profile Settings</h1>
     </div>
   </div>
 
-<!-- UPDATE YOUR SKIN PROFILE -->
-  <div class="row">
-    <div class="col-4 offset-2 concern-description" id="skin-concern-description">
-      Description of skin concern.
-      <span id="quiz-info"></span>
+  <div class="row d-flex justify-content-center body-content">
+    <div class="col-5" id="profile-settings">
+      <h3>Update Your User Profile</h3>
+      <div class="row">
+        <form action="#" id="user-settings">
+          <table class="content-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Value</th>
+                <th>Values to Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>First Name</td>
+                <td>{{ current_user.__dict__.get('f_name') }}</td>
+                <td>
+                  <input
+                    type="text"
+                    name="#"
+                    placeholder="type the desired value here"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Last Name</td>
+                <td>{{ current_user.__dict__.get('l_name') }}</td>
+                <td>
+                  <input
+                    type="text"
+                    name="#"
+                    placeholder="type the desired value here"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Email</td>
+                <td>{{ current_user.__dict__.get('email') }}</td>
+                <td>---</td>
+              </tr>
+              <tr>
+                <td>Password</td>
+                <td>
+                  <i
+                    ><a href="#" title="FIXME">Click here</a> to change your
+                    password.</i
+                  >
+                </td>
+                <td>---</td>
+            </tr>
+              
+              {% for time, datetime in timestamps.items() %}
+              <tr>
+                  <td>{{time}}</td>
+                  <td>{{datetime}}</td>
+                  <td>---</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <input type="submit" value="Save Changes" />
+        </form>
+      </div>
     </div>
-    <div class="col-3 quiz">
-      <!-- SKINTYPE & CONCERNS FORM STARTS HERE -->
-      <form action="/quiz" method="POST">
-        <div class="row">
-          <label class="form-label" for="skin-type">What is your skin type?</label>
-          <select
-            name="skintype_id"
-            id="skin-type"
-          >
-            <option value="">------- Select a skin type -------</option>
-            {% for skintype in skintypes %}
-              <option value={{ skintype.skintype_id }}>{{ skintype.skintype_name }}</option>
-            {% endfor %}            
-          </select>
-        </div><div class="row">
-          <label class="form-label" for="skin-concern">What is your primary skin concern?</label>
-          <select
-            name="primary_concern_id"
-            id="skin-concern-1"
-          >
-            <option value="">------- Select a concern -------</option>
-            {% for concern in concerns %}
-              <option value={{ concern.concern_id }}>{{ concern.concern_name }}</option>
-              <!-- insert <option value="acne">Acne</option> or something here using JS -->
-            {% endfor %}
-          </select>
-        </div><div class="row">
-          <label class="form-label" for="skin-concern">What is your secondary skin concern?</label>
-          <select
-            name="secondary_concern_id"
-            id="skin-concern-2"
-          >
-          <option value="">------- Select a concern -------</option>
-            {% for concern in concerns %}
-              <option value={{ concern.concern_id }}>{{ concern.concern_name }}</option>
-              <!-- insert <option value="acne">Acne</option> or something here using JS -->
-              <!-- FIXME: make sure it's not the same as the previous one -->
-              <span id="concern-description">{{ concern.description }}</span>
-            {% endfor %}
-          </select>
-        </div><div class="row">
-          <input type="submit" value="Update Profile">
+    <div class="col-5 offset-1" id="skin-concern-quiz">
+      <h3>Update Your Skin Profile</h3>
+      <div class="row">
+        <div class="col d-flex justify-content-center">
+          {% if current_user.is_authenticated %}
+          <table class="content-table">
+            <thead>
+              <tr>
+                {% for param_key in profile.keys() %}
+                <th>{{ param_key }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {% for param_key in profile.keys() %}
+                <td>{{ profile[param_key] }}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+          {% endif %}
         </div>
-      </form>
+      </div>
+      <div class="row">
+        <div class="fluid quiz">
+          {# SKINTYPE & CONCERNS FORM STARTS HERE #}
+          <form action="/quiz" method="POST">
+            <fieldset>
+              <legend>What is your skin type?</legend>
+              <select name="skintype_id" id="skin-type">
+                <option value="">------- Select a skin type -------</option>
+                {% for skintype in skintypes %}
+                <option value="{{ skintype.skintype_id }}">
+                  {{ skintype.skintype_name }}
+                </option>
+                {% endfor %}
+              </select>
+            </fieldset>
+            <fieldset>
+              <div class="row">
+                <legend>What is your primary skin concern?</legend>
+                <select name="primary_concern_id" id="skin-concern-1">
+                  <option value="">------- Select a concern -------</option>
+                  {% for concern in concerns %}
+                  <option value="{{ concern.concern_id }}">
+                    {{ concern.concern_name }}
+                  </option>
+                  <!-- insert <option value="acne">Acne</option> or something here using JS -->
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="row">
+                <legend>What is your secondary skin concern?</legend>
+                <select name="secondary_concern_id" id="skin-concern-2">
+                  <option value="">------- Select a concern -------</option>
+                  {% for concern in concerns %}
+                  <option value="{{ concern.concern_id }}">
+                    {{ concern.concern_name }}
+                  </option>
+                  <!-- insert <option value="acne">Acne</option> or something here using JS -->
+                  <!-- FIXME: make sure it's not the same as the previous one -->
+                  <span id="concern-description"
+                    >{{ concern.description }}</span
+                  >
+                  {% endfor %}
+                </select>
+              </div>
+            </fieldset>
+            <div class="row">
+              <input type="submit" value="Update Profile" />
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-{% endblock body %}
 
-{% block after_body %}{% endblock %}
+  <div id="skin-concern-quiz">
+    <!-- UPDATE YOUR SKIN PROFILE -->
+    <div class="row"></div>
+  </div>
+  {% endblock body %} {% block after_body %}{% endblock %}
+</div>

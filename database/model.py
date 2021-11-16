@@ -8,95 +8,23 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import datetime
 import pprint
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-import pytz
-from sqlalchemy import Boolean, Column, DateTime, Integer, Numeric, String, Text
-# from sqlalchemy.ext.compiler import compiles
-# from sqlalchemy.ext.indexable import index_property
-from sqlalchemy.orm import declarative_mixin, declared_attr, defer, deferred, undefer
-from sqlalchemy.sql import expression, func
-from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
+from sqlalchemy.orm import deferred
+from werkzeug.security import check_password_hash
 
-# from database.crud import add_and_commit
+from database.model_helpers import convert_to_PST, get_current_datetime, TimestampMixin
+# TODO: check if this works before removing those lines of code from this file
+
 if sys.version_info[0] >= 3:
     unicode = str
 
 db = SQLAlchemy()
 
 _ECHO_LOG_ERRORS_ = True  # TODO: Change when done with testing
-
-##### TIME-RELATED FUNCTIONS BELOW #####
-
-def get_current_datetime():
-    """Return current datetime as an aware datetime object with a UTC timezone."""
-    # current_dt = datetime.datetime.utcnow().isoformat()  # ISO 8601 format (aware): '2016-11-16T22:31:18.130822+00:00'
-    # current_dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # looks like: '1984-01-10 23:30:00'
-    # current_dt = datetime.datetime.now().isoformat()  # ISO 8601 format (naive): '1984-01-10T23:30:00'
-
-    return datetime.datetime.utcnow()
-
-
-def convert_to_PST(aware_datetime):
-    """Return a converted version of this aware datetime object (UTC --> PST)."""
-    # TODO: check if this converts to PST (with daylight saving time status) or just PT
-    return aware_datetime.astimezone(pytz.timezone("America/Los_Angeles"))
-
-
-##### MIXINS BELOW #####
-
-# FIXME: may need to read this https://docs.sqlalchemy.org/en/14/orm/declarative_mixins.html
-@declarative_mixin
-class TimestampMixin(object):
-    """Add timestamps for ORM classes."""
-    created_on = Column(
-        DateTime, nullable=False, default=get_current_datetime)
-    updated_on = Column(
-        DateTime, nullable=True, default=None, onupdate=get_current_datetime)
-    retired_on = (Column(DateTime, nullable=True, default=None))
-
-    @property
-    def serialize_timestamps(self):
-        """Returns aware datetimes without timezone information.
-        >>> t4.serialize_timestamps
-        {'created_on': datetime.datetime(2021, 10, 27, 4, 39, 16, 913065), 'created_on_ISO': '2021-10-27T04:39:16.913065', 'created_on_STRF': '2021-10-27 04:39:16', 'updated_on': None, 'retired_on': None}
-        """
-        return {
-            'created_on': self.created_on,
-            'created_on_ISO': self.created_on.isoformat() if self.created_on else None,
-            'created_on_STRF': self.created_on.strftime('%Y-%m-%d %H:%M:%S') if self.created_on else None,
-            'updated_on': self.updated_on,
-            'retired_on': self.retired_on
-        }
-    @property
-    def serialize_PST_timestamps(self):
-        """Returns aware datetimes without timezone information.
-        >>> t4.serialize_PST_timestamps
-        {'timezone': 'PST', 'created_on': datetime.datetime(2021, 10, 26, 21, 39, 16, 913065, tzinfo=<DstTzInfo 'America/Los_Angeles' PDT-1 day, 17:00:00 DST>)}
-
-        >>> pprint.pprint(t4.serialize_timestamps)
-        {'created_on': datetime.datetime(2021, 10, 27, 4, 47, 3, 577588),
-        'created_on_ISO': '2021-10-27T04:47:03.577588',
-        'created_on_STRF': '2021-10-27 04:47:03',
-        'retired_on': None,
-        'updated_on': None}
-        """
-        result = self.serialize_timestamps
-        result_PST = { 'timezone': 'PST' }  # FIXME: check if PST (fixed to UTC-8) or PT
-        for param, val in result.items():
-            if isinstance(val, datetime.datetime):
-                pst = convert_to_PST(val)
-                result_PST[param] = pst
-                result_PST[f'{param}_on_ISO'] = pst.isoformat()
-                result_PST[f'{param}_on_STRF'] = pst.strftime('%Y-%m-%d %H:%M:%S')
-        return result_PST
-
-    def retire(self, dt=get_current_datetime()):
-        """Save the current datetime, for when this object became inactive."""
-        self.retired_on = dt
 
 
 ##### TABLES BELOW #####
@@ -183,9 +111,10 @@ class User(TimestampMixin, UserMixin, db.Model):
     @property
     def serialize_for_profile(self):
         return {
-            'skintype_id': self.skintype_id,
-            'primary_concern_id': self.primary_concern_id,
-            'secondary_concern_id': self.secondary_concern_id,
+            'Skin Type': self.skintype.skintype_name if self.skintype_id else '---',
+            'Primary Concern': self.primary_concern.concern_name if self.primary_concern_id else '---',
+            'Secondary Concern': self.secondary_concern.concern_name if self.secondary_concern_id else '---',
+            'Email': self.email,
         }
     @property
     def serialize_cabinets(self):

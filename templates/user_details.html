@@ -1,134 +1,172 @@
-{% extends "base.html" %}
-
-{% block title %}
-{{ current_user.f_name }}'s Profile
-{% endblock title %}
-
-{% block head %}{% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block title %} {{ current_user.f_name }}'s Profile
+{% endblock title %} {% block head %}<style>
+  #user_info,
+  #second-section {
+    margin-top: 50px;
+  }
+</style>
+{% endblock %} {% block body %}
 <div class="container">
-  <div class="row">
-    <div id="user_info" col="col-lg-5 offset-lg-1">
+  <div class="row justify-content-center">
+    <div id="avatar" class="col-lg-5">
+      <img src="/static/img/undraw_female_avatar_w3jk.svg" height="300px" />
+    </div>
+
+    <div id="user_info" class="col-lg-5">
       <h1>My Profile</h1>
       {% if current_user.is_authenticated %}
-      <table>
-        {% for param_key in current_user.__table__.columns.keys() %}
-        <tr>
-          {# do not display sensitive information! #}
-          <td>{{ param_key }}</td>
-          <td>{{ current_user[param_key] if param_key not in ["hashed_password"] else "hidden" }}</td>
-        </tr>
-        {% endfor %}
+      <table class="content-table">
+        <thead>
+          <tr>
+            {% for param_key in profile.keys() %}
+            <th>{{ param_key }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for param_key in profile.keys() %}
+            <td>{{ profile[param_key] }}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
       </table>
-      {% else %}
-      Please login <a href="/login">here</a>.
-      {% endif %}
-      <p class='settings'><i><a href="/settings">Click here</a> to update your user profile or settings.</i></p>
+      {% else %} Please login <a href="/login">here</a>. {% endif %}
+      <p class="settings">
+        <i
+          ><a href="/settings">Click here</a> to update your user profile or
+          settings.</i
+        >
+      </p>
     </div>
-    <div id="user_cabinet" col="col-lg-5">
+  </div>
+  <div class="row" id="second-section">
+    <div id="user_cabinet" class="col-lg-5">
       <h3>My Cabinet</h3>
       {% if current_user.cabinets %}
-
-      <!-- {% for obj in current_user.cabinets %}
-          <li>obj.product = {{ obj.product }}</li>
-        {% endfor %} -->
-      <!-- My Cabinet -->
-
-      <table class="cabinet-list">
-        <tr>
-          <td>--</td>
-          <td><b>Product</b></td>
-          <td><b>Product Type</b></td>
-          <!-- <td>Product Image</td> -->
-        </tr>
-        {% for obj in current_user.cabinets %}
-        <tr>
-          <td>
-            Check
-            {# FIXME #}
-          </td>
-          <td>
-            <a href="/products/{{ obj['product_id'] }}" target="_blank">
-              {{ obj.product.product_name }}
-            </a>
-          </td>
-          <td>
-            {{ obj.product['category']['category_name'] }}
-          </td>
-          <!-- <td>
-                <img id="product_id_{{ obj['product_id'] }}" src="">
-              </td> -->
-        </tr>
-        {% endfor %}
+      <table class="cabinet-list content-table">
+        <thead>
+          <tr>
+            <th>Product Type</th>
+            <th>Product</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for obj in current_user.cabinets %}
+          <tr>
+            <td>{{ obj.product['category']['category_name'] }}</td>
+            <td>
+              <a href="/products/{{ obj['product_id'] }}" target="_blank">
+                {{ obj.product.product_name }}
+              </a>
+            </td>
+            <td><img src="{{ obj.product.cloud_img_url }}" class="thumbnail"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
 
       {% else %}
-      <p>You don't have anything in your cabinet yet! <a href="/products">Click here</a> to search for a skincare
-        product.</p>
+      <p>
+        You don't have anything in your cabinet yet!
+        <a href="/products">Click here</a> to search for a skincare product.
+      </p>
       {% endif %}
     </div>
-  </div>
 
+    <div class="routine col-5 offset-1">
+      <div class="row" id="user_am_routine">
+        <h3>My AM Routine</h3>
+        {% if am_routine %}
+        <table class="content-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Product</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for step_obj in am_routine.steps %}
+            <tr class="{{ step_obj.product_id }}">
+              <td>{{ step_obj.product.category.category_name }}</td>
+              <td>
+                <a href="/products/{{ step_obj.product_id }}" target="_blank"
+                  >{{ step_obj.product.product_name }}</a
+                >
+              </td>
+              <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
+            </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>
+          You don't have anything in your routine yet! {% if not
+          current_user.cabinets %} Add something to your cabinet first, and then
+          add products from your cabinet into your skincare routine! {% else %}
+          <a href="/routine">Click here</a> to add something from your cabinet
+          to your skincare routine! {% endif %}
+        </p>
+        {% endif %}
+      </div>
+      <div class="row" id="user_pm_routine">
+        <h3>My PM Routine</h3>
+        {% if pm_routine %}
+        <table class="content-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Product</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for step_obj in pm_routine.steps %}
+            <tr class="{{ step_obj.product_id }}">
+              <td>{{ step_obj.product.category.category_name }}</td>
+              <td>
+                <a href="/products/{{ step_obj.product_id }}" target="_blank"
+                  >{{ step_obj.product.product_name }}</a
+                >
+              </td>
+              <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
+            </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>
+          You don't have anything in your routine yet! {% if not
+          current_user.cabinets %} Add something to your cabinet first, and then
+          add products from your cabinet into your skincare routine! {% else %}
+          <a href="/routine">Click here</a> to add something from your cabinet
+          to your skincare routine! {% endif %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
   <div class="row">
-    <div class="routine col-5" id="user_am_routine">
-      <h3>My AM Routine</h3>
-      <!-- My AM Routine -->
-      {# if current_user.routines #}
-      {% if am_routine %}
-      TESTING ONLY: {{ current_user.routines }}
-      <ul>
-        {% for step_obj in current_user.routines[0].steps %}
-        {# <li>obj.product_id = {{ obj.product_id }}</li> #}
-        <li>{{ step_obj.product.category.category_name }}: {{ step_obj.product.product_name }}</li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p>You don't have anything in your routine yet!
-        {% if not current_user.cabinets %}
-        Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
-        {% else %}
-        <a href="/routine">Click here</a> to add something from your cabinet to your skincare routine! (Currently under
-        construction!)
-        {% endif %}
-      </p>
-      {% endif %}
-    </div>
-    <div class="routine col-5 offset-1" id="user_pm_routine">
-      <h3>My PM Routine</h3>
-      <!-- My PM Routine -->
-      {% if pm_routine %}
-      <ul>
-        {% for obj in current_user.routines %}
-        <li>obj = {{ obj }}</li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p>You don't have anything in your routine yet!
-        {% if not current_user.cabinets %}
-        Add something to your cabinet first, and then add products from your cabinet into your skincare routine!
-        {% else %}
-        <a href="/routine">Click here</a> to add something from your cabinet to your skincare routine! (Currently under
-        construction!)
-        {% endif %}
-      </p>
-      {% endif %}
+    <div class="col d-flex justify-content-center" id="search_for_product">
+      <div class="search-box" id="animated-search-box">
+        <form action="/products/results" methods="GET">
+          <button class="btn-search"><i class="bi bi-search"></i></button>
+          <input
+            type="text"
+            class="input-search"
+            name="product_name"
+            placeholder="Search for a product..."
+          />
+        </form>
+      </div>
     </div>
   </div>
-  <div class="offset-3 col-5 search" id="search_for_product">
-    <h2>Search for a Product!</h2>
-    <form action="/products" methods="POST">
-      <input type="text" name="product_name" placeholder="Product Name" title="Leave this blank to get all products!" />
-      <input type="text" name="product_type" placeholder="Product Type" />
-      {# comment #}
-      <!-- FIXME: change product_type to something else once model.py for User is fixed, maybe use dropdown menu -->
-      <input type="submit" value="Go!">
-    </form>
-    <div id="search_results"></div>
-  </div>
+  {% endblock body %} {% block after_body %}
+  {% endblock %}
 </div>
-{% endblock body %}
-
-{% block after_body %}
-<!-- <script type="text/jsx" src="/static/routines.jsx"></script> -->
-{% endblock %}
