@@ -21,8 +21,77 @@
     <ul>
       <li>Product Type{# using category_id, so product.category.category_name --> #}: {{ product.category.category_name }}</li>
       <li>Buy this product <a href="{{ product.product_url }}">here</a>!</li>
-      <li>{{ product.product_url }}</li>
     </ul>
+
+    <h3>Ingredient Highlights</h3>
+    {% if carcinogens %}
+    <p>Possible carcinogens:</p>
+    <ul>
+        {% for item in carcinogens %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No obvious carcinogens.</p>
+    {% endif %}
+    {% if endocrine_disruptors %}
+    <p>Possible endocrine_disruptors:</p>
+    <ul>
+        {% for item in endocrine_disruptors %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No obvious endocrine disruptors.</p>
+    {% endif %}
+    {% if env_haz %}
+    <p>Possible environmental hazards:</p>
+    <ul>
+        {% for item in env_haz %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No obvious environmental hazards.</p>
+    {% endif %}
+
+    {% if formaldehydes %}
+    <p>Possible formaldehyde releasors:</p>
+    <ul>
+        {% for item in formaldehydes %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No obvious formaldehyde releasors.</p>
+    {% endif %}
+
+    {% if exfoliants %}
+      {% for key, ingreds in exfoliants.items() %}
+        {% if ingreds %}
+          <p>{{ key }}:</p>
+          <ul> 
+            {% for ingred in ingreds %}
+              <li>{{ ingred }}</li>
+            {% endfor%}
+          </ul>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% if hydration %}
+      {% for key, ingreds in hydration.items() %}
+        {% if ingreds %}
+          <p>{{ key }}:</p>
+          <ul> 
+            {% for ingred in ingreds %}
+              <li>{{ ingred }}</li>
+            {% endfor%}
+    </ul>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
     <!-- General info goes here! -->
   </div>
   <div class="col-7" id="product_ingredients">
@@ -42,5 +111,5 @@
 {% endblock body %}
 
 {% block after_body %}
-<script type="text/jsx" src="/static/cabinets.jsx"></script>
+<!-- <script type="text/jsx" src="/static/cabinets.jsx"></script> -->
 {% endblock %}

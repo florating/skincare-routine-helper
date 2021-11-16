@@ -6,3 +6,5 @@ Cyclohexasiloxane
 D6
 Cyclomethicone
 dimethicone
+dimethicon
+dimethiconol

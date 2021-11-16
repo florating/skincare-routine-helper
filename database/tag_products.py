@@ -10,41 +10,70 @@ sys.path.append(BASE_PATH)
 
 from pprint import pprint
 
-from database import crud, db_info, model, read_files, tag_ingredients
+from database import model, tag_ingredients
 from database.model import Ingredient, Product, ProductIngredient
-from database.tag_ingredients import make_dict, update_sets_to_check
+from database.tag_ingredients import make_dict
 
-
-def tag_fragrances(ingred_obj, dict_of_types):
-    for _, tag_set in dict_of_types:
-        if ingred_obj.common_name.upper() in tag_set:
-            ingred_obj.is_fragrance = True
-        else:
-            for item in tag_set:
-                if item.lower() in ingred_obj.common_name.lower():
-                    ingred_obj.is_fragrance = True
-                    break
-
-
-def tag_active_type(ingred_obj, dict_of_types):
-    """Change ingred_obj's active_type field to the string key."""
-    for tag, tag_set in dict_of_types:
-        if ingred_obj.common_name.upper() in tag_set:
-            ingred_obj.active_type = tag
-            if tag.lower() == 'retinoid':
-                ingred_obj.is_pregnancy_safe = False
-                ingred_obj.pm_only = True
-            break
+LIST_OF_FILES = os.path.abspath('../data/ingredient_tags/about_ingred_files.txt')
 
 
 def make_all_skintype_dicts():
+    """Each dict looks like: {'SKINTYPE': {'INGRED1', 'INGRED2', ...}} or {'NOT_SKINTYPE': {'INGRED1', ...}}."""
     file_dict = tag_ingredients.update_sets_to_check()
-    rec_dry = make_dict(file_dict, ['dry'])
-    not_dry = make_dict(file_dict, ['not_dry'])
-    rec_oily = make_dict(file_dict, ['oily'])
-    not_oily = make_dict(file_dict, ['not_oily'])
-    rec_sensitive = make_dict(file_dict, ['sensitive'])
-    not_sensitive = make_dict(file_dict, ['not_sensitive'])
+    return make_dict(file_dict, ['dry', 'not_dry', 'oily', 'not_oily', 'sensitive', 'not_sensitive'])
+
+
+def tag_all_skintype_recs():
+    skintype_dicts = make_all_skintype_dicts()
+    skintypes = {'DRY', 'COMBINATION', 'OILY', 'SENSITIVE', 'NORMAL'}
+    prod_objs = model.Product.query.all()
+    for prod in prod_objs:
+        tag_skintype_recs(prod, skintypes, skintype_dicts)
+    model.db.session.commit()
+
+
+def tag_skintype_recs(prod_obj, skintypes, skintype_dicts):
+    """For a single product object, check for skintype recommendations."""
+    prod_ingreds_t5 = prod_obj.serialize_top_five_names  # uppercase
+    prod_ingreds_t10 = prod_obj.serialize_top_five_names  # uppercase
+    prod_ingreds = prod_obj.serialize_all_ingreds  # uppercase
+
+    for sk in skintypes:
+        ingred_set = skintype_dicts.get(f'NOT_{sk}')
+        if not ingred_set:
+            continue
+        if prod_ingreds_t5.intersection(ingred_set) or (
+            prod_ingreds_t10.intersection(ingred_set) and len(prod_ingreds_t10.intersection(ingred_set)) > 3):
+            if sk == 'DRY':
+                prod_obj.rec_dry = True
+            elif sk == 'COMBINATION':
+                prod_obj.rec_combination = True
+            elif sk == 'OILY':
+                prod_obj.rec_oily = True
+            elif sk == 'SENSITIVE':
+                prod_obj.rec_sensitive = True
+            elif sk == 'NORMAL':
+                prod_obj.rec_normal = True
+        else:
+        # overwrite True values, since it's more serious to come across a bad ingredient
+            ingred_set = skintype_dicts.get(f'NOT_{sk}')
+            if not ingred_set:
+                continue
+            if prod_ingreds_t10.intersection(ingred_set):
+                if sk == 'DRY':
+                    prod_obj.rec_dry = False
+                elif sk == 'COMBINATION':
+                    prod_obj.rec_combination = False
+                elif sk == 'OILY':
+                    prod_obj.rec_oily = False
+                elif sk == 'NORMAL':
+                    prod_obj.rec_normal = False
+            elif prod_ingreds.intersection(ingred_set):
+                if sk == 'SENSITIVE':
+                    prod_obj.rec_sensitive = False
+                if len(prod_ingreds.intersection(ingred_set)) > 5:
+                    if sk == 'DRY':
+                        prod_obj.rec_dry = False
 
 
 def tag_fragrance_free_products():
@@ -64,28 +93,34 @@ def tag_fragrance_free_products():
     return modified_prod_ids
 
 
-def tag_SPF_moisturizers():
-    # TODO: add mists?
-    subq = Product.query.filter_by(category_id=9).subquery()
-    spf_prods = model.db.session.query(Product).select_entity_from(subq).filter(Product.product_name.ilike('SPF')).all()
-    print(f'There are {len(spf_prods)} products with SPF in the product name.')
+def tag_SPF_moisturizers(cat_id=7):
+    results = model.db.session.query(Product)
+    if isinstance(cat_id, list):
+        results = results.filter(Product.category_id.in_(cat_id))
+    else:
+        results = results.filter(Product.category_id == cat_id)
+    results = results.filter(Product.product_name.ilike('%SPF%'))
+    
+    spf_prod_objs = results.all()
+
+    print(f'There are {len(spf_prod_objs)} products with SPF in the product name.')
     modified_prod_ids = []
     bad_prod_ids = []
-    types_to_check = {'spray', 'mist', 'powder', 'powdered'}
+    # types_to_check = {'spray', 'mist', 'powder', 'powdered'}
     ingreds_to_check = {'TITANIUM DIOXIDE', 'ZINC OXIDE', 'ZNO', 'TIO2'}
-    for prod in spf_prods:
-        name = prod.product_name.lower()
+    for prod_obj in spf_prod_objs:
+        name = prod_obj.product_name.lower()
         if 'no spf' in name:
             continue
-        modified_prod_ids.append(prod.product_id)
-        prod.category_id=12
-        if 'spray' in name or 'mist' in name or 'powder' in name:
-            ingreds_set = prod.serialize_all_ingreds
+        modified_prod_ids.append(prod_obj.product_id)
+        prod_obj.category_id=12
+        if 'spray' in name or 'mist' in name or 'powder' in name or cat_id == 7:
+            ingreds_set = prod_obj.serialize_all_ingreds  # uppercase
             bad_ingreds = ingreds_to_check.intersection(ingreds_set)
             if bad_ingreds:
-                # prod.is_carcinogenic = True  # TODO: add this column to model.py
-                bad_prod_ids.append(prod.product_id)
-        # model.db.session.commit()
+                # prod_obj.is_carcinogenic = True  # TODO: add this column to model.py
+                bad_prod_ids.append(prod_obj.product_id)
+        model.db.session.commit()
     print(f'Detected {len(modified_prod_ids)} products that advertise SPF in the product name.')
     print(f'Of these, {len(bad_prod_ids)} products contain TiO2 or ZnO in inhalable form - which is carcinogenic!')
     return (modified_prod_ids, bad_prod_ids)
@@ -95,27 +130,29 @@ def tag_all_products():
     # prods = Product.query.all()
     ff_prods = tag_fragrance_free_products()
     print(ff_prods)
-    (spf_prods, bad_spf_prods) = tag_SPF_moisturizers()
+    (spf_prods, bad_spf_prods) = tag_SPF_moisturizers([5, 6, 7, 9, 10])
     print(spf_prods)
     print(bad_spf_prods)
-    model.db.session.rollback()
+    model.db.session.commit()
+    # model.db.session.rollback()
+
+
+def main():
+    # file_dict = update_sets_to_check(LIST_OF_FILES)
+    # pprint(file_dict)
+
+    tag_all_products()
+    tag_all_skintype_recs()
+    # db.session.commit()
+
 
 if __name__ == '__main__':
     from server import app
         
     model.connect_to_db(app, echo=False)
 
-    sunscreens = Product.query.filter(
-        Product.product_name.ilike('%SPF%')
-        ).all()
-    
-    sunscreen_summary = {}
-    for prod in sunscreens:
-        sunscreen_summary[prod.product_id] = prod.serialize_top_five_names
-    pprint(sunscreen_summary)
-
     print('-'*20)
-    tag_all_products()
-    # main()
+    main()
+
     print('Work in progress!')
     print('Successfully finished running tag_products.py!')

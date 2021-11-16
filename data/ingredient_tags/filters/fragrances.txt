@@ -7,3 +7,9 @@ parfum
 perfume
 essential oil
 essential oil blend
+citronellol
+geraniol
+linalool
+citral
+lavandula hybrida extract
+melissa officinalis leaf oil

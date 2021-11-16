@@ -230,8 +230,39 @@ class Product(TimestampMixin, db.Model):
     def serialize_top_five_names(self):
         return { item.ingredient.common_name.upper() for item in self.product_ingredients[:5] }
     @property
+    def serialize_top_ten_names(self):
+        return { item.ingredient.common_name.upper() for item in self.product_ingredients[:10] }
+    @property
     def serialize_all_ingreds(self):
         return { item.ingredient.common_name.upper() for item in self.product_ingredients }
+    @property
+    def get_carcinogens(self):
+        return [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.is_carcinogenic ]
+    @property
+    def get_endocrine_disruptors(self):
+        return [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.is_endocrine_disruptor ]
+    @property
+    def get_formaldehyde_releasors(self):
+        return [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.is_formaldehyde ]
+    @property
+    def get_active_ingreds(self):
+        return [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.active_type ]
+    @property
+    def get_exfoliants(self):
+        return {
+            'AHA': [item.ingredient.common_name for item in self.product_ingredients if item.ingredient.active_type in {'AHA'} ],
+            'BHA': [item.ingredient.common_name for item in self.product_ingredients if item.ingredient.active_type in {'BHA'} ],
+            'PHA': [item.ingredient.common_name for item in self.product_ingredients if item.ingredient.active_type in {'PHA'} ]
+        }
+    @property
+    def get_env_haz(self):
+        return [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.environmental_hazard ]
+    @property
+    def get_hydration_summary(self):
+        return {
+            'Emollients': [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.hydration_type and item.ingredient.hydration_type.lower() in 'emollient' ],
+            'Humectants': [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.hydration_type and item.ingredient.hydration_type.lower() in 'humectant' ],
+            'Occlusives': [ item.ingredient.common_name for item in self.product_ingredients if item.ingredient.hydration_type and item.ingredient.hydration_type.lower() in 'occlusive' ]}
 
     def get_num_ingredients(self):
         return len(self.product_ingredients)
@@ -290,10 +321,9 @@ class Ingredient(TimestampMixin, db.Model):
     active_type = Column(String(20), default=None)
     hydration_type = Column(String(10), default=None)
     special_type = Column(String(30), default=None)
+    is_sunscreen = Column(Boolean, default=None)
 
     is_fragrance = deferred(Column(Boolean, default=None))
-    is_formaldehyde = deferred(Column(Boolean, default=None))
-    is_sunscreen = Column(Boolean, default=None)
     is_silicone = deferred(Column(Boolean, default=None))
     is_sulfate = deferred(Column(Boolean, default=None))
     is_phthalate = deferred(Column(Boolean, default=None))
@@ -302,12 +332,13 @@ class Ingredient(TimestampMixin, db.Model):
     pm_only = Column(Boolean, default=None)
     is_pregnancy_safe = Column(Boolean, default=None)
     irritation_rating = deferred(Column(Boolean, default=None))
-    is_endocrine_disruptor = Column(Boolean, default=None)
 
     # CARCINOGENIC INFO
     is_carcinogenic = Column(Boolean, default=None)
     IARC_group_id = deferred(Column(String(2), default=None))  # TODO: create IARC table (3 rows)
 
+    is_endocrine_disruptor = Column(Boolean, default=None)
+    is_formaldehyde = deferred(Column(Boolean, default=None))
     environmental_hazard = Column(Boolean, default=None)
     other_tox = deferred(Column(Boolean, default=None))
 

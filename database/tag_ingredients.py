@@ -8,10 +8,10 @@ BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import csv
 from pprint import pprint
+import re
 
-from database import crud, db_info, model, read_files
+from database import model
 
 
 LIST_OF_FILES = os.path.abspath('../data/ingredient_tags/about_ingred_files.txt')
@@ -23,10 +23,9 @@ def update_sets_to_check(file_list=LIST_OF_FILES):
     """Returns a dictionary of tags and filepaths (that contain lists of ingredient names for that tag)."""
     file_dict = {}
     with open(file_list, mode='r', encoding='utf-8-sig') as f:
-        print("success!")
         data = f.readlines()
         for line in data:
-            print(line)
+            # print(line)
             tag, filepath = line.split(',')
             tag = tag.upper()
             file_dict[tag.strip()] = filepath.strip()
@@ -48,7 +47,10 @@ def tag_fragrances(ingred_obj, dict_of_types):
 
 def tag_active_type(ingred_obj, dict_of_types):
     """Change ingred_obj's active_type field to the string key."""
-    for tag, tag_set in dict_of_types:
+    # print('dict_of_types.keys():')
+    # pprint(dict_of_types.keys())
+    # dict_keys(['AHA', 'BHA', 'PHA', 'RETINOID', 'SUNSCREEN', 'VITAMIN C'])
+    for tag, tag_set in dict_of_types.items():
         if ingred_obj.common_name.upper() in tag_set:
             ingred_obj.active_type = tag
             if tag.lower() == 'retinoid':
@@ -59,15 +61,15 @@ def tag_active_type(ingred_obj, dict_of_types):
 
 def tag_hydration_type(ingred_obj, dict_of_types):
     """Change ingred_obj's active_type field to the string key."""
-    for tag, tag_set in dict_of_types:
-        if ingred_obj.common_name.lower() in tag_set:
+    for tag, tag_set in dict_of_types.items():
+        if ingred_obj.common_name.upper() in tag_set:
             ingred_obj.hydration_type = tag
             break
 
 
 def tag_special_type(ingred_obj, dict_of_types):
     """Special types include: comedogenic, PFAS (more may be added)"""
-    for tag, tag_set in dict_of_types:
+    for tag, tag_set in dict_of_types.items():
         name = ingred_obj.common_name.upper()
         if name in tag_set:
             ingred_obj.special_type = tag
@@ -75,6 +77,7 @@ def tag_special_type(ingred_obj, dict_of_types):
             ingred_obj.special_type = 'PFAS'
             ingred_obj.is_pregnancy_safe = False
             ingred_obj.is_endocrine_disruptor = True
+            ingred_obj.is_environmental_hazard = True
             break
 
 
@@ -85,7 +88,7 @@ def tag_endocrine_disruptor(ingred_obj, dict_of_types):
             ingred_obj.is_endocrine_disruptor = True
             break
         for tag in tag_set:
-            if tag in name:
+            if tag.upper() in name:
                 ingred_obj.is_endocrine_disruptor = True
                 break
 
@@ -96,6 +99,7 @@ def tag_haz_formaldehyde(ingred_obj, dict_of_types):
             ingred_obj.is_formaldehyde = True
             ingred_obj.is_pregnancy_safe = False
             ingred_obj.is_carcinogenic = True
+            ingred_obj.is_environmental_hazard = True
             break
 
 
@@ -107,10 +111,20 @@ def tag_haz_env(ingred_obj, dict_of_types):
 
 
 def tag_silicone(ingred_obj, dict_of_types):
+    # NOTE: add that it's good for scarring and bad for acne-prone skin
+    # and it's also not helpful when layering skincare, bc it can block off skin
+    name = ingred_obj.common_name
     for tag_set in dict_of_types.values():
-        if ingred_obj.common_name.upper() in tag_set:
+        if 'DIMETHICON' in name.upper() and name.upper() != 'DIMETHICONOL':
+            ingred_obj.common_name = re.sub('dimethicon', 'dimethicone', name)
+        if name in tag_set:
             ingred_obj.is_silicone = True
             ingred_obj.environmental_hazard = True
+        if re.search(r'cyclo[a-z]+siloxane', name.lower()):
+            ingred_obj.is_silicone = True
+            ingred_obj.environmental_hazard = True
+            ingred_obj.is_endocrine_disruptor = True
+            ingred_obj.is_occlusive = True
             break
 
 
@@ -189,13 +203,15 @@ def tag_all_ingredients(file_dict):
     paraben_dict = make_dict(file_dict, ['paraben'])
 
     # Query for all ingredients in the db
-    ingred_objs = model.Ingredient.query.limit(5).all()
+    ingred_objs = model.Ingredient.query.all()
     for ingred in ingred_objs:
         print(ingred)
-        print(ingred.__dict__)
+        # print(ingred.__dict__)
         print('-'*20)
 
         # This also checks for pm_only and is_pregnancy_safe fields
+        print('-' * 20)
+        # pprint(all_actives_dict)
         tag_active_type(ingred, all_actives_dict)
 
         tag_hydration_type(ingred, hydration_dict)
@@ -215,10 +231,11 @@ def tag_all_ingredients(file_dict):
 
 
 def main():
+    # NOTE: add alcohols?
     the_file_dict = update_sets_to_check(LIST_OF_FILES)
     pprint(the_file_dict)
     tag_all_ingredients(the_file_dict)
-    # model.db.session.commit()
+    model.db.session.commit()
 
 
 if __name__ == '__main__':
@@ -226,14 +243,5 @@ if __name__ == '__main__':
         
     model.connect_to_db(app, echo=False)
     
-    print('the_file_dict:')
-    the_file_dict = update_sets_to_check(LIST_OF_FILES)
-    pprint(the_file_dict)
-
-    print('exfoliant_dict:')
-    exfoliant_dict = make_dict(the_file_dict, ['AHA', 'BHA', 'PHA'])
-    pprint(exfoliant_dict)
-
-    # main()
-    print('Work in progress!')
+    main()
     print('Successfully finished running tag_ingredients.py!')
