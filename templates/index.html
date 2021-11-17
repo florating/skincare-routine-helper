@@ -10,102 +10,123 @@ The Skincare Routine Helper
 {% endblock head %}
 
 {% block body %}
-<div class="row">
-  <div class="col-lg-6 offset-lg-3 justify-content-center">
-    <h1>The Skincare Routine Helper</h1>
-  </div>
-</div>
-<div class="row">
-  {% if current_user.is_authenticated %}
-  <div class="logout col">
-    <p>Hi {{ current_user.email }}!</p>
-    <p><i><a href="/logout">Click here</a> to logout.</i></p>
-  </div>
-  {% else %}
-  <!-- FORM: REGISTER FOR AN ACCOUNT -->
-  <div class="col-lg-3 offset-lg-2 register-account">
-    <h3>Account Registration</h3>
-    <form id="register-account" action="/register" method="POST">
-      <div class="field">
-        <!-- <label>First Name:</label> -->
-        <input type="text" name="f_name" placeholder="First Name" />
-      </div>
-      <div class="field">
-        <!-- <label>Last Name:</label> -->
-        <input type="text" name="l_name" placeholder="Last Name" />
-      </div>
-      <div class="field">
-        <!-- <label>Email:</label> -->
-        <input type="email" name="email" placeholder="Email" />
-        <!-- pattern="@(?=.*[a-z])\.(?=.*[a-z])$" -->
-        <!-- FIXME: protect against SQL injection! -->
-      </div><!-- Add tooltip about password requirements! -->
-      <div class="tooltip" id="password-requirements">Password requirements
-        <span class="tooltiptext">
-          <ul>
-            <li>Have between eight and twelve characters</li>
-            <li>Contain at least one uppercase letter</li>
-            <li>Contain at least one lowercase letter</li>
-            <li>Contain at least one number</li>
-            <li>Contain at least one special character</li>
-          </ul>
-        </span>
-      </div>
-      <div class="field">
-        <!-- <label>Password:</label> -->
-        <input name="password" type="password" placeholder="Password" title="Password Title Here?" maxlength="12" />
-        <!-- pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$" -->
-      </div>
-      <div class="field">
-        <!-- <label>Confirm Password:</label> -->
-        <input name="password_2" type="password" placeholder="Confirm Password" title="Password Title Here Again?"
-          maxlength="12" />
-        <!--
-            only allow submission if passwords match -->
-        <!-- 
-            Change maxlength? and how do we check that the passwords match? -->
-      </div>
-      <div class="submit"><input type="submit" value="Register"></div>
-    </form>
-  </div>
-
-  <!-- FORM: LOGIN HERE -->
-  <div class="col-lg-3 offset-lg-2 login-form">
-    <h2>Log In</h2>
-    <form action="/login" method="POST" id="login">
-      <p>
-        <input type="text" name="email" placeholder="Email">
-      </p>
-
-      <p>
-        <input type="password" name="password" placeholder="Password">
-      </p>
-
-      <p>
-        <input type="submit" value="Login">
-      </p>
-    </form>
-  </div>
-  {% endif %}
-</div>
 <div class="container">
-  <div class="row">
-    <div class="col-5">
+  <div class="row" id="section-one">
+    <div class="col-lg-6 offset-lg-3 justify-content-center">
+        <h1 class="logo-font">The Skincare Routine Helper</h1>
+    </div>
+  </div>
+  <div class="row" id="section-two">
+    {% if not current_user.is_authenticated %}
+    <div class="col-lg-2">
+      <img src="/static/img/undraw_fall_thyk.svg" width="300px" />
+    </div>
+    <!-- FORM: REGISTER FOR AN ACCOUNT -->
+    <div class="col-lg-3 offset-lg-2 register-account">
+      <h3>Sign Up</h3>
+      <form id="register-account" action="/register" method="POST">
+        <div class="field">
+          <!-- <label>First Name:</label> -->
+          <input type="text" name="f_name" placeholder="First Name" />
+        </div>
+        <div class="field">
+          <!-- <label>Last Name:</label> -->
+          <input type="text" name="l_name" placeholder="Last Name" />
+        </div>
+        <div class="field">
+          <!-- <label>Email:</label> -->
+          <input type="email" name="email" placeholder="Email" />
+          <!-- pattern="@(?=.*[a-z])\.(?=.*[a-z])$" -->
+          <!-- FIXME: protect against SQL injection! -->
+        </div>
+        <div class="tooltip" id="password-requirements">
+          Password requirements
+          <span class="tooltiptext">
+            <ul>
+              <li>Have between eight and twelve characters</li>
+              <li>Contain at least one uppercase letter</li>
+              <li>Contain at least one lowercase letter</li>
+              <li>Contain at least one number</li>
+              <li>Contain at least one special character</li>
+            </ul>
+          </span>
+        </div>
+        <div class="field">
+          <!-- <label>Password:</label> -->
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            title="Password Title Here?"
+            maxlength="12"
+          />
+          <!-- pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$" -->
+        </div>
+        <div class="field">
+          <!-- <label>Confirm Password:</label> -->
+          <input
+            name="password_2"
+            type="password"
+            placeholder="Confirm Password"
+            title="Password Title Here Again?"
+            maxlength="12"
+          />
+          <!-- only allow submission if passwords match -->
+          <!-- Change maxlength? and how do we check that the passwords match? -->
+        </div>
+        <div class="submit"><input type="submit" value="Register"></div>
+      </form>
+    </div>
+    <!-- FORM: LOGIN HERE -->
+    <div class="col-lg-3 offset-lg-1 login-form">
+      <h3>Log In</h3>
+      <form action="/login" method="POST" id="login">
+        <p>
+          <input type="text" name="email" placeholder="Email">
+        </p>
+
+        <p>
+          <input type="password" name="password" placeholder="Password">
+        </p>
+
+        <p>
+          <input type="submit" value="Login">
+        </p>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-5" id="section-three">
       <h3>About Our Database</h3>
-      <p>We are always adding more products to our database! Here's how the database looks now.</p>
-      <table>
+      <p>
+        We are always adding more products to our database! Here's how the
+        database looks now.
+      </p>
+      <table class="content-table">
+        <thead>
         <tr>
-          <td><b>Product Type</b></td>
-          <td><b># of Products</b></td>
-          <td><b>AVG # of Ingredients</b><br>(per product)</td>
+            <th>Product Type</th>
+            <th># of Products</th>
+            <th>AVG # of Ingredients<br />(per product)</th>
         </tr>
+        </thead>
+        <tbody>
+          {% for row in table %}
+          <tr>
+            {% for item in row %}
+            <td>{{ item }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
     <div class="col-5 offset-1">
       <h3>Data Visualization</h3>
       <!-- Create a div for the lollipop graph -->
       <div id="my_dataviz"></div>
-
     </div>
   </div>
 </div>

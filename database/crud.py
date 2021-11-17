@@ -289,6 +289,22 @@ def process_form(param_list, form_data):
     return data
 
 
+def prepare_db_summary_table(filepath):
+    """Prepare table to display on homepage."""
+    # filepath = os.path.abspath('../static/files/db_summary.csv')
+    rows = []
+    with open(filepath, mode='r', encoding='utf-8') as file:
+        csvreader = csv.reader(file, delimiter=',', quotechar='"')
+        for row in csvreader:
+            if row[0] == 'category_id':
+                continue
+            row_to_add = row[1:4]
+            row_to_add[-1] = row_to_add[-1][:5]
+            # row_to_add[-1] = f'{int(row_to_add[-1]):.2f}'
+            rows.append(row_to_add)
+    return rows
+
+
 ##### QUERY FUNCTIONS BELOW #####
 
 def get_obj_by_id(class_name, obj_id):

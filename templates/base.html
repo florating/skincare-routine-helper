@@ -1,6 +1,5 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8">
   <title>{% block title %}{% endblock %}</title>
@@ -8,8 +7,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
   <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+    crossorigin="anonymous"
+  />
 
   <!-- Bootstrap icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
@@ -21,8 +24,11 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 
   <!-- jQuery from https://code.jquery.com (use the latest, uncompressed version) -->
-  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-    crossorigin="anonymous"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.js"
+    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"
+  ></script>
 
   <!-- React, React DOM, and Babel -->
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
@@ -30,15 +36,18 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script> -->
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito&family=Shadows+Into+Light&display=swap" rel="stylesheet">
   {% block head %}{% endblock %}
 </head>
 
 <body>
   <!-- Static navbar -->
   <nav class="navbar sticky-lg-top navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand mb-2 ms-2" href="/">The Skincare Routine Helper</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand mb-2 ms-2 logo-font" href="/"
+      >The Skincare Routine Helper</a
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -100,5 +109,4 @@
   <!-- JavaScript, JSX, AJAX, etc. -->
   <!-- <script src="http://code.jquery.com/jquery.js"></script> -->
 </body>
-
 </html>

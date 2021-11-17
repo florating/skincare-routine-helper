@@ -17,9 +17,7 @@ from database.model import db, connect_to_db
 app = Flask(__name__)
 
 # FIXME: the following bits of code are for testing purposes only!
-# set app configurations for SECRET_KEY later, after fixing secrets.sh
 _SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
-# print(_SECRET_KEY)
 app.secret_key = _SECRET_KEY
 app.config['FLASK_ENV'] = os.environ.get('FLASK_ENV')
 app.jinja_env.undefined = StrictUndefined
@@ -34,8 +32,9 @@ login_manager.login_message = 'Please log in or register for an account first.'
 
 @app.route('/')
 def index():
-    # NOTE: js reads db_summary.csv file instead of crud calculating it
-    return render_template('index.html')
+    filepath = 'static/files/db_summary.csv'
+    'static/files/db_summary.csv'
+    return render_template('index.html', table=crud.prepare_db_summary_table(filepath))
 
 
 @login_manager.user_loader
