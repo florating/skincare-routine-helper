@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Find Skincare Products{% endblock %}
 
@@ -10,17 +10,21 @@
     column-count: 3;
     list-style: none;
   }
+  
+  #product-search-form {
+      padding: 100px 0 100px;
+  }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container">
   <div class="row">
-    <div class="col">
+    <div class="col-5 justify-content-center center-css" id="product-search-form">
       <h2>Search for Skincare Products</h2>
 
       <!-- FORM STARTS HERE! -->
-      <form method="POST" action="/products">
+      <form method="GET" action="/products/results">
         <div class="row">
           <label class="form-label" for="search-keyword">Product Name</label>
 
@@ -29,7 +33,7 @@
             class="form-control"
             type="text"
             name="product_name"
-            placeholder="Product Name"
+            placeholder="Product Name..."
             title="Leave this blank to get all products!"
           >
         </div>
@@ -43,7 +47,6 @@
           >
             <option value="product_name">Name</option>
             <option value="category_id">Product Type</option>
-            <!-- <option value="relevance,asc">Relevance</option> -->
           </select>
         </div>
         <div class="row">
@@ -51,14 +54,11 @@
             <!-- <fieldset class="group"> -->
               <summary><label for="category-selection-form">Filter by Product Type?</label>
               </summary>
-                <p><i>The search will query all product types by default. (Under construction.)</i></p>
-            <!-- FIXME: include this value in the query in server.py -->
+                <p><i>The search will query all product types by default.</i></p>
               
               <div class="category-selection-form" display="inline-block">
                 <ul>
                 {% for row in categories_table %}
-                <!-- FIXME: show buttons as in-line blocks?
-                see: https://css-tricks.com/when-do-you-use-inline-block/ -->
                 <li><span style="white-space: nowrap;"><input
                   type="checkbox"
                   name="category_id"
@@ -80,11 +80,9 @@
           </div>
         </div>
       </form>
-    </div>
   </div>
   <div class="row">
-    <div class="col" id="datalist">Get started by typing at least 3 characters into the search box.
-        <!-- FIXME: clean this up later -->
+    <div class="col-5 justify-content-center center-css" id="datalist">
     </div>
   </div>
 </div>

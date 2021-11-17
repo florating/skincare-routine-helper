@@ -67,7 +67,6 @@ body {
 	/* background-color: rgba(63, 127, 191, 0.2); */
 	font-family: sans-serif;
 	padding-bottom: 50px;
-	/* background-image: url('/static/img/roberto-nickson-YCW4BEhKluw-unsplash.jpg'); */
 	background-size: cover;
 	background-repeat: no-repeat;
 }
@@ -110,7 +109,7 @@ div.container {
 	min-width: 400px;
 	border-radius: 5px 5px 0 0;
 	overflow: hidden;
-	box-shadow: 0 0 20px rgba(0, 0, 0, .2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 .content-table thead tr {
@@ -140,4 +139,16 @@ div.container {
 .content-table tbody tr.active-row {
 	font-weight: bold;
 	color: cadetblue;
+}
+
+.navbar .search-box {
+  margin-right: 10px;
+}
+
+.navbar .input-search {
+  color: var(--clr-border-dark);
+}
+
+.pagination {
+  margin-top: 20px;
 }

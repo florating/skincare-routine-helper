@@ -159,7 +159,7 @@ def livesearch():
     """
 
     if request.method == 'POST':
-        search_text = request.form.get('text')
+        search_text = request.form.get('product_name')
         search_order_by = request.form.get('order_by')
         search_limit = 10  # can change this later
         
@@ -181,16 +181,22 @@ def livesearch():
     # return jsonify(json_list=result.serialize)
 
 
-@app.route('/products', methods=['GET', 'POST'])
-def show_products_from_search():
-    """Search for skincare products in the database.
+@app.route('/products')
+def display_search_form():
+    """Displays search form to search for skincare products in the database."""
+    cats = model.Category.query.filter(model.Category.category_name.not_in(
+        ['Bath Oil', 'Bath Salts', 'Body Wash'])).all()
+    return render_template('search-form.html', categories_table=cats)
 
-    Use form data from /products (in 'search-form.html') to populate any search parameters.
-    """
-    if request.method == 'POST':
+
+@app.route('/products/results')
+@login_required
+def product():
+    """Show list of skincare products that match the query, including pagination."""
+    page = request.args.get('page', 1, type=int)
         param_list = ['product_name', 'category_id', 'order_by']
-        form_params = crud.process_form(param_list, request.form)
-        form_params.update({'limit': 10})
+    form_params = crud.process_form(param_list, request.args, request.method)
+    # form_params.update({'limit': 10})
 
         QUERY = model.Product.query
         for param, param_val in form_params.items():
@@ -200,28 +206,28 @@ def show_products_from_search():
                     QUERY = QUERY.filter(model.Product.product_name.ilike(f'%{param_val}%'))
                 elif param == 'category_id':
                     QUERY = QUERY.filter(model.Product.category_id == int(param_val))
-                    # TODO: add ability to check multiple product types in a single search query
                 elif param == 'order_by':
-                    # print(f"param_val = {param_val}\n\n\n")
                     QUERY = QUERY.order_by(param_val)
-                elif param == 'limit':
-                    QUERY = QUERY.limit(param_val)
+            # elif param == 'limit':
+            #     QUERY = QUERY.limit(param_val)
 
-        # print(f"QUERY = {QUERY}\n\n\n")
+    print(f"QUERY = {QUERY}\n\n\n")
+    print(QUERY)
         result = QUERY.all()
+    num_results = len(result)
+    products = QUERY.paginate(page, 10, False)
+
+    prev_url = url_for('product', page=products.prev_num) \
+        if products.has_prev else None
+    next_url = url_for('product', page=products.next_num) \
+        if products.has_next else None
 
         if current_user.is_anonymous:
-            cab_prod_id_list = ''
             return render_template('search-results-noauth.html', product_list=result)
-        # cab_prod_id_list = []
-        # for cab_obj in current_user.cabinets:
-        #     cab_prod_id_list.append(cab_obj.product_id)
+
         cab_prod_id_list = current_user.serialize_cabinet_prod_ids
 
-        return render_template('search-results.html',
-            product_list=result, current_cabinet=cab_prod_id_list)
-
-    return render_template('search-form.html', categories_table = model.Category.query.all())
+    return render_template('search-results.html', num_results=num_results, product_list=products.items, current_cabinet=cab_prod_id_list, prev_url=prev_url, next_url=next_url, page=page, last_page=(num_results)//10)
 
 
 @app.route('/add_to_cabinet', methods=['POST'])

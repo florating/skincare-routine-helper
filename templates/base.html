@@ -34,8 +34,9 @@
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <!-- <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script> -->
 
+  <!-- More custom CSS -->
+  <link rel="stylesheet" href="/static/css/search-bar.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito&family=Shadows+Into+Light&display=swap" rel="stylesheet">
@@ -48,15 +49,28 @@
     <a class="navbar-brand mb-2 ms-2 logo-font" href="/"
       >The Skincare Routine Helper</a
     >
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-2">
-        <!-- <li class="nav-item active">
-            <a class="nav-link" href="/">Home <span class="sr-only"></span></a>
-          </li> -->
-        {% if current_user.is_authenticated %}
+        {% if not current_user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Log In</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/products">Product Search</a>
+        </li>
+        {% else %}
         <li class="nav-item">
           <a class="nav-link" href="/user_profile">User Profile</a>
         </li>
@@ -64,26 +78,27 @@
           <a class="nav-link" href="/routine">Routines</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/logout">Log Out</a>
-        </li>
-        {% else %}
-        <li class="nav-item">
-          <a class="nav-link" href="/login">Log In</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
           <a class="nav-link" href="/products">Product Search</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
+          <a class="nav-link" href="/logout">Log Out</a>
         </li>
+        {% endif %}
       </ul>
 
-      <!-- SEARCH FORM STARTS HERE -->
-      <form class="d-flex" action="/products" method="POST">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="product_name" />
-        <button class="btn btn-outline-success me-2" type="submit">Search</button>
-      </form>
+      {# start form #}
+      <div class="search-box" id="animated-search-box">
+        <form action="/products/results" methods="GET">
+          <button class="btn-search"><i class="bi bi-search"></i></button>
+          <input
+            type="text"
+            class="input-search"
+            name="product_name"
+            placeholder="Search for a product..."
+          />
+        </form>
+      </div>
+      {# end form #}
     </div>
   </nav>
   <div id="root">
@@ -101,12 +116,11 @@
   </div>
 
   {% block after_body %}
-  <script>
-    $(".flash").hide().delay(800).fadeIn(800).delay(4000).fadeOut(800);
-  </script>
+    <!-- <script>
+    // $(".flash").hide().delay(800).fadeIn(800).delay(4000).fadeOut(800);
+  </script> -->
   {% endblock %}
 
   <!-- JavaScript, JSX, AJAX, etc. -->
-  <!-- <script src="http://code.jquery.com/jquery.js"></script> -->
 </body>
 </html>

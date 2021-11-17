@@ -1,52 +1,72 @@
-{% extends "base.html" %} {% block title %}Skincare Products{% endblock %} {%
-block head %}
+{% extends "base.html" %} 
+
+{% block title %}Skincare Products{% endblock %}
+
+{% block head %}
 <link rel="stylesheet" href="/static/css/search-results.css" />
-<link rel="stylesheet" href="/static/css/search-bar.css" />
-{% endblock %} {% block body %}
+{% endblock %}
+
+{% block body %}
 <div class="container">
   <div class="row">
     <div class="col d-flex justify-content-center">
-      <div class="search-box" id="animated-search-box">
-        <button class="btn-search"><i class="bi bi-search"></i></button>
-        <input type="text" class="input-search" placeholder="Type to Search...">
-      </div>
-
-      <p><a href="/products" class="lead backlink"> Go back to the search form </a></p>
+      <!-- <p><a href="/products" class="lead backlink"> Go back to the search form </a></p> -->
     </div>
   </div>
 
   <div class="row">
-    <!-- <div class="col">
-        <div id="results-as-repr">
-          <h2>Results:</h2>
-          {% if product_list %}
-            {% for item in product_list %}
-            <pre>{{ item }}</pre>
-            {% endfor %}
-          {% else %}
-            <p>There are no products to display.</p>
-          {% endif %}
-        </div>
-      </div> -->
-
     <div class="col justify-content-center">
       <div class="results" id="product-search-results">
         <h2>Product Search Results</h2>
 
         {% if not product_list %}
-        <p>There are no products to display.</p>
+          <p>There are no products to display.</p>
         {% else %}
         <p>
-          <span id="result-count"> {{ product_list|length }} </span>
+          <span id="result-count"> {{ num_results }} </span>
           products matched your search.
         </p>
         <div class="row">
           <div class="col-7">
-            {# FIXME: change the wording for results shown #} {% if
-            product_list|length > 10 %} Showing 10 of {{ product_list|length }}
-            products. {% endif %}
-
-            <!-- FORM STARTS HERE -->
+            <div id="num_results">
+              {# FIXME: change the wording for results shown #}
+              {% if num_results > 10 %}
+                Showing 10 of {{ num_results }} products.
+              {% endif %}
+            </div>
+            {% if prev_url or next_url %}
+            <nav aria-label="Page navigation">
+              <ul class="pagination">
+                {% if prev_url %}
+                <li class="page-item">
+                  <a
+                    class="page-link"
+                    href="{{ prev_url }}"
+                    aria-label="Previous"
+                  >
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                {% endif %}
+                {% if page > 1 %}
+                <li class="page-item"><a class="page-link" href="#">...</a></li>
+                {% endif %}
+                <li class="page-item">
+                  <a class="page-link disabled" href="#">{{ page }}</a>
+                </li>
+                {% if page < last_page %}
+                <li class="page-item"><a class="page-link" href="#">...</a></li>
+                {% endif %}
+                {% if next_url %}
+                <li class="page-item">
+                  <a class="page-link" href="{{ url_for('product') }}?{{request.query_string.decode()}}&page={{page + 1}}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
             <form id="add_to_cabinet" method="POST" action="/add_to_cabinet">
               <table class="product-list content-table">
                 <thead>
@@ -63,7 +83,6 @@ block head %}
                   <tr class="product">
                     <td>
                       {% if item.product_id in current_cabinet %}
-                      <!-- FIXME: add DOM stuff later -->
                       <input
                         type="checkbox"
                         class="product_id for_cabinet"
@@ -100,11 +119,17 @@ block head %}
             </form>
           </div>
           <div class="col-5" id="prod-ingredient-info">
-            <h3>Ingredients</h3>
+            <img
+              src="/static/img/undraw_workout_gcgu.svg"
+              alt="triangle with all three sides equal"
+              height="400px"
+            />
+
+            <!-- <h3>Ingredients</h3>
             <p id="prod-top-5">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore,
               soluta!
-            </p>
+            </p> -->
           </div>
         </div>
         {% endif %}
@@ -112,17 +137,14 @@ block head %}
     </div>
   </div>
   <p>
-    Don't see the product you're looking for? Please add it to the database by
-    filling out
-    <a href="https://forms.gle/HY4xgVRk7s7eW1kS6" target="_blank">this form</a>!
+    <i
+      >Don't see the product you're looking for? Please add it to the database
+      by filling out
+      <a href="https://forms.gle/HY4xgVRk7s7eW1kS6" target="_blank">this form</a
+      >!</i
+    >
   </p>
 </div>
-<button id="test-alert">Click to get an alert!</button>
-{% endblock %} {% block after_body %}
-<script>
-  $("#test-alert").on("click", (evt) => {
-    evt.preventDefault();
-    alert("This is an alert!");
-  });
-</script>
 {% endblock %}
+
+{% block after_body %}{% endblock %}
