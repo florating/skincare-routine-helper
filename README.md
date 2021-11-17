@@ -3,6 +3,7 @@
 ## Table Of Contents
 
 1. [Overview](#overview)
+    - [Tech Stack](#tech-stack)
 2. [Features](#features)
 3. [Knowledge Gained](#knowledge-gained)
 4. [Future Improvements](#future-improvements)
@@ -19,6 +20,20 @@ No worries, the Skincare Routine Helper is here!
 The Skincare Routine Helper is an evidence-based app to help recommend skincare products and general skincare routines based on area of concern and ingredient safety. Users can search the product database and filter for products that are environmentally friendly, pregnancy-safe, fragrance-free, and more. Users can start with a beginner-friendly skincare routine, and they can eventually level up to more advanced routines consisting of multiple steps with a variety of different active ingredients (eg: niacinamides, vitamin C, and retinols).
 
 Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
+
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
+
+### Tech Stack
+**Backend:** Python, Flask, Flask-Login, Werkzeug
+- **Database:** SQL, PostgreSQL, SQLAlchemy, Flask-SQLAlchemy
+- **Data cleanup/generation:** pandas, Mockaroo
+- **Web scraping:** Beautiful Soup, ratelimiter
+
+**Frontend:** HTML, CSS, Jinja, Javascript, jQuery, jQuery UI, Bootstrap
+- **Data visualization:** D3.js
+- **Image server:** Cloudinary
+
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
 
 ## Features
 
@@ -45,7 +60,7 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 
 - Password security handled via [Werkzeug](https://werkzeug.palletsprojects.com/en/2.0.x/) using **salted SHA256 hashes**
 
-_[Click here](#the-skincare-routine-helper) to go back to the top._
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
 
 
 ## Knowledge Gained
@@ -162,7 +177,7 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 #### Known Bugs
 
-_These are known bugs in the project that will be tackled soon!_
+*These are known bugs in the project that will be tackled soon!*
 
 **High priority:**
 
