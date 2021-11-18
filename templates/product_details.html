@@ -4,6 +4,15 @@
   Product Details
 {% endblock title %}
 
+{% block head %}
+<style>
+  .product-img {
+    max-width: 200px;
+    border-radius: 10px;
+  }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="row">
   <div class="product-info offset-2 col-8">
@@ -15,9 +24,8 @@
 </div>
 <div class="row">
   <div class="col-3 offset-1" id="product_info">
-    <h3>Image Goes Here...</h3>
-    
     <h3>Product Info</h3>
+    <img class="product-img" src="{{ product.cloud_img_url if product.cloud_img_url else '/static/img/angelica-echeverry-iZlMuVu9luM-unsplash.jpg'}}">
     <ul>
       <li>Product Type{# using category_id, so product.category.category_name --> #}: {{ product.category.category_name }}</li>
       <li>Buy this product <a href="{{ product.product_url }}">here</a>!</li>
@@ -87,7 +95,7 @@
             {% for ingred in ingreds %}
               <li>{{ ingred }}</li>
             {% endfor%}
-    </ul>
+          </ul>
         {% endif %}
       {% endfor %}
     {% endif %}

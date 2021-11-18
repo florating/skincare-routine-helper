@@ -143,13 +143,24 @@ def update_skin_profile():
     return redirect('/settings')
 
 
-@app.route('/products/<product_id>')
+@app.route('/products/<int:product_id>')
 def show_product(product_id):
     """Show product profile for a particular product."""
+    product_obj = model.Product.query.get_or_404(escape(product_id))
 
-    product_obj = model.Product.query.get(escape(product_id))
-    print(product_obj.product_name)
-    return render_template('product_details.html', product=product_obj)
+    if product_obj:
+        carcinogens = product_obj.get_carcinogens
+        ed = product_obj.get_endocrine_disruptors
+        exfoliants = product_obj.get_exfoliants
+        env_haz = product_obj.get_env_haz
+        hydration = product_obj.get_hydration_summary
+        formaldehydes = product_obj.get_formaldehyde_releasors
+        return render_template('product_details.html', product=product_obj,
+            carcinogens=carcinogens, endocrine_disruptors=ed, formaldehydes=formaldehydes,
+            exfoliants=exfoliants, env_haz=env_haz, hydration=hydration)
+    
+    flash('That product does not exist.', 'error')
+    return redirect('/products')
 
 
 @app.route('/livesearch', methods=['GET', 'POST'])

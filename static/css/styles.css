@@ -152,3 +152,15 @@ div.container {
 .pagination {
   margin-top: 20px;
 }
+
+.thumbnail {
+  width: 50px;
+  border-radius: 25px;
+  transition: scale 500ms ease;
+}
+
+.thumbnail:focus,
+.thumbnail:hover {
+  scale: 1.2;
+  transition: scale 500ms ease;
+}
