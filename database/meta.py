@@ -17,7 +17,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from ratelimit import limits, sleep_and_retry
 
-from database import crud, db_info, model
+from database import crud, model, model_helpers
 
 VALID_DB_NAMES = {'project_test', 'project_test_2', 'testdb'}
 
@@ -33,7 +33,8 @@ NOTE: check current categories and # of products using this query:
 @sleep_and_retry
 @limits(calls=1, period=SECONDS)
 def get_data(url):
-    """Scrape image url from metadata using Beautiful Soup with rate limits."""
+    """Scrape image url from metadata using Beautiful Soup with rate limits.
+    FORMAT: (title, title_content, image, image_content)"""
     print("Let's get some data!")
     try:
         with urlopen(url) as webpage:
@@ -69,7 +70,7 @@ def get_product_ids(cat_name, set_limit=10):
     return [(prod.category_id, cat_name, prod.product_id, prod.product_url) for prod in prod_list.all()]
 
 
-def get_product_ids_and_checked_metadata(filepath=_FILEPATH):
+def get_product_ids_and_checked_metadata(upload=False, filepath=_FILEPATH):
     """Return a list of tuples for product ids and image URLs that have already been checked."""
     checked_rows = []
     with open(filepath, mode='r', encoding='utf-8') as written_metadata:
@@ -80,17 +81,27 @@ def get_product_ids_and_checked_metadata(filepath=_FILEPATH):
 
         for row in csvreader:
             # pprint(row)
-            if row['img_content']:
-                checked_rows.append((row['product_id'], row['img_content']))
+            if upload:
+                if row['img_content']:
+                    checked_rows.append((row['product_id'], row['img_content']))
+                elif row.get('cloud_url_secure'):
+                    checked_rows.append((row['product_id'], row['cloud_url_secure']))
+            else:
+                if row['img_content']:
+                    checked_rows.append((row['product_id'], row['img_content']))
+    if upload:
+        print(f'\n\nSuccessfully found {len(checked_rows)} rows that already have data in the cloud_url_secure field.\n')
+    else:
+        print(f'\n\nSuccessfully found {len(checked_rows)} rows that already have data in the img_content field.\n')
+    print(f'filepath = {filepath}\n\n')
 
-    print(f'\n\nSuccessfully found {len(checked_rows)} rows that already have data in the img_content field.\n\n')
     return checked_rows
 
 
 def get_checked_prod_ids(tuple_list):
     """Returns a set of product ids for which a check on metadata has already been made."""
-    if not tuple_list:
-        tuple_list = get_product_ids_and_checked_metadata()
+    # if not tuple_list:
+    #     tuple_list = get_product_ids_and_checked_metadata()
     return {int(tup[0]) for tup in tuple_list if tup[1]}
 
 
@@ -102,20 +113,21 @@ def write_metadata_to_csv(tup_list, prods_to_skip=None):
         data_writer = csv.writer(metadata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         # Write the row of headers first (if not yet done)
-        # data_writer.writerow(['category_id', 'category_name', 'product_id', 'product_url', 'meta_title', 'title_content', 'meta_img', 'img_content', 'date_updated'])
+        # data_writer.writerow(['date_updated', 'category_id', 'category_name', 'product_id', 'product_url', 'meta_title', 'title_content', 'meta_img', 'img_content'])
 
         # Write each row of results
         for result in tup_list:
             if not result:
                 continue
             (cat_id, cat_name, prod_id, prod_url) = result
-            current_dt = model.get_current_datetime()
+            current_dt = model_helpers.get_current_datetime()
             
             if not prod_id or prod_id in prods_to_skip:
                 # print(f'{prod_id} is in prods_to_skip! continue...')
                 continue
 
             # print(f'{prod_id} is not in prods_to_skip! append to summary...')
+            # Scrape data
             (title, title_content, image, image_content) = get_data(prod_url)
             data_writer.writerow([
                 current_dt, cat_id, cat_name, prod_id, prod_url,
@@ -145,8 +157,8 @@ if __name__ == '__main__':
     print(prods_to_skip_set)
     print('--- %s seconds ---' % (time.time() - start_time))
     print('\n')
-    # iterate through the list of prod_ids to get_data
-    # write the returned (title, image) values into a csv
+    # Iterate through the list of prod_ids to get_data
+    # Write the returned (title, image) values into a csv
     results = []
     results.extend(write_metadata_to_csv(prods, prods_to_skip_set))
     print('--- %s seconds ---' % (time.time() - start_time))

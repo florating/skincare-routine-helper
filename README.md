@@ -6,6 +6,7 @@
     - [Tech Stack](#tech-stack)
 2. [Features](#features)
 3. [Knowledge Gained](#knowledge-gained)
+    - [Webscraping](#webscraping)
 4. [Future Improvements](#future-improvements)
 5. [Installation Instructions](#installation-instructions)
 6. [Task List](#task-list)
@@ -13,7 +14,7 @@
 
 ## Overview
 
-Did you know that the EU restricts 1,328 chemicals from cosmetics while the US restricts only 11? Or that in 2019, the FDA removed 14 of 16 sunscreen ingredients from its 'generally safe and effective' category? How are we as consumers supposed to know which ingredients are helpful vs harmful? And how can we stay up to date on the latest scientific findings?
+Did you know that the EU restricts 1,328 chemicals from cosmetics while the US restricts only 11? Or that in 2019, the FDA removed 14 of 16 sunscreen ingredients from its "generally safe and effective" category? How are we as consumers supposed to know which ingredients are helpful vs harmful? And how can we stay up to date on the latest scientific findings?
 
 No worries, the Skincare Routine Helper is here!
 
@@ -68,6 +69,15 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 - be mindful of the objectives of each project when brainstorming to better select helpful datasets with the goals in mind
 - write effective and concise commit messages
 - be mindful of ergonomics!
+
+### Webscraping
+The Kaggle dataset contained URL to a webpage where users can purchase the specific skincare product. (Presumably, the original person who created this dataset specifically scraped these webpages.)
+
+After checking the website's robots.txt to confirm that scraping in this manner is not disallowed, product image URLs were scraped from metadata by visiting the product URLs. I used the Beautiful Soup and ratelimiter libraries in `meta.py` to automate this process. By limiting the requests to once per 20-30 seconds, I was able to respectfully access the website without taking up too much of their server's bandwidth. This also decreased the risk of detection and possible IP restriction or bans from server admin.
+
+Image URLs were saved to CSV files, which were later accessed using scripts in `cloud.py` to upload them to Cloudinary in a rate-limited fashion. The returned image URL from Cloudinary was secured (uses HTTPS protocol) and saved in a CSV. I also simultaneously added the secured image URL to its respective product within the database by accessing the cloud_img_url field for the ORM class.
+
+*[Click here](#the-skincare-routine-helper) to go back to the top.*
 
 ## Future Improvements
 - Look into improved encryption methods to hash and salt passwords
