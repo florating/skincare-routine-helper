@@ -6,6 +6,7 @@
     - [Tech Stack](#tech-stack)
 2. [Features](#features)
 3. [Knowledge Gained](#knowledge-gained)
+    - [System Design](#system-design)
     - [Webscraping](#webscraping)
 4. [Future Improvements](#future-improvements)
 5. [Installation Instructions](#installation-instructions)
@@ -69,6 +70,23 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 - be mindful of the objectives of each project when brainstorming to better select helpful datasets with the goals in mind
 - write effective and concise commit messages
 - be mindful of ergonomics!
+
+### System Design
+![System Design Diagram](static/img/System_Design-img.png)
+The Python server uses a Flask framework as the view engine to render HTML templates using Jinja. SQLAlchemy and Flask-SQLAlchemy allowed for the creation of ORM classes to provide an object-oriented approach to managing relationships within the PostgreSQL database. I added a custom `TimestampMixin` to these classes to allow me to handle the `created_on`, `updated_on`, and `retired_on` fields for each table and to convert aware UTC datetimes to Pacific Time for display purposes. I also added `@property` decorators to serialize data from within a single instance of an ORM class and to also leverage data by navigating the relationships within the database (particularly useful for listing ingredient names for each product in order of abundance).
+
+#### Reasons
+1. Flask is lightweight, so it's great for building application prototypes.
+    - pro: able to build features quickly
+    - con: not as structured as larger frameworks like Django, but I'm not handling an unwieldy amount of data
+2. Python has many libraries (like `pandas`) for data science-related tasks, like data cleanup/sanitization and analysis.
+3. SQLAlchemy is the object relational mapper that allows for an object-oriented approach to handling data within the PostgreSQL database.
+    - pros:
+        - queries that incorporate user input will automatically sanitize input (no parameter substitution required as would be required for raw SQL queries)
+        - abstraction
+    - cons:
+        - design data model and connect all of the pieces myself (actually was a great learning experience!)
+    
 
 ### Webscraping
 The Kaggle dataset contained URL to a webpage where users can purchase the specific skincare product. (Presumably, the original person who created this dataset specifically scraped these webpages.)
