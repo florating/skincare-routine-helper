@@ -9,6 +9,7 @@ sys.path.append(BASE_PATH)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import ast
+import csv
 from decimal import Decimal
 from pprint import pprint
 import re
@@ -279,13 +280,20 @@ def find_alt_name(name):
         return (name, common_name, alt_name)
 
 
-def process_form(param_list, form_data):
+def process_form(param_list, form_data, request_method='GET'):
     """Given form_data (request.form or request.args), create a dict of values."""
     data = {}
-    for param in param_list:
-        val = form_data.get(param, '')
-        if val:
-            data[param] = val
+    if request_method == 'GET':
+        for param in param_list:
+            val = form_data.get(param, '')
+            if val:
+                data[param] = val
+
+    elif request_method == 'POST':
+        for param in param_list:
+            val = form_data.get(param, '')
+            if val:
+                data[param] = val
     return data
 
 
