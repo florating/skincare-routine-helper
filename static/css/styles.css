@@ -1,12 +1,28 @@
-/* 	#32a1ce = hsl(197, 61%, 50%) */
+/* table of contents
+
+1. global styles
+
+2. layout
+
+3. typography
+
+4. components
+   4.1 alerts
+   4.2 tables
+   4.3 tooltips
+   4.4 thumbnails
+   4.5 navbar search
+
+*/
+
+
+/* ================
+   1. global styles
+   ================ */
 
 body,
 html {
   min-height: 100vh;
-}
-
-#section-one {
-  margin: 0 0 50px;
 }
 
 .center-css {
@@ -14,12 +30,62 @@ html {
 }
 
 :root {
-	--clr-neutral-900: hsl(207, 19%, 9%);
-	--clr-neutral-100: hsl(0, 0%, 100%);
-	--clr-accent-400: hsl(288, 42%, 75%);
-	--clr-border: hsl(197, 61%, 50%);
-	--clr-border-dark: hsl(197, 40%, 55%);
+  --clr-neutral-900: hsl(207, 19%, 9%);
+  --clr-neutral-100: hsl(0, 0%, 100%);
+  --clr-accent-400: hsl(288, 42%, 75%);
+  --clr-border: hsl(197, 61%, 50%);
+  --clr-border-dark: hsl(197, 40%, 55%);
 }
+
+body {
+    background: linear-gradient(white, rgba(63, 127, 191, 0.6));
+    /* background-color: rgba(63, 127, 191, 0.2); */
+    font-family: sans-serif;
+    padding-bottom: 50px;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+a:link {
+    color: hsl(197, 60%, 45%);
+    transition: color 500ms ease-in-out;
+}
+  
+a:visited {
+    color: hsl(hsl(197, 20%, 40%));
+}
+  
+a:focus,
+a:hover {
+    color: var(--clr-accent-400);
+    transition: color 500ms ease-in-out;
+}
+
+
+/* =========
+   2. layout
+   ========= */
+
+#section-one {
+    margin: 0 0 50px;
+}
+
+#user_info,
+#section-two {
+    margin-top: 50px;
+}
+
+div.container {
+    padding: 1em;
+}
+
+.pagination {
+    margin-top: 20px;
+}
+
+/* =============
+   3. typography
+   ============= */
 
 .nav-item a {
   font-family: 'Nunito', sans-serif;
@@ -38,120 +104,164 @@ h6 {
   font-family: 'Nunito', sans-serif;
 }
 
+
+/* =============
+   4. components
+   ============= */
+
+   /* 4.1 alerts */
+
 .alert.success {
-	background-color: hsl(123, 50%, 71%);
+  background-color: hsl(123, 50%, 71%);
 }
 
 .alert.error {
-	background-color: hsl(19, 59%, 59%);
-	color: var(--clr-neutral-900);
+  background-color: hsl(19, 59%, 59%);
+  color: var(--clr-neutral-900);
 }
 
-a:link {
-	color: hsl(197, 60%, 45%);
-	transition: color 500ms ease-in-out;
+.alert {
+  width: 90%;
+  height: 60px;
+  left: 5%;
+  bottom: 70px;
+  background: white;
+  border-radius: 4px;
+  opacity: 0;
+  box-shadow: 0 5px 15px rgba(black, 0.2);
+  position: absolute;
+  z-index: 10;
 }
 
-a:visited {
-	color: hsl(hsl(197, 20%, 40%));
+/* Related to alerts popping in.. may set this to the #root selector instead */
+.container .alert {
+  transform: translateY(130%);
+  transition-timing-function: ease-in;
+  transition: 0.2s;
+}
+.container.alert-is-shown .alert {
+  transition: 0.25s;
+  transition-timing-function: ease-out;
+
+  transform: translateY(0);
+  opacity: 1;
 }
 
-a:focus,
-a:hover {
-	color: var(--clr-accent-400);
-	transition: color 500ms ease-in-out;
+.container {
+  /* width: 180px; */
+  margin: 0 auto;
+  /* border: 10px solid #666666;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 80px 80px / 25px 25px 25px 25px; */
+  &::before {
+    content: "";
+    background: #666666;
+    position: absolute;
+    z-index: 20;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+  }
+  &::after {
+    content: "";
+    background: #848484;
+    position: absolute;
+    z-index: 20;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    height: 25px;
+  }
 }
 
-body {
-	background: linear-gradient(white, rgba(63, 127, 191, 0.6));
-	/* background-color: rgba(63, 127, 191, 0.2); */
-	font-family: sans-serif;
-	padding-bottom: 50px;
-	background-size: cover;
-	background-repeat: no-repeat;
+.note {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font: 12px monospace;
+  color: #999;
+  text-transform: uppercase;
 }
 
-/* Tooltip container */
-.tooltip {
-	position: relative;
-	display: inline-block;
-	border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
+/* Back to normal css */
 
-/* Tooltip text */
-.tooltip .tooltiptext {
-	visibility: hidden;
-	width: 400px;
-	background-color: black;
-	color: #fff;
-	text-align: center;
-	padding: 5px 0;
-	border-radius: 6px;
-
-	/* Position the tooltip text */
-	position: absolute;
-	z-index: 1;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-	visibility: visible;
-}
-
-div.container {
-	padding: 1em;
-}
+   /* 4.2 tables */
 
 .content-table {
-	border-collapse: collapse;
-	margin: 25px 0;
-	font-size: 0.9em;
-	min-width: 400px;
-	border-radius: 5px 5px 0 0;
-	overflow: hidden;
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 .content-table thead tr {
-	background-color: var(--clr-border-dark);
-	color: white;
-	text-align: left;
-	font-weight: bold;
+  background-color: var(--clr-border-dark);
+  color: white;
+  text-align: left;
+  font-weight: bold;
 }
 
 .content-table th,
 .content-table td {
-	padding: 12px 15px;
+  padding: 12px 15px;
 }
 
 .content-table tbody tr {
-	border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
 }
 
 .content-table tbody tr:nth-of-type(even) {
-	background-color: #f3f3f3;
+  background-color: #f3f3f3;
 }
 
 .content-table tbody tr:last-of-type {
-	border-bottom: 2px solid var(--clr-border-dark);
+  border-bottom: 2px solid var(--clr-border-dark);
 }
 
 .content-table tbody tr.active-row {
-	font-weight: bold;
-	color: cadetblue;
+  font-weight: bold;
+  color: cadetblue;
 }
 
-.navbar .search-box {
-  margin-right: 10px;
+
+   /* 4.3 tooltips */
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+  
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 400px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+  
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+}
+  
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
 
-.navbar .input-search {
-  color: var(--clr-border-dark);
-}
 
-.pagination {
-  margin-top: 20px;
-}
+   /* 4.4 thumbnails */
 
 .thumbnail {
   width: 50px;
@@ -163,4 +273,15 @@ div.container {
 .thumbnail:hover {
   scale: 1.2;
   transition: scale 500ms ease;
+}
+
+
+   /* 4.5 navbar search */
+
+.navbar .search-box {
+    margin-right: 10px;
+}
+  
+.navbar .input-search {
+    color: var(--clr-border-dark);
 }

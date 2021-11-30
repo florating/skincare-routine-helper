@@ -1,11 +1,13 @@
-{% extends "base.html" %} {% block title %} {{ current_user.f_name }}'s Profile
-{% endblock title %} {% block head %}<style>
-  #user_info,
-  #second-section {
-    margin-top: 50px;
-  }
-</style>
-{% endblock %} {% block body %}
+{% extends "base.html" %}
+
+{% block title %}
+{{ current_user.f_name }}'s Profile
+{% endblock title %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
 <div class="container">
   <div class="row justify-content-center">
     <div id="avatar" class="col-lg-5">
@@ -40,7 +42,7 @@
       </p>
     </div>
   </div>
-  <div class="row" id="second-section">
+  <div class="row" id="section-two">
     <div id="user_cabinet" class="col-lg-5">
       <h3>My Cabinet</h3>
       {% if current_user.cabinets %}
@@ -167,6 +169,8 @@
       </div>
     </div>
   </div>
-  {% endblock body %} {% block after_body %}
+  {% endblock body %}
+  
+  {% block after_body %}
   {% endblock %}
 </div>
