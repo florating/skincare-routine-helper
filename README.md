@@ -9,6 +9,7 @@
 2. [Features](#features)
 3. [Knowledge Gained](#knowledge-gained)
     - [System Design](#system-design)
+        - [Reasons](#reasons)
     - [Webscraping](#webscraping)
 4. [Future Improvements](#future-improvements)
 5. [Installation Instructions](#installation-instructions)
@@ -68,11 +69,16 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 
 
 ## Knowledge Gained
-- work closely with UX and UI design, as this can change the architecture of the backend code significantly
-- be mindful of the objectives of each project when brainstorming to better select helpful datasets with the goals in mind
-- write effective and concise commit messages
-- be mindful of ergonomics!
-- use regular expressions to clean datasets and sanitize user input
+- Create data model and system design diagrams
+    - Consider how flexible each component should be. Do we need to scale up?
+    - Is this an over-optimization that could be avoided? (Some things like indexing the database and caching can be helpful to speed things up when scaling up - but this may also needlessly complicate things. The code would also be more difficult to maintain.)
+- Create user flow diagrams and wireframes when planning UX and UI design
+    - In the future: work closely with UX and UI design, as this can change the architecture of the backend code significantly
+- Be mindful of the objectives of each project when brainstorming to select datasets that make it easy to showcase specific project features (goals)
+    - Silver lining: this was a great opportunity to learn how to programmatically webscrape to get product images, as those were not included in my datasets.
+- Write effective and concise commit messages
+- Be mindful of ergonomics!
+- Use regular expressions to clean datasets and sanitize user input
 
 ### System Design
 ![System Design Diagram](static/img/System_Design-img.png)
