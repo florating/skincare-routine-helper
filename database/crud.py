@@ -49,10 +49,6 @@ def create_table_obj(table_class_name, **kwargs):
 
     This includes: Concern, Skintype, SkincareStep, Category, Ingredient
     """
-    # if 'price' in kwargs:
-    #     convert_price(kwargs, kwargs['price'])
-    # print('create_table_obj(...) in crud.py. kwargs =')
-    # print(kwargs)
     tab_name = table_class_name.lower()
     if 'product' == tab_name:
         # REFACTOR-NOTE: can add to FXN_DICT later

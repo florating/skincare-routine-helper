@@ -1,5 +1,7 @@
 # THE SKINCARE ROUTINE HELPER
 
+![User Profile](static/img/user_profile.png)
+
 ## Table Of Contents
 
 1. [Overview](#overview)
@@ -39,7 +41,6 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 
 ## Features
 
-![User Profile](static/img/user_profile.png)
 - **Live querying** of the database upon typing into the search bar using JavaScript and AJAX
 
 - Populate dropdown menus for routine creation and editing via AJAX and DOM manipulation using JavaScript and jQuery
@@ -58,7 +59,8 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
     - see About Data for more information
 
 
-- A PostgreSQL database with deferred columns, `@property` decorators to serialize the ORM classes, and custom mixins to handle timestamps and timezones
+- A relational database (specifically PostgreSQL) with deferred columns, `@property` decorators to serialize the ORM classes, and custom mixins to handle timestamps and timezones
+    - Utilized SQLAlchemy as the object-relational mapper to more easily query and manipulate data from the database
 
 - Password security handled via [Werkzeug](https://werkzeug.palletsprojects.com/en/2.0.x/) using **salted SHA256 hashes**
 
@@ -70,10 +72,11 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 - be mindful of the objectives of each project when brainstorming to better select helpful datasets with the goals in mind
 - write effective and concise commit messages
 - be mindful of ergonomics!
+- use regular expressions to clean datasets and sanitize user input
 
 ### System Design
 ![System Design Diagram](static/img/System_Design-img.png)
-The Python server uses a Flask framework as the view engine to render HTML templates using Jinja. SQLAlchemy and Flask-SQLAlchemy allowed for the creation of ORM classes to provide an object-oriented approach to managing relationships within the PostgreSQL database. I added a custom `TimestampMixin` to these classes to allow me to handle the `created_on`, `updated_on`, and `retired_on` fields for each table and to convert aware UTC datetimes to Pacific Time for display purposes. I also added `@property` decorators to serialize data from within a single instance of an ORM class and to also leverage data by navigating the relationships within the database (particularly useful for listing ingredient names for each product in order of abundance).
+The Python server uses a Flask framework as the view engine to render HTML templates using Jinja. SQLAlchemy and Flask-SQLAlchemy allowed for the creation of ORM classes to provide an object-oriented approach to managing relationships within the relational PostgreSQL database. I added a custom `TimestampMixin` to these classes to allow me to handle the `created_on`, `updated_on`, and `retired_on` fields for each table and to convert aware UTC datetimes to Pacific Time for display purposes. I also added `@property` decorators to serialize data from within a single instance of an ORM class and to also leverage data by navigating the relationships within the database (particularly useful for listing ingredient names for each product in order of abundance).
 
 #### Reasons
 1. Flask is lightweight, so it's great for building application prototypes.
@@ -82,11 +85,22 @@ The Python server uses a Flask framework as the view engine to render HTML templ
 2. Python has many libraries (like `pandas`) for data science-related tasks, like data cleanup/sanitization and analysis.
 3. SQLAlchemy is the object relational mapper that allows for an object-oriented approach to handling data within the PostgreSQL database.
     - pros:
-        - queries that incorporate user input will automatically sanitize input (no parameter substitution required as would be required for raw SQL queries)
+        - automatically sanitize input when querying the database (no parameter substitution required as would be required for raw SQL queries)
+        - automate relationship management when seeding and updating rows in the database (cascade delete, etc.)
+        - allows class inheritance as with any OO classes
         - abstraction
     - cons:
         - design data model and connect all of the pieces myself (actually was a great learning experience!)
-    
+        - somewhat slower calculations and queries when compared to raw SQL (but this is fine given that this project is not very large)
+4. jQuery and jQuery UI for AJAX and DOM manipulation:
+    - pros:
+        - lightweight
+        - more concise than vanilla JS for DOM manipulation
+        - cross-browser compatibility with Chrome, Edge, Firefox, IE, Safari, Android, and iOS
+    - cons:
+        - not as modern as React or other libraries
+        - slower than CSS and React (for animations and DOM manipulation, respectively)
+    - note: I will be integrating more React into this project in the future; I was unable to do so during project season at Hackbright due to time constraints.
 
 ### Webscraping
 The Kaggle dataset contained URL to a webpage where users can purchase the specific skincare product. (Presumably, the original person who created this dataset specifically scraped these webpages.)
