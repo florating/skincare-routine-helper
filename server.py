@@ -318,7 +318,7 @@ def add_routine():
 
 @app.route('/test/semantic')
 def test_semantic():
-    return render_template('base_semantic.html')
+    return render_template('test/base_semantic.html')
 
 
 @app.route('/test')

@@ -12,7 +12,6 @@
   <input type="text" id="livebox" name="text" class="form-control" placeholder="Find a skincare product" autocomplete="off">
 
   <label for="order_by">Sort By</label>
-  <!-- FIXME: include this value in the query in server.py -->
   <select
     id="search-sort-by"
     class="form-control form-select"
@@ -20,7 +19,6 @@
   >
     <option value="product_name">Name</option>
     <option value="category_id">Product Type</option>
-    <!-- <option value="relevance,asc">Relevance</option> -->
   </select>
 
   <div id="datalist"></div>
@@ -28,5 +26,5 @@
 
 
 {% block after_body %}
-<script type="text/javascript" src="/static/js/livesearch.js"></script>
+<script src="/static/js/livesearch.js"></script>
 {% endblock %}

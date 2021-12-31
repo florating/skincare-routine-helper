@@ -1,36 +1,19 @@
-{% extends "base.html" %} {% block title %} {{ current_user.f_name }}'s Skincare
-Routines | The Skincare Routine Helper {% endblock title %} {% block head %}
+{% extends "base.html" %}
+
+{% block title %}
+{{ current_user.f_name }}'s Skincare Routines | The Skincare Routine Helper
+{% endblock title %}
+
+{% block head %}
 <link
   rel="stylesheet"
   href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css"
 />
 <link rel="stylesheet" href="/static/css/draggable.css" />
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
-<style>
-  select {
-    width: 280px;
-    overflow: hidden;
-    white-space: pre;
-    text-overflow: ellipsis;
-    /*   -webkit-appearance: none; */
-  }
-  option {
-    max-width: 200px;
-  }
+{% endblock %}
 
-  #root {
-    padding-left: 100px;
-  }
-
-  #modify-routines,
-  #routine-summary {
-    margin: 50px 0 0 0;
-  }
-  fieldset {
-    padding: 10px;
-  }
-</style>
-{% endblock %} {% block body %} {% if am_routine %} {% endif %}
+{% block body %}
 <div class="row justify-content-center" id="routine-summary">
   <div class="row">
     <div class="routine col-5" id="user_am_routine">
@@ -70,7 +53,6 @@ Routines | The Skincare Routine Helper {% endblock title %} {% block head %}
     </div>
     <div class="routine col-5 offset-1" id="user_pm_routine">
       <h3>My PM Routine</h3>
-      <!-- My PM Routine -->
       {% if pm_routine %}
       <table class="content-table">
         <thead>
@@ -124,7 +106,6 @@ Routines | The Skincare Routine Helper {% endblock title %} {% block head %}
           <ul class="sortable steps"></ul>
         </form>
       </div>
-      {% if pm_routine %} {% endif %}
       <div class="pm-routine routine col-lg-3 offset-lg-1">
         <form id="form-pm-routine" action="#" method="POST">
           <ul>

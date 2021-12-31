@@ -1,16 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>
-    The Skincare Routine Helper
-  </title>
-</head>
+{% extends "test/base_semantic.html" %}
 
-<body>
+
+{% block title %}
+  The Skincare Routine Helper
+{% endblock title %}
+
+
+{% block head %}
+  The Skincare Routine Helper
+{% endblock head %}
+
+{% block body %}
   Plain text example. Hello!
-  <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+  {# Note: when deploying, replace "development.js" with "production.min.js". #}
   <!-- <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> -->
@@ -21,11 +23,11 @@
 
   <div id="like_button_container">LikeButton</div>
 
-  <div id="root">LoginForm</div>
+  <div id="login-form">LoginForm</div>
+{% endblock %}
 
+{% block after_body %}
   <!-- Load React component. -->
   <script defer type="text/jsx" src="/static/js/login.jsx" crossover></script>
-  <!-- <script src="/static/js/like_button.js"></script> -->
-</body>
-
-</html>
+  <script src="/static/js/like_button.js"></script>
+{% endblock %}
