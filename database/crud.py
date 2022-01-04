@@ -78,11 +78,11 @@ def create_user(**params):
     return user_obj
 
 
-def create_cabinet(u_id, p_id):
-    """Create and return a new Cabinet object."""
-    obj = Cabinet(user_id=u_id, product_id=p_id)
-    add_and_commit(obj)
-    return obj
+# def create_cabinet(u_id, p_id):
+#     """Create and return a new Cabinet object."""
+#     obj = Cabinet(user_id=u_id, product_id=p_id)
+#     add_and_commit(obj)
+#     return obj
 
 
 def create_product_cascade(**obj_params):
@@ -217,35 +217,26 @@ def logical_xnor(a, b):
     return bool(a) == bool(b)
 
 
-def check_if_obj_exists(class_name, param_dict):
-    """Return True if object with this key-value pair already exists in the database."""
-    class_fxn = FXN_DICT[class_name]
-    # was param_key=param_val instead of **param_dict, this might still be wrong...
-    obj = class_fxn.query.filter_by(**param_dict).first()
-    return bool(obj)
-
-
-def convert_price(arg_dict, price_key):
-    """Convert price to Numeric data type and remove currency symbol.
-    This will also remove the price_key from arg_dict.
-    Returns modified arg_dict.
-    """
+# def convert_price(arg_dict, price_key):
+#     """Convert price to Numeric data type and remove currency symbol.
+#     This will also remove the price_key from arg_dict.
+#     Returns modified arg_dict.
+#     """
     
-    price_str = arg_dict[price_key]
+#     price_str = arg_dict[price_key]
+#     if re.search(r"^(\$|\£)", price_str):
+#         value = Decimal(sub(r'[^\d.]', '', price_str))
+#         price_symbol = price_str[:1]
 
-    if re.search(r"^(\$|\£)", price_str):
-        value = Decimal(sub(r'[^\d.]', '', price_str))
-        price_symbol = price_str[:1]
+#     if price_symbol == '£':
+#         arg_dict['price_GBP'] = value
+#         # convert to USD
+#         # arg_dict['price_USD'] = price_USD
+#         # FIXME: incomplete!
+#     elif price_symbol == '$':
+#         arg_dict['price_USD'] = value
 
-    if price_symbol == '£':
-        arg_dict['price_GBP'] = value
-        # convert to USD
-        # arg_dict['price_USD'] = price_USD
-        # FIXME: incomplete!
-    elif price_symbol == '$':
-        arg_dict['price_USD'] = value
-
-    return arg_dict
+#     return arg_dict
 
 
 def convert_string_to_datastructure(list_str):
@@ -266,14 +257,14 @@ def clean_ingredient_name(name):
     return name
 
 
-def find_alt_name(name):
-    """Return original name, cleaned common name, and alternative name if present in given ingredient name (eg: in parentheses), else return None."""
-    if '(' in name:
-        common_name, alt_name = name.strip().split('(')
-        alt_name, last = alt_name.split(')')
-        alt_name = clean_ingredient_name(alt_name)
-        common_name = clean_ingredient_name(f'{common_name.strip()} {last.strip()}')
-        return (name, common_name, alt_name)
+# def find_alt_name(name):
+#     """Return original name, cleaned common name, and alternative name if present in given ingredient name (eg: in parentheses), else return None."""
+#     if '(' in name:
+#         common_name, alt_name = name.strip().split('(')
+#         alt_name, last = alt_name.split(')')
+#         alt_name = clean_ingredient_name(alt_name)
+#         common_name = clean_ingredient_name(f'{common_name.strip()} {last.strip()}')
+#         return (name, common_name, alt_name)
 
 
 def process_form(param_list, form_data, request_method='GET'):
@@ -311,11 +302,6 @@ def prepare_db_summary_table(filepath):
 
 ##### QUERY FUNCTIONS BELOW #####
 
-def get_obj_by_id(class_name, obj_id):
-    """Return a class_name object (eg: User) by its primary key."""
-    return FXN_DICT[class_name].query.get(obj_id)
-
-
 def get_first_obj_by_param(class_name, **param):
     """Return a class_name object (eg: User) by its expected key-value pair."""
     class_fxn = FXN_DICT[class_name]
@@ -327,11 +313,6 @@ def get_user_by_email(email):
     return User.query.filter_by(email=email).first()
 
 
-def get_all_obj(class_name):
-    """Return a list of all class_name objects."""
-    return db.session.query(class_name).all()
-
-
 def get_obj_by_param(class_name, **param):
     """Return a class_name object (eg: User) by its expected key-value pair."""
     class_fxn = FXN_DICT[class_name]
@@ -341,14 +322,6 @@ def get_obj_by_param(class_name, **param):
 def get_category_dict():
     """Return a list of category names, ordered by category_id."""
     return {item.category_id: item.category_name for item in Category.query.order_by('category_id').all()}
-
-
-def get_routine(user_obj, am_or_pm):
-    """Return a single AM or PM routine for a given user, if it exists."""
-    routines_list = user_obj.routines
-    for routine in routines_list:
-        if routine.am_or_pm == am_or_pm:
-            return routine
 
 
 def summarize_prod_top5(cat_id=1, set_limit=5):
