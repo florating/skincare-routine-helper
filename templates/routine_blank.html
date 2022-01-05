@@ -23,20 +23,20 @@
         <thead>
           <tr>
             <th>Step</th>
+            <th></th>
             <th>Product</th>
-            <th>Thumbnail</th>
           </tr>
         </thead>
         <tbody>
           {% for step_obj in am_routine.steps %}
           <tr class="{{ step_obj.product_id }}">
             <td>{{ step_obj.product.category.category_name }}</td>
+            <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
             <td>
               <a href="/products/{{ step_obj.product_id }}" target="_blank"
                 >{{ step_obj.product.product_name }}</a
               >
-              <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
-            </td>
+            
           </tr>
           {% endfor %}
         </tbody>
@@ -58,20 +58,20 @@
         <thead>
           <tr>
             <th>Step</th>
-            <th>Product</th>
             <th></th>
+            <th>Product</th>
           </tr>
         </thead>
         <tbody>
           {% for step_obj in pm_routine.steps %}
           <tr class="{{ step_obj.product_id }}">
             <td>{{ step_obj.product.category.category_name }}</td>
+            <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
             <td>
               <a href="/products/{{ step_obj.product_id }}" target="_blank"
                 >{{ step_obj.product.product_name }}</a
               >
             </td>
-            <td><img src="{{ step_obj.product.cloud_img_url }}" class="thumbnail"></td>
           </tr>
           {% endfor %}
         </tbody>
