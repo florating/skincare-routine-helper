@@ -7,17 +7,19 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 ## Table of Contents
 
 1. [Overview](#overview)
+   - [Datasets](#datasets)
    - [Tech Stack](#tech-stack)
 2. [Features](#features)
 3. [Knowledge Gained](#knowledge-gained)
    - [System Design](#system-design)
-   - [Data Model](#more-on-the-data-model)
+   - [Data Model](#data-model)
    - [Reasons](#reasons)
    - [Webscraping](#webscraping)
 4. [Future Improvements](#future-improvements)
 5. [Installation Instructions](#installation-instructions)
 6. [Task List](#task-list)
 7. [Journal Snippets](#journal)
+8. [Disclaimer](#disclaimer)
 
 ## Overview
 
@@ -34,6 +36,23 @@ Users can:
 - level up to more advanced routines consisting of multiple steps with a variety of different active ingredients (eg: niacinamides, vitamin C, and retinols)
 - view safety data for ingredients based on recommendations from agencies like the World Health Organization and more
 - view potential adverse reactions/interations between ingredients across multiple skincare products within a single routine
+
+_[Click here](#the-skincare-routine-helper) to go back to the top._
+
+### Datasets
+
+View more details about the datasets used in this project by [clicking here](https://github.com/florating/skincare-routine-helper/blob/main/about/about_data.md).
+
+<details><summary>Summary of the data and their sources</summary>
+
+- Kaggle dataset of skincare products:
+  - contains info about each product's ingredients, URL to purchase the product, and more
+  - parsed using the `pandas` library and used to seed the database using custom Python scripts
+- various skincare-related websites:
+  - ingredient types, skintype-related recommendations, etc.
+  - please see the [disclaimer](#disclaimer)!
+
+</details>
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
@@ -81,6 +100,8 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Knowledge Gained
 
+<details><summary>General thoughts to consider for future projects</summary>
+
 - Create data model and system design diagrams
   - Consider how flexible each component should be. Do we need to scale up?
   - Is this an over-optimization that could be avoided? (Some things like indexing the database and caching can be helpful to speed things up when scaling up - but this may also needlessly complicate things. The code would also be more difficult to maintain.)
@@ -92,14 +113,17 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - Be mindful of ergonomics!
 - Use regular expressions to clean datasets and sanitize user input
 
+</details>
+
 ### System Design
 
 ![System Design Diagram](static/img/for_readme/System_Design-img.png)
+
 The Python server uses a Flask framework as the view engine to render HTML templates using Jinja. SQLAlchemy and Flask-SQLAlchemy allowed for the creation of ORM classes to provide an object-oriented approach to managing relationships within the relational PostgreSQL database. I added a custom `TimestampMixin` to these classes to allow me to handle the `created_on`, `updated_on`, and `retired_on` fields for each table and to convert aware UTC datetimes to Pacific Time for display purposes. I also added `@property` decorators to serialize data from within a single instance of an ORM class and to also leverage data by navigating the relationships within the database (particularly useful for listing ingredient names for each product in order of abundance).
 
-#### More on the data model
+#### Data Model
 
-This version of the data model was created on 10/25/21. There is a more updated version, which will be added at a later date!
+This version of the data model diagram was created on 10/25/21. There is a more updated version, which will be added soon.
 
 ![Version 3 from October 25th, 2021](static/img/for_readme/schema-1025-v3.png)
 
@@ -163,7 +187,8 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - Setup one hot encoding using `pandas` to convert categorical data variables for future machine learning purposes to identify possible allergens
 - Implement product recommendations via collaborative filtering
 - Add form validation and further sanitize user input
-- Explore using React and Django for future web development
+  - Refer to OWASP principles for heightened security
+- Explore using React components
 - Look into more interactive data visualization opportunities (potentially to analyze ingredients live as users add them to their cabinets and skincare routines)
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
@@ -231,37 +256,44 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Next Steps
 
+- [ ] add product to user's cabinet from individual product details page
+- [ ] fix up the D3 graph animations:
+  - adjust the start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis)
+- [ ] add legend to the graph
+- [ ] test that imports from nexted directories (added on 10/20/21) did not break anything
+- [ ] add official hazard info to the ingredients within the ingredients table
+  - [x] 10/24/21: review the CSCP product database
+    - [ ] add to db
+  - [x] review the IARC monographs of carcinogenic agents
+    - last updated on 27 September 2021 (yay!)
+    - [ ] add to db
+- [ ] add additional skincare products
+  - [ ] add more sunscreens
+  - [ ] add extra products
+
+<details><summary>Completed</summary>
+
 - [x] request API keys
 - [x] 10/14/21: add product to user's cabinet
   - [x] 10/14/21: from product results list
-  - [ ] from individual product details page
 - [x] queries, joins, etc.
 - [x] 10/19/21: display summary of database info on homepage (this takes nearly 1 min to load the page!)
   - [x] 10/22/21: setup CSV reader to display on homepage (now only takes a few seconds!)
   - [x] 10/22/21: setup data visualization with D3: horizontal lollipop histogram
     - [x] 10/22/21: animate graph
-      - [ ] fix up the animations start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis)
     - [x] 10/22/21: add ability to show two graphs with a button click and JS
-    - [ ] add legend to the graph
 - [x] add livesearch capability to old search forms
 - [x] save a user's skincare routine to the db
   - [x] 10/24/21: update data model diagram
   - [x] implement data model changes to ORM classes
   - [x] re-seed the database
 - [x] 10/20/21: setup imports from nested directories
-  - [ ] test that nothing broke
-- [ ] add hazard info to the ingredients within the ingredients table
-  - [x] 10/24/21: review the CSCP product database
-    - [ ] add to db
-  - [x] review the IARC monographs of carcinogenic agents
-    - last updated on 27 September 2021 (yay!)
-    - [ ] add to db
-- [x] 11/03/21: finish scraping image URLs for a basic skincare routine
-  - [ ] add more sunscreens
-  - [ ] add extra products
-  - [ ] upload to Cloudinary + save links to db
+- [x] 11/3/21: finish scraping image URLs for a basic skincare routine
+  - [x] 11/8/21: upload to Cloudinary + save links to db
 
-#### Known Bugs
+</details>
+
+### Known Bugs
 
 _These are known bugs in the project that will be tackled soon!_
 
@@ -501,6 +533,253 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Journal:
+
+<details><summary>Template</summary>
+
+<details><summary>DATE</summary>
+
+**accomplishments:**
+
+**blockers:**
+
+**next steps:**
+
+</details>
+
+</details>
+
+### Updates as of 1/6/22
+
+_Journal entries from 10/27 onward were written on or after 1/6/22._
+
+I stopped adding journal entries to the README after 10/27/21 to limit how much typing I did. At this point, I'm still feeling some arm pain in my arms, but it has improved a lot.
+
+<details><summary>Wed, 11/10/21: Demo Night is here! + some last-minute updates</summary>
+
+I did a lot of things during last-minute crunch time. Some code was broken when I filmed my demo, so I made some hotfixes.
+
+These edits were pushed to the repo after 11/10/21 with commit messages that include a "in demo" comment (already demonstrated in the recorded demo on 11/10/21).
+
+Other last-minute changes:
+
+- updated README with images
+- update page layout and CSS
+
+</details>
+
+<details><summary>Tue, 11/9/21: major updates to add intermediate skincare routine + major overhaul of CSS!</summary>
+
+_These edits were pushed to the repo after 11/10/21 (and were noted in the commit messages)._
+
+**accomplishments:**
+
+- major updates to `routines.js` and the `/routine` resource:
+
+  - added intermediate skincare routine:
+    - populated steps of the routine based on database info
+    - displayed as draggable steps via jQuery UI
+    - populated dropdown menus with products within the user's cabinet that fit this step of the routine (ie: based on the `category id` of the product & step of the routine)
+  - updated functionality and synced to the database!
+  - added login authentication using `@login_required` decorator
+
+- major CSS updates:
+
+  - redesigned appearance of the profile settings (`/settings`), user details (`/user_profile`), and product search pages:
+    - added SVGs from [unDraw](https://undraw.co) (open-source illustrations in SVG format)
+    - added gradual animated transitions when hovering on rows in tables
+  - added `focus` for accessibility
+  - added new fonts: Nunito and Shadows Into Light
+
+- updated individual skincare product display pages (`/products/<int:product_id>`):
+  - to display product image URLs (`https` version) from Cloudinary
+    - saved image URL info to its respective product in the database using automated script (`cloud.py`)
+  - to display default image URL if no cloud URL is found in the database
+  - to display ingredient safety info + ingredient type info
+
+**blockers:**
+
+- not enough time!
+- wrists are feeling worse again
+
+**next steps:**
+
+- record demo video and upload to Youtube for tomorrow's big event!
+- finish writing up a short introduction about myself (~30s)
+
+</details>
+
+<details><summary>Mon, 11/8/21: search now uses GET request; updated navbar and search box animation</summary>
+
+**accomplishments:**
+
+- updated the search form to use a `GET` request for product searches (instead of `POST`)
+- added pagination to the search results page if query returns > 10 products
+- added database summary table back to the homepage
+  - displayed using Jinja due to lack of time, would have preferred to use D3 or something else
+- finished up scraping for metadata
+
+</details>
+
+<details><summary>Sat, 11/6/21: updated scripts for webscraping and uploading images to Cloudinary</summary>
+
+**accomplishments:**
+
+- updated data model schema again
+- updated `cloud.py` so that the script can:
+  - check which product IDs in CSV file can be skipped (already checked, uploaded, etc.)
+  - upload each image to Cloudinary, saving to the skincare directory with searchable tags for skincare, product, and the specific category type for this product (eg: cleanser)
+  - save the secure image URL from Cloudinary (1) to a CSV file (in case re-seeding the db is necessary) and (2) to the cloud_img_url field for each product in the db
+  - added ability to ask for user input about which product category to process
+- set echo=False for `connect_to_db` to avoid a bug
+- updated imports for model_helpers
+
+</details>
+
+<details><summary>Fri, 11/5/21: prepare to tag skincare products in the database </summary>
+
+**accomplishments:**
+
+- refactored scripts: `meta.py` and `cloud.py`
+- updated CSS for tables:
+  - improved general appearance
+- added scripts to tag skincare products (lots of data cleanup!)
+  - tag as a sunscreen if "SPF" appears in the name
+  - check for hazards if a sunscreen product is in an inhalable form, and tag as a carcinogen if true
+  - tag fragrance-free products based on whether the skincare product is associated with any entries in the `product_ingredients` --> `ingredients` tables that are tagged as a fragrance
+
+</details>
+
+<details><summary>Thu, 11/4/21: begin uploading image URLs to Cloudinary</summary>
+
+**accomplishments:**
+
+- refactored metadata scraper
+- refactored code for `connect_to_db` to type less when asking for user input
+  - useful to determine which test database to connect to
+- frontend: updated CSS and HTML for various tables
+
+**blockers:**
+
+- spent too long researching about ingredient tags for accuracy...
+- should have focused on pushing out features instead!
+
+**next steps:**
+
+- finish scraping for image URLs (prioritizing the most important skincare products)
+- finish uploading image URLs to Cloudinary
+
+</details>
+
+<details><summary>Wed, 11/3/21: implemented automated, rate-limited Python scripts to webscrape metadata (image URLs) for skincare products using Beautiful Soup</summary>
+
+_The websites that were scraped did not prohibit webscraping within their `robots.txt` resource._
+
+**accomplishments:**
+
+- tested how to manually access metadata
+- implemented automated, rate-limited Python scripts for webscraping (`meta.py`)
+  - used [Beautiful Soup](https://pypi.org/project/beautifulsoup4/) and [ratelimit](https://pypi.org/project/ratelimit/) libraries
+- updated CSS to test Semantic UI vs Bootstrap
+- updated routines + their functionality
+- updated database schema in `model.py` to prepare to tag ingredients
+
+**blockers:**
+
+- none, besides my wrists!
+
+**next steps:**
+
+- finish writing script to automate uploading images to Cloudinary
+
+</details>
+
+<details><summary>Tue, 11/2/21: routines.js can send form data via AJAX (jQuery) in the form of a POST request to the server</summary>
+
+**accomplishments:**
+
+- added more info about datasets used in this project (see `about_data.md` [here](https://github.com/florating/skincare-routine-helper/blob/main/about/about_data.md))
+
+The code in `routines.js `is currently able to:
+
+- create new AM and PM routines for beginners
+- populate with <li> tags for new steps for each routine
+- populate the above steps with dropdown menus for product names from
+  the user's current cabinet of skincare products (per category type)
+- send form data via AJAX (jQuery) `POST` request to the server
+- seed auto-generated users ([Mockaroo](https://www.mockaroo.com))
+
+**blockers:**
+
+The server is able to receive the form data, but the format is not what
+I was originally hoping to use.
+
+**next steps:**
+
+Steps for the routine now display on user_details.html, but some changes
+are still needed:
+
+- send AM and PM routine objects separately to the /user_profile route
+- display the routine's nickname (set by the user) if available
+- setup a separate routines page?
+- add ability to remove a step
+- add ability to use a step (create a row in the frequencies table)
+
+</details>
+
+<details><summary>Mon, 11/1/21: setup files to tag ingredients by type and hazard info; update ORM classes to serialize data (not using the marshmallow library)</summary>
+
+After some research, I came across the [marshmallow library](https://marshmallow.readthedocs.io/en/stable/) to help serialize the ORM objects in my database. I decided against this, as it would likely involve significant refactoring of the existing codebase. Since there's a big time crunch (and my wrists are injured), I'll follow the advice of those who came before me:
+
+If it ain't broken, don't fix it!
+
+**accomplishments:**
+
+- add text files for ingredient tags (humectants, occlusives, retinoids, etc.)
+- update ORM classes to:
+  - save datetime info with the TimestampMixin
+  - add deferred columns (to clean up some log text, and to speed up)
+  - serialize properties, to send them to the frontend for display purposes
+- update ka-1 dataset (from Kaggle)
+
+**blockers:**
+
+- note to self: don't try to `git amend` after `git push`
+  - I had to merge the `main` branch several times due to a conflict in `db_info.py`
+
+**next steps:**
+
+- tag individual rows in the ingredients table with info about the chemical based on text files above:
+  - hazards: formaldehyde releasing chemicals, environmental hazards, carcinogens, etc.
+  - actives: exfoliants (eg: AHAs), retinoids, etc.
+  - other: fragrances, sulfates, etc.
+- which products are pregnancy safe?
+- revise database schema
+
+</details>
+
+Sun, 10/31/21: refactor code for database maintenance
+
+<details><summary>Thu, 10/28/21: taking a break to recover from arm injury</summary>
+
+I tried to use my left hand more to compensate for the pain in my right arm. Unfortunately, I ended up feeling more pain in my left wrist as a result...
+
+</details>
+
+<details><summary>Wed, 10/27/21: repetitive stress injury due to poor ergonomics</summary>
+
+I had 2-4 weeks of "cold sensations" in my arms, which I now know was due to pinching a nerve in my elbows... Now my elbows (right more than left) are in significant pain. Took some ibuprofen and will be resting.
+
+What poor timing! It's almost the end of sprint 2, and I had planned to do so many things...
+
+**accomplishments:**
+
+- add routines.js file to:
+  - implement skincare routine generation using AJAX, syncing to the database
+  - implement dropdown menu for each skincare step, populated using the user's cabinet of skincare products via AJAX, syncing to the database as well
+
+</details>
+
+### Original Journal Entries
 
 <details><summary>Tue, 10/26/21: livesearch functionality is now connected to updated product search forms</summary>
 
@@ -748,7 +1027,9 @@ Note: I keep comitting to my repo starting with `Refactor code` and I could prob
 
 </details>
 
-##
+### Old Project Idea
+
+I originally had planned to build a task list app. Luckily, I changed my mind! :)
 
 <details><summary>Tue, 10/5/21: nevermind, decided to change my project idea</summary>
 
@@ -765,3 +1046,13 @@ Mon, 10/4/21: project season has begun!
 Fri, 10/1/21: submitted data model (working draft) for task list app
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
+
+## Disclaimer
+
+The Skincare Routine Helper (SRH) is an educational website and application that is designed to share evidence-based health information about skincare to the general population. This information is NOT medical advice, and there is NO physician/patient relationship. SRH does not provide medical advice, diagnosis or treatment. This content is not intended to be a substitute for professional medical advice, diagnosis, or treatment.
+
+The information presented through SRH was created to be easily accessible to all and without cost. SRH is not a formal institution or accredited educational entity. My goal and the goal of SRH is to share information about skincare routines and highlight potential interactions between ingredients.
+
+While reasonable attempts are made to ascertain the accuracy of the general information, no representation or warranty is made by SRH as to the accuracy of the information. SRH does not assume liability for any of the content presented on the website. The decision to rely on information found on the website or a linked website is solely at your own risk. SRH does not and cannot provide specific medical advice through this website or by e-mail in response to any inquiry that you make. SRH accepts no liability for injury or damage resulting from your decision to use any product, information or instruction found on the website or on sites linked to the website.
+
+SRH strongly encourages active, educated, and engaged discussions with your own physicians. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Never disregard professional medical advice or delay in seeking it because of something you have read on this or any website.
