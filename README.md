@@ -2,15 +2,18 @@
 
 ![User Profile](static/img/user_profile.png)
 
-## Table Of Contents
+Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
+
+## Table of Contents
 
 1. [Overview](#overview)
-    - [Tech Stack](#tech-stack)
+   - [Tech Stack](#tech-stack)
 2. [Features](#features)
 3. [Knowledge Gained](#knowledge-gained)
-    - [System Design](#system-design)
-        - [Reasons](#reasons)
-    - [Webscraping](#webscraping)
+   - [System Design](#system-design)
+   - [Data Model](#more-on-the-data-model)
+   - [Reasons](#reasons)
+   - [Webscraping](#webscraping)
 4. [Future Improvements](#future-improvements)
 5. [Installation Instructions](#installation-instructions)
 6. [Task List](#task-list)
@@ -22,23 +25,32 @@ Did you know that the EU restricts 1,328 chemicals from cosmetics while the US r
 
 No worries, the Skincare Routine Helper is here!
 
-The Skincare Routine Helper is an evidence-based app to help recommend skincare products and general skincare routines based on area of concern and ingredient safety. Users can search the product database and filter for products that are environmentally friendly, pregnancy-safe, fragrance-free, and more. Users can start with a beginner-friendly skincare routine, and they can eventually level up to more advanced routines consisting of multiple steps with a variety of different active ingredients (eg: niacinamides, vitamin C, and retinols).
+The Skincare Routine Helper is an evidence-based app to help recommend skincare products and general skincare routines based on area of concern and ingredient safety.
 
-Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
+Users can:
 
-*[Click here](#the-skincare-routine-helper) to go back to the top.*
+- search the product database and filter for products that are environmentally friendly, pregnancy-safe, fragrance-free, and more
+- create and start a beginner-friendly skincare routine
+- level up to more advanced routines consisting of multiple steps with a variety of different active ingredients (eg: niacinamides, vitamin C, and retinols)
+- view safety data for ingredients based on recommendations from agencies like the World Health Organization and more
+- view potential adverse reactions/interations between ingredients across multiple skincare products within a single routine
+
+_[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ### Tech Stack
+
 **Backend:** Python, Flask, Flask-Login, Werkzeug
+
 - **Database:** SQL, PostgreSQL, SQLAlchemy, Flask-SQLAlchemy
 - **Data cleanup/generation:** pandas, Mockaroo
 - **Web scraping:** Beautiful Soup, ratelimiter
 
 **Frontend:** HTML, CSS, Jinja, Javascript, jQuery, jQuery UI, Bootstrap
+
 - **Data visualization:** D3.js
 - **Image server:** Cloudinary
 
-*[Click here](#the-skincare-routine-helper) to go back to the top.*
+_[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Features
 
@@ -46,80 +58,108 @@ Check out the video demo on Youtube [here](https://youtu.be/iLkXraSDivw)!
 
 - Populate dropdown menus for routine creation and editing via AJAX and DOM manipulation using JavaScript and jQuery
 
-
 ![Kaggle Dataset Snippet](about/img/Kaggle-eward96-snippet-Excel.png)
-- Database seeded using products and ingredients from a **Kaggle dataset** and users generated from [mockaroo](https://www.mockaroo.com/)
-    - original Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-and-their-ingredients)
-    - cleaned Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-clean-dataset)
 
+- Database seeded using products and ingredients from a **Kaggle dataset** and users generated from [mockaroo](https://www.mockaroo.com/)
+
+  - original Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-and-their-ingredients)
+  - cleaned Kaggle dataset [here](https://www.kaggle.com/eward96/skincare-products-clean-dataset)
 
 - Images served from [Cloudinary](https://cloudinary.com), gathered via **webscraping metadata using Beautiful Soup**
 
-
 - Visualized ingredient safety using D3.js, synthesizing data from the IARC, CSCP, CIR, Health Canada, and other government agencies
-    - see About Data for more information
 
+  - see About Data for more information
 
 - A relational database (specifically PostgreSQL) with deferred columns, `@property` decorators to serialize the ORM classes, and custom mixins to handle timestamps and timezones
-    - Utilized SQLAlchemy as the object-relational mapper to more easily query and manipulate data from the database
+
+  - Utilized SQLAlchemy as the object-relational mapper to more easily query and manipulate data from the database
 
 - Password security handled via [Werkzeug](https://werkzeug.palletsprojects.com/en/2.0.x/) using **salted SHA256 hashes**
 
-*[Click here](#the-skincare-routine-helper) to go back to the top.*
-
+_[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Knowledge Gained
+
 - Create data model and system design diagrams
-    - Consider how flexible each component should be. Do we need to scale up?
-    - Is this an over-optimization that could be avoided? (Some things like indexing the database and caching can be helpful to speed things up when scaling up - but this may also needlessly complicate things. The code would also be more difficult to maintain.)
+  - Consider how flexible each component should be. Do we need to scale up?
+  - Is this an over-optimization that could be avoided? (Some things like indexing the database and caching can be helpful to speed things up when scaling up - but this may also needlessly complicate things. The code would also be more difficult to maintain.)
 - Create user flow diagrams and wireframes when planning UX and UI design
-    - In the future: work closely with UX and UI design, as this can change the architecture of the backend code significantly
+  - In the future: work closely with UX and UI design, as this can change the architecture of the backend code significantly
 - Be mindful of the objectives of each project when brainstorming to select datasets that make it easy to showcase specific project features (goals)
-    - Silver lining: this was a great opportunity to learn how to programmatically webscrape to get product images, as those were not included in my datasets.
+  - Silver lining: this was a great opportunity to learn how to programmatically webscrape to get product images, as those were not included in my datasets.
 - Write effective and concise commit messages
 - Be mindful of ergonomics!
 - Use regular expressions to clean datasets and sanitize user input
 
 ### System Design
-![System Design Diagram](static/img/System_Design-img.png)
+
+![System Design Diagram](static/img/for_readme/System_Design-img.png)
 The Python server uses a Flask framework as the view engine to render HTML templates using Jinja. SQLAlchemy and Flask-SQLAlchemy allowed for the creation of ORM classes to provide an object-oriented approach to managing relationships within the relational PostgreSQL database. I added a custom `TimestampMixin` to these classes to allow me to handle the `created_on`, `updated_on`, and `retired_on` fields for each table and to convert aware UTC datetimes to Pacific Time for display purposes. I also added `@property` decorators to serialize data from within a single instance of an ORM class and to also leverage data by navigating the relationships within the database (particularly useful for listing ingredient names for each product in order of abundance).
 
+#### More on the data model
+
+This version of the data model was created on 10/25/21. There is a more updated version, which will be added at a later date!
+
+![Version 3 from October 25th, 2021](static/img/for_readme/schema-1025-v3.png)
+
+Link: https://dbdiagram.io/d/615c95af825b5b0146228d67
+
+<details><summary>Past versions</summary>
+
+<details><summary>version 1 from 10/6/21</summary>
+
+![Version 1 from October 6th, 2021](static/img/for_readme/schema-1006-v1.png)
+
+</details>
+
+<details><summary>version 2 from 10/6/21</summary>
+
+![Version 2 from October 6th, 2021](static/img/for_readme/schema-1006-v2.png)
+
+</details>
+
+</details>
+
 #### Reasons
+
 1. Flask is lightweight, so it's great for building application prototypes.
-    - pro: able to build features quickly
-    - con: not as structured as larger frameworks like Django, but I'm not handling an unwieldy amount of data
+   - pro: able to build features quickly
+   - con: not as structured as larger frameworks like Django, but I'm not handling an unwieldy amount of data
 2. Python has many libraries (like `pandas`) for data science-related tasks, like data cleanup/sanitization and analysis.
 3. SQLAlchemy is the object relational mapper that allows for an object-oriented approach to handling data within the PostgreSQL database.
-    - pros:
-        - automatically sanitize input when querying the database (no parameter substitution required as would be required for raw SQL queries)
-        - automate relationship management when seeding and updating rows in the database (cascade delete, etc.)
-        - allows class inheritance as with any OO classes
-        - abstraction
-    - cons:
-        - design data model and connect all of the pieces myself (actually was a great learning experience!)
-        - somewhat slower calculations and queries when compared to raw SQL (but this is fine given that this project is not very large)
+   - pros:
+     - automatically sanitize input when querying the database (no parameter substitution required as would be required for raw SQL queries)
+     - automate relationship management when seeding and updating rows in the database (cascade delete, etc.)
+     - allows class inheritance as with any OO classes
+     - abstraction
+   - cons:
+     - design data model and connect all of the pieces myself (actually was a great learning experience!)
+     - somewhat slower calculations and queries when compared to raw SQL (but this is fine given that this project is not very large)
 4. jQuery and jQuery UI for AJAX and DOM manipulation:
-    - pros:
-        - lightweight
-        - more concise than vanilla JS for DOM manipulation
-        - cross-browser compatibility with Chrome, Edge, Firefox, IE, Safari, Android, and iOS
-    - cons:
-        - not as modern as React or other libraries
-        - slower than CSS and React (for animations and DOM manipulation, respectively)
-    - note: I will be integrating more React into this project in the future; I was unable to do so during project season at Hackbright due to time constraints.
+   - pros:
+     - lightweight
+     - more concise than vanilla JS for DOM manipulation
+     - cross-browser compatibility with Chrome, Edge, Firefox, IE, Safari, Android, and iOS
+   - cons:
+     - not as modern as React or other libraries
+     - slower than CSS and React (for animations and DOM manipulation, respectively)
+   - note: I will be integrating more React into this project in the future; I was unable to do so during project season at Hackbright due to time constraints.
 
 ### Webscraping
+
 The Kaggle dataset contained URL to a webpage where users can purchase the specific skincare product. (Presumably, the original person who created this dataset specifically scraped these webpages.)
 
 After checking the website's robots.txt to confirm that scraping in this manner is not disallowed, product image URLs were scraped from metadata by visiting the product URLs. I used the Beautiful Soup and ratelimiter libraries in `meta.py` to automate this process. By limiting the requests to once per 20-30 seconds, I was able to respectfully access the website without taking up too much of their server's bandwidth. This also decreased the risk of detection and possible IP restriction or bans from server admin.
 
 Image URLs were saved to CSV files, which were later accessed using scripts in `cloud.py` to upload them to Cloudinary in a rate-limited fashion. The returned image URL from Cloudinary was secured (uses HTTPS protocol) and saved in a CSV. I also simultaneously added the secured image URL to its respective product within the database by accessing the cloud_img_url field for the ORM class.
 
-*[Click here](#the-skincare-routine-helper) to go back to the top.*
+_[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Future Improvements
+
 - Look into improved encryption methods to hash and salt passwords
-    - eg: `bcrypt` with a work factor of 10 or more and with a password limit of 72 bytes (source: [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html))
+  - eg: `bcrypt` with a work factor of 10 or more and with a password limit of 72 bytes (source: [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html))
 - Setup one hot encoding using `pandas` to convert categorical data variables for future machine learning purposes to identify possible allergens
 - Implement product recommendations via collaborative filtering
 - Add form validation and further sanitize user input
@@ -127,7 +167,6 @@ Image URLs were saved to CSV files, which were later accessed using scripts in `
 - Look into more interactive data visualization opportunities (potentially to analyze ingredients live as users add them to their cabinets and skincare routines)
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
-
 
 ## Installation Instructions
 
@@ -190,48 +229,47 @@ $ source secrets.sh
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
-
 ## Next Steps
 
 - [x] request API keys
-- [x] 10/14: add product to user's cabinet
-  - [x] 10/14: from product results list
+- [x] 10/14/21: add product to user's cabinet
+  - [x] 10/14/21: from product results list
   - [ ] from individual product details page
 - [x] queries, joins, etc.
-- [x] 10/19: display summary of database info on homepage (this takes nearly 1 min to load the page!)
-  - [x] 10/22: setup CSV reader to display on homepage (now only takes a few seconds!)
-  - [x] 10/22: setup data visualization with D3: horizontal lollipop histogram
-    - [x] 10/22: animate graph
+- [x] 10/19/21: display summary of database info on homepage (this takes nearly 1 min to load the page!)
+  - [x] 10/22/21: setup CSV reader to display on homepage (now only takes a few seconds!)
+  - [x] 10/22/21: setup data visualization with D3: horizontal lollipop histogram
+    - [x] 10/22/21: animate graph
       - [ ] fix up the animations start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis)
-    - [x] 10/22: add ability to show two graphs with a button click and JS
+    - [x] 10/22/21: add ability to show two graphs with a button click and JS
     - [ ] add legend to the graph
 - [x] add livesearch capability to old search forms
 - [x] save a user's skincare routine to the db
-  - [x] 10/24: update data model diagram
+  - [x] 10/24/21: update data model diagram
   - [x] implement data model changes to ORM classes
   - [x] re-seed the database
-- [x] 10/20: setup imports from nested directories
+- [x] 10/20/21: setup imports from nested directories
   - [ ] test that nothing broke
 - [ ] add hazard info to the ingredients within the ingredients table
-  - [x] 10/24: review the CSCP product database
+  - [x] 10/24/21: review the CSCP product database
     - [ ] add to db
   - [x] review the IARC monographs of carcinogenic agents
     - last updated on 27 September 2021 (yay!)
     - [ ] add to db
-- [x] 1103: finish scraping image URLs for a basic skincare routine
+- [x] 11/03/21: finish scraping image URLs for a basic skincare routine
   - [ ] add more sunscreens
   - [ ] add extra products
   - [ ] upload to Cloudinary + save links to db
 
 #### Known Bugs
 
-*These are known bugs in the project that will be tackled soon!*
+_These are known bugs in the project that will be tackled soon!_
 
 **High priority:**
 
 - unauthorized users are redirected to the GET request of the `login` view function on `server.py`
   - [ ] setup `@login_manager.unauthorized_handler` per [this resource](https://stackoverflow.com/questions/36269485/how-do-i-pass-through-the-next-url-with-flask-and-flask-login)
-  - [x] 10/27: or temporarily route to the homepage
+  - [x] 10/27/21: or temporarily route to the homepage
 
 **General:**
 
@@ -247,7 +285,7 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 <details>
 
 - unauthorized users are redirected to the GET request of the `login` view function on `server.py`
-  - [x] 10/27: temporarily redirect to the homepage
+  - [x] 10/27/21: temporarily redirect to the homepage
 
 </details>
 
@@ -255,12 +293,10 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Task List
 
-#### **General:**
+<details><summary>General</summary>
 
-<details>
-
-- [x] 10/08: setup the server
-- [x] 10/11: setup general navbar (temporary)
+- [x] 10/08/21: setup the server
+- [x] 10/11/21: setup general navbar (temporary)
 - [ ] request API keys
 - [ ] setup API calls in separate directory/layer
 - [ ] request additional datasets (?)
@@ -268,105 +304,116 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - [ ] setup datetime timezone converter for ORM classes (move from maintenance.py)
 </details>
 
-#### **Data model:**
+<details><summary>Data Model</summary>
 
-<details>
-
-- [x] 10/06: create data models, [using dbdiagram.io](https://dbdiagram.io/)
-- [x] 10/06: setup model.py
+- [x] 10/06/21: create data models, [using dbdiagram.io](https://dbdiagram.io/)
+- [x] 10/06/21: setup model.py
 - [ ] add liked/disliked products for each user
   - [ ] sanitize comment section
 - [ ] add irritation scores per ingredient and per product
   - [ ] could use Faker
 - [ ] add ability to commit changes to name and email (user profile page)
-- [x] 10/19: add serialize properties in model.py for Cabinet, Category, Product, User, AM_Routine, and PM_Routine ORM classes (for AJAX calls in JS)
+- [x] 10/19/21: add serialize properties in model.py for Cabinet, Category, Product, User, AM_Routine, and PM_Routine ORM classes (for AJAX calls in JS)
 - [ ] optional: setup database migration with alembic
 </details>
 
-#### **Setup database with actual data:**
+<details><summary>Setup database with actual data</summary>
 
-<details>
-
-- [x] 10/12: setup Kaggle dataset with clean ingredients (CSV file)
+- [x] 10/12/21: setup Kaggle dataset with clean ingredients (CSV file)
 - [ ] setup other dataset
 - [x] look for datasets with sunscreen info
-- [x] 10/24: saw some duplicate ingredient entries, so update code to strip off trailing whitespace
-- [x] 10/25: generate table of number of ingredients by product by category using maintenance.py - [x] 10/22: add write_summary_ingredients_table() and helper functions to maintenance.py - [x] 10/25: fix import statements - db_ingred_summary.csv is within static/files directory - generated in 0.00024s
+- [x] 10/24/21: saw some duplicate ingredient entries, so update code to strip off trailing whitespace
+- [x] 10/25/21: generate table of number of ingredients by product by category using maintenance.py
+- [x] 10/22/21: add write_summary_ingredients_table() and helper functions to maintenance.py
+- [x] 10/25/21: fix import statements
+- db_ingred_summary.csv is within static/files directory
+- generated in 0.00024s
+
 </details>
 
-#### **Webpages:**
+<details><summary>Webpages</summary>
 
-<details>
-
-- [x] 10/09: setup basic homepage
+- [x] 10/09/21: setup basic homepage
   - [ ] reorganize
-- [x] 10/13: setup user settings page
-- [x] 10/13: add questionnaire page (part of user settings for now)
+- [x] 10/13/21: setup user settings page
+- [x] 10/13/21: add questionnaire page (part of user settings for now)
 - [ ] add library to learn more
   - [ ] skin types
   - [ ] skin concerns
   - [ ] specific hazardous ingredients
 - [ ] add page about me and the project
-- [ ] add explanation about CAS ID, INCI code, UNII code for each ingredient - [ ] Californai Safe Cosmetics Program (CSCP): - part of the CA Department of Public Health (CDPH) - [product database](https://cscpsearch.cdph.ca.gov/search/publicsearch) - [example query](https://cscpsearch.cdph.ca.gov/search/detailresult/656) - [ ] International Agency for Research on Cancer (IARC): - part of the World Health Organization (WHO) - [revised preamble with helpful diagram of review steps](https://monographs.iarc.who.int/wp-content/uploads/2019/07/2019-SR-001-Revised_Preamble.pdf) - [ingredient classifications](https://monographs.iarc.who.int/list-of-classifications)
+- [ ] add explanation about CAS ID, INCI code, UNII code for each ingredient
+- [ ] California Safe Cosmetics Program (CSCP):
+- part of the CA Department of Public Health (CDPH)
+- [product database](https://cscpsearch.cdph.ca.gov/search/publicsearch)
+- [example query](https://cscpsearch.cdph.ca.gov/search/detailresult/656)
+- [ ] International Agency for Research on Cancer (IARC):
+  - part of the World Health Organization (WHO)
+  - [revised preamble with helpful diagram of review steps](https://monographs.iarc.who.int/wp-content/uploads/2019/07/2019-SR-001-Revised_Preamble.pdf)
+  - [ingredient classifications](https://monographs.iarc.who.int/list-of-classifications)
+
 </details>
 
-#### **Cabinet and routine functionality:**
+<details><summary>Cabinet and routine functionality</summary>
 
-<details>
-
-- [x] 10/11: display user's cabinet, AM routine, and PM routine
+- [x] 10/11/21: display user's cabinet, AM routine, and PM routine
 - [ ] add products to user's cabinet, AM routine, and/or PM routine
-  - [x] 10/14: to cabinet from search results page
-    - [x] 10/15: checkbox (to add to cabinet) is disabled if the product already exists in the user's cabinet
-  - [x] 10/18: setup generic AM routine page
-    - [x] 10/18: setup draggable/sortable feature
-    - [x] 10/21: send routine info back to the server (AJAX)
-    - [x] 10/19: customize dropdown menu for each product type
+  - [x] 10/14/21: to cabinet from search results page
+    - [x] 10/15/21: checkbox (to add to cabinet) is disabled if the product already exists in the user's cabinet
+  - [x] 10/18/21: setup generic AM routine page
+    - [x] 10/18/21: setup draggable/sortable feature
+    - [x] 10/21/21: send routine info back to the server (AJAX)
+    - [x] 10/19/21: customize dropdown menu for each product type
       - [ ] as indicated in SkincareStep object?
-      - [x] 10/19: add get_category_dict() function to crud
+      - [x] 10/19/21: add get_category_dict() function to crud
     - [ ] optional: for custom routines, will need to add a button to add a new step to the routine (React component?)
-- [ ] save a user's skincare routine to the db - [x] 10/24: update data model diagram - [x] 10/25: implement data model changes to ORM classes - [ ] re-seed the database
+- [ ] save a user's skincare routine to the db
+- [x] 10/24/21: update data model diagram
+- [x] 10/25/21: implement data model changes to ORM classes
+- [ ] re-seed the database
 </details>
 
-#### **Complete questionnaire for user profile:**
+<details><summary>Complete questionnaire for user profile</summary>
 
-<details>
-
-- [x] 10/11: setup user profile page
-- [x] 10/13: complete quick questionnaire for user profile within the settings page
+- [x] 10/11/21: setup user profile page
+- [x] 10/13/21: complete quick questionnaire for user profile within the settings page
 - [ ] add descriptions and images to questionnaire
 - [ ] add question about familiarity with routines/difficulty level - gamify?
 </details>
 
-#### **Setup search:**
+<details><summary>Setup search (query the db)</summary>
 
-<details>
-
-- [x] 10/11: setup search page
-  - [x] 10/09: lookup search tutorials
-  - [x] 10/09: setup basic search using SQL queries
-  - [x] 10/09: setup search using crud functions
+- [x] 10/11/21: setup search page
+  - [x] 10/09/21: lookup search tutorials
+  - [x] 10/09/21: setup basic search using SQL queries
+  - [x] 10/09/21: setup search using crud functions
 - [ ] maybe setup pagination or multiple queries with OFFSET and LIMIT parameters
   - [ ] setup better search by relevance
-  - [x] 10/13: limit search results that are displayed using list concatenation
-  - [x] 10/14: setup ability to use ORDER BY in the query
-- [x] 10/14: consider livesearch options - [x] 10/14: setup `livesearch.js`, but need to serialize or jsonify data... - [x] 10/18: setup serialize property for ORM classes - [x] 10/18: test that results will jsonify from SQLAlchemy query - [x] 10/18: rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query - [x] 10/26: add livesearch capability to old search forms
+  - [x] 10/13/21: limit search results that are displayed using list concatenation
+  - [x] 10/14/21: setup ability to use ORDER BY in the query
+- [x] 10/14/21: consider livesearch options - [x] 10/14/21: setup `livesearch.js`, but need to serialize or jsonify data... - [x] 10/18/21: setup serialize property for ORM classes - [x] 10/18/21: test that results will jsonify from SQLAlchemy query - [x] 10/18/21: rewrite the '/livesearch' route on server.py to use a SQLAlchemy query instead of a SQL query - [x] 10/26/21: add livesearch capability to old search forms
 </details>
 
-#### **Data visualization:**
+<details><summary>Data visualization</summary>
 
-<details>
-
-- [x] 10/19: display summary of database info on homepage (this takes nearly 1 min to load the page!) - [x] 10/20: setup maintenance.py so the calculation of the summary table only happens when new products are loaded into the db - [x] 10/20: save results in db_summary.csv - [x] 10/20: read up on D3 - [x] 10/22: setup CSV reader to display on homepage (now only takes a few seconds!) - [x] 10/22: setup data visualization with D3: horizontal lollipop histogram - [x] 10/22: animate graph - [ ] fix up the animations start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis) - [x] 10/22: add ability to show two graphs with a button click and JS - [ ] add legend to the graph
+- [x] 10/19/21: display summary of database info on homepage (this takes nearly 1 min to load the page!)
+- [x] 10/20/21: setup maintenance.py so the calculation of the summary table only happens when new products are loaded into the db
+- [x] 10/20/21: save results in db_summary.csv
+- [x] 10/20/21: read up on D3
+- [x] 10/22/21: setup CSV reader to display on homepage (now only takes a few seconds!)
+- [x] 10/22/21: setup data visualization with D3: horizontal lollipop histogram
+- [x] 10/22/21: animate graph
+- [ ] fix up the animations start point so the datapoints don't all come from the top left corner (they should come from the x=0 position, at the y-axis)
+- [x] 10/22/21: add ability to show two graphs with a button click and JS
+- [ ] add legend to the graph
 </details>
 
-#### **Design:**
-
-<details><summary>To be completed after code freeze on 10/31.</summary>
+<details><summary>Design: to be completed after code freeze on 10/31</summary>
 
 <details><summary>UX and UI</summary>
 
-- [x] 10/20: navbar - make it stick to the top
+- [x] 10/20/21: navbar
+  - make it stick to the top
 - [ ] redesign dropdown menu
 - [ ] review user flow diagram again
 </details>
@@ -378,9 +425,7 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 </details>
 
-#### **JavScript:**
-
-<details><summary>When setting up production build...</summary>
+<details><summary>JavaScript: when setting up production build in the future...</summary>
 - [ ] switch to the [production build of React](https://www.npmjs.com/package/react) when deploying the application
 </details>
 
@@ -390,7 +435,7 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 <details>
 <summary>Unit Tests</summary>
 
-- [x] 10/09: setup test_crud.py
+- [x] 10/09/21: setup test_crud.py
 - [ ] setup test_model.py
 </details>
 <details>
@@ -418,50 +463,46 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 <details>
 
-- [x] 10/07: setup sample dataset
-  - [x] 10/06: sample_products.csv: 2 dummy products with < 10 ingredients
-  - [x] 10/07: populated tables with no dependencies using sample data
+- [x] 10/07/21: setup sample dataset
+  - [x] 10/06/21: sample_products.csv: 2 dummy products with < 10 ingredients
+  - [x] 10/07/21: populated tables with no dependencies using sample data
     - specifically: concerns, categories, skintypes, skincare_steps
-  - [x] 10/07: generate sample_ingredients database
-- [x] 10/06: test seeding the database for skin_concerns.json
-  - [x] 10/06: seed_db.py
-  - [x] 10/06: started crud.py
-  - [x] 10/07: setup file to load CSV and JSON files into the database
-- [x] 10/07: seed the database - [x] 10/07: products - [x] 10/07: ingredients - [x] 10/07: product_ingredients
+  - [x] 10/07/21: generate sample_ingredients database
+- [x] 10/06/21: test seeding the database for skin_concerns.json
+  - [x] 10/06/21: seed_db.py
+  - [x] 10/06/21: started crud.py
+  - [x] 10/07/21: setup file to load CSV and JSON files into the database
+- [x] 10/07/21: seed the database - [x] 10/07/21: products - [x] 10/07/21: ingredients - [x] 10/07/21: product_ingredients
 </details>
 
 #### **Setup user login:**
 
 <details>
 
-- [x] 10/08: setup login page
-- [x] 10/08: setup new user registration page
-  - [x] 10/09: confirm that this connects to the database
-- [x] 10/11: setup user login system - [x] review: hashing passwords - [x] 10/09: setup basic login system - [x] 10/11: setup login system using flask-login - 10/11: had an issue where the terminal in VS code that was running my server crashed with this error message: - `The terminal process "/bin/bash" terminated with exit code: 1.` - Restarting VS code seemed fix it...?? - [x] 10/11: setup logout function
+- [x] 10/08/21: setup login page
+- [x] 10/08/21: setup new user registration page
+  - [x] 10/09/21: confirm that this connects to the database
+- [x] 10/11/21: setup user login system - [x] review: hashing passwords - [x] 10/09/21: setup basic login system - [x] 10/11/21: setup login system using flask-login - 10/11: had an issue where the terminal in VS code that was running my server crashed with this error message: - `The terminal process "/bin/bash" terminated with exit code: 1.` - Restarting VS code seemed fix it...?? - [x] 10/11/21: setup logout function
 </details>
 
 #### **Display information about a product:**
 
 <details>
 
-- [x] 10/05: setup JSON and CSV files for sample dataset
-  - [x] 10/05: files with general info:
+- [x] 10/05/21: setup JSON and CSV files for sample dataset
+  - [x] 10/05/21: files with general info:
     - about_steps.json
     - maybe more later?
-  - [x] 10/05: files to seed db are listed in `/data/file_list.txt` or `/data/file_list_test2.txt`
-- [x] 10/11: setup product search results page
-- [x] 10/12: setup individual product details page
+  - [x] 10/05/21: files to seed db are listed in `/data/file_list.txt` or `/data/file_list_test2.txt`
+- [x] 10/11/21: setup product search results page
+- [x] 10/12/21: setup individual product details page
 </details>
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 ## Journal:
 
-#### Tue, 10/26:
-
-**HIGHLIGHT:** Livesearch functionality is now connected to updated product search forms.
-
-<details>
+<details><summary>Tue, 10/26/21: livesearch functionality is now connected to updated product search forms</summary>
 
 **accomplishments:**
 
@@ -478,14 +519,13 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 
 **blockers:**
 
-- getting a weird error where the primary key for the `skintypes` table only autoincrements after starting a new interactive session in Python... - despite `skintype_id` values 1-5 being already taken, using `db.session.commit()` for a new test Skintype object resulted in an attempted assignment of `skintype_id=1` - after closing interactive mode, reopening it, and attempting to replicate the problem, it then attempted to assign `skintype_id=2` instead - no other issues adding new entries into other tables
+- getting a weird error where the primary key for the `skintypes` table only autoincrements after starting a new interactive session in Python...
+- despite `skintype_id` values 1-5 being already taken, using `db.session.commit()` for a new test Skintype object resulted in an attempted assignment of `skintype_id=1`
+- after closing interactive mode, reopening it, and attempting to replicate the problem, it then attempted to assign `skintype_id=2` instead
+- no other issues adding new entries into other tables
 </details>
 
-#### Mon, 10/25:
-
-**HIGHLIGHT:** major update to db schema! see commit message for more info
-
-<details>
+<details><summary>Mon, 10/25/21: major update to db schema! see commit message for more info</summary>
 
 **accomplishments:**
 
@@ -509,23 +549,21 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - considering Google search API, but limited to 100 API calls per day or 1000 calls for $5
 </details>
 
-#### Wed, 10/20:
-
-**HIGHLIGHT:**
-
-<details>
+<details><summary>Wed, 10/20: add db summary statistics to the homepage</summary>
 
 **accomplishments:**
 
 - looked up D3 tutorials
 - used `npm install` command for D3, semantic-ui and their dependencies
   - blocked!!
+- added functions to get the current UTC datetime and to convert to Pacific Time using the `pytz` library
+- db summary statistics are calculated, populate a CSV file, and are displayed in a table on the homepage! will refactor, see commit message for more info.
 
 **to do:**
 
 - save draggable and snappable skincare steps for skincare routines
 - connect livesearch to our search forms
-- maybe serialize property for Product ORM class in model.py
+- add serialize property for the Product ORM class in model.py
 
 **blockers:**
 
@@ -533,11 +571,7 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - setting up D3.js using npm
 </details>
 
-#### Mon, 10/18:
-
-**HIGHLIGHT:** Livesearch now works!
-
-<details>
+<details><summary>Mon, 10/18: livesearch now works!</summary>
 
 **accomplishments:**
 
@@ -551,11 +585,7 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - using jQuery with AJAX, it is expecting a valid response from the server to display the db query: - valid: "a string, dict, tuple, Response instance, or WSGI callable" - invalid (what the server was sending): a Row
 </details>
 
-#### Weekend, 10/16-10/17:
-
-**HIGHLIGHT:** Now I understand how difficult it is to manage a dev setup... I'll be using Docker for the rest of project development!
-
-<details>
+<details><summary>Weekend, 10/16-10/17: now I understand how difficult it is to manage a dev setup... I'll be using Docker for the rest of project development!</summary>
 
 **accomplishments:**
 
@@ -575,11 +605,9 @@ _[Click here](#the-skincare-routine-helper) to go back to the top._
 - look into data visualization ideas
 </details>
 
-#### Fri, 10/15:
+<details><summary>Fri, 10/15: recorded a short video of my current project, walking through MVP features!</summary>
 
-**HIGHLIGHT:** Recorded a short video of my current project, walking through MVP features!
-
-<details>
+Video of project status after 1st 2-week sprint: https://youtu.be/PRZveUjZPVw
 
 **accomplishments:**
 Recorded a short video of my current project, walking through MVP features and more:
@@ -600,11 +628,10 @@ Recorded a short video of my current project, walking through MVP features and m
 - moved all indexing related changes to ORM classes in model.py to **git branch iss01** - too many errors, possibly due to Docker container setup... - will look into using my own environment instead - also moved TimestampMixin to this branch as well
 </details>
 
-#### Thu, 10/14:
+<details><summary>Thu, 10/14: added products to each user's cabinet! Downloaded UNII codes for ingredient identification
+</summary>
 
-**HIGHLIGHT:** Added products to each user's cabinet! Downloaded [UNII codes](https://fdasis.nlm.nih.gov/srs/jsp/srs/uniiListDownload.jsp) for ingredient identification.
-
-<details>
+UNII codes: https://fdasis.nlm.nih.gov/srs/jsp/srs/uniiListDownload.jsp
 
 **accomplishments:**
 
@@ -636,12 +663,8 @@ Recorded a short video of my current project, walking through MVP features and m
 - can I set a foreign key as an index property?
 </details>
 
-#### Wed, 10/13:
-
-**HIGHLIGHT:** finished MVP!
-
 <details>
-    <summary>Click to expand!</summary>
+    <summary>Wed, 10/13: finished MVP! (2 days ahead of schedule!)</summary>
 
 **accomplishments:**
 
@@ -664,12 +687,8 @@ Recorded a short video of my current project, walking through MVP features and m
 
 </details>
 
-#### Tue, 10/12:
-
-**HIGHLIGHT:** nearly finished MVP!
-
 <details>
-<summary>Click to expand!</summary>
+<summary>Tue, 10/12: nearly finished MVP!</summary>
 
 **accomplishments:**
 
@@ -707,5 +726,42 @@ Recorded a short video of my current project, walking through MVP features and m
 Note: I keep comitting to my repo starting with `Refactor code` and I could probably be more descriptive... Unless it's actually just a minor change.
 
 </details>
+
+<details><summary>Wed, 10/6/21: submitted revised data model for new idea - the skincare routine helper! (actually submitted multiple revisions...)</summary>
+
+**Reasons for 2nd revision:**
+
+1. I included primary keys for the AM_routine and PM_routine tables
+2. I added 5 new fields to the products table to reflect a new dataset that I want to include. This new dataset has 5 additional columns to store boolean values on whether a product is good for various skin types (see below)
+
+</details>
+
+<details><summary>10/6 image: updated products table</summary>
+
+![Updated products table](static/img/for_readme/1006-products_table_updated.png)
+
+</details>
+
+<details><summary>10/6 image: v2 of data model/schema</summary>
+
+![Revised data model for the skincare routine helper project (version 2)](static/img/for_readme/schema-1006-v2.png)
+
+</details>
+
+##
+
+<details><summary>Tue, 10/5/21: nevermind, decided to change my project idea</summary>
+
+The old project idea would involve too much manual task list curation before I would implement any fun components or features (maybe in version 2.0 or even 3.0). It also doesn't feel as satisfying as the possibility of getting to work with more data analysis with this new idea.
+
+**next steps:**
+
+- begin working on data model draft for the new project idea tomorrow
+
+</details>
+
+Mon, 10/4/21: project season has begun!
+
+Fri, 10/1/21: submitted data model (working draft) for task list app
 
 _[Click here](#the-skincare-routine-helper) to go back to the top._
